@@ -25,7 +25,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { reducer } from '../utils/reducers/formReducers';
 import { validateInput } from '../utils/actions/formActions';
 
-const baseUrl = 'http://192.168.0.124:8000';
+const baseUrl = 'https://blupay.zakedebt.co.tz';
 
 type NavigationProps = {
   navigate: (screen: string, params?: any) => void;
@@ -44,15 +44,11 @@ const Signup = () => {
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setChecked] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const emailRef = useRef<TextInput>(null);
-
+  // Show any backend error via Alert:
   useEffect(() => {
-    if (error) {
-      Alert.alert('An error occurred', error);
-    }
-  }, [error]);
+    // no-op here, we handle errors inline
+  }, []);
 
   const inputChangedHandler = useCallback((inputId: string, inputValue: string) => {
     const result = validateInput(inputId, inputValue);
@@ -66,7 +62,6 @@ const Signup = () => {
     }
 
     setIsLoading(true);
-
     const payload = {
       email: formState.inputValues.email,
       password: formState.inputValues.password,
@@ -79,14 +74,19 @@ const Signup = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
       const data = await response.json();
+      console.log('Register response:', response.status, data);
 
-      if (!response.ok) {
-        Alert.alert('Registration Error', data.detail || 'Something went wrong');
-      } else {
-        Alert.alert('Success', data.message || 'Registered successfully');
+      if (response.ok) {
+        // ✅ Show success message from API
+        Alert.alert('Success', data.message);
         navigate('ReasonForUsingAllPay', { email: formState.inputValues.email });
+      } else {
+        // ❌ Show error message from API (or full JSON if missing)
+        Alert.alert(
+          'Registration Error',
+          data.message ?? JSON.stringify(data, null, 2)
+        );
       }
     } catch (err: any) {
       Alert.alert('Network Error', err.message || 'Unable to connect to the server');
@@ -148,9 +148,6 @@ const Signup = () => {
                 By continuing you accept our Privacy Policy
               </Text>
             </View>
-            <Text style={styles.debugText}>
-              Terms Accepted: {isChecked ? 'True' : 'False'}
-            </Text>
           </View>
 
           <Button title="Sign Up" filled onPress={registerHandler} style={styles.button} />
@@ -178,81 +175,27 @@ const Signup = () => {
 };
 
 const styles = StyleSheet.create({
-  area: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-  },
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: COLORS.white,
-  },
-  logo2: {
-    width: 100,
-    height: 100,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Urbanist Bold',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  checkBoxContainer: {
-    marginVertical: 12,
-    width: '100%',
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginVertical: 8,
-  },
-  checkbox: {
-    marginRight: 8,
-  },
-  privacy: {
-    fontSize: 14,
-    fontFamily: 'Urbanist Regular',
-  },
-  debugText: {
-    fontSize: 12,
-    color: COLORS.gray,
-    marginTop: 4,
-  },
-  socialBtnContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  area: { flex: 1, backgroundColor: COLORS.white },
+  container: { flex: 1, padding: 16, backgroundColor: COLORS.white },
+  logo2: { width: 100, height: 100 },
+  logoContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: 32 },
+  title: { fontSize: 28, fontFamily: 'Urbanist Bold', textAlign: 'center', marginBottom: 12 },
+  checkBoxContainer: { marginVertical: 12, width: '100%' },
+  checkboxRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
+  checkbox: { marginRight: 8 },
+  privacy: { fontSize: 14, fontFamily: 'Urbanist Regular' },
+  socialBtnContainer: { flexDirection: 'row', justifyContent: 'center' },
   bottomContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 18,
     position: 'absolute',
     bottom: 12,
-    right: 0,
     left: 0,
+    right: 0,
   },
-  bottomLeft: {
-    fontSize: 14,
-    fontFamily: 'Urbanist Regular',
-  },
-  bottomRight: {
-    fontSize: 16,
-    fontFamily: 'Urbanist Medium',
-    color: COLORS.primary,
-  },
-  button: {
-    marginVertical: 6,
-    width: SIZES.width - 32,
-    borderRadius: 30,
-  },
+  bottomLeft: { fontSize: 14, fontFamily: 'Urbanist Regular' },
+  bottomRight: { fontSize: 16, fontFamily: 'Urbanist Medium', color: COLORS.primary },
+  button: { marginVertical: 6, width: SIZES.width - 32, borderRadius: 30 },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.2)',

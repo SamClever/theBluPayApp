@@ -11,151 +11,169 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeProvider';
-import { COLORS, SIZES } from '../constants';
+import { COLORS, SIZES, images } from '../constants';
 import Header from '../components/Header';
 import Button from '../components/Button';
-import { images } from '../constants';
 
 type Nav = {
   navigate: (screen: string) => void;
 };
 
-const baseUrl = 'http://192.168.0.124:8000';
+const baseUrl = 'https://blupay.zakedebt.co.tz';
 
-const ReasonForUsingAllPay = () => {
+const ReasonForUsingAllPay: React.FC = () => {
   const { navigate } = useNavigation<Nav>();
   const route = useRoute();
-  const { email } = route.params as { email: string };
+  const { email = '' } = route.params as { email?: string };
   const { colors, dark } = useTheme();
 
-  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(Array(6).fill(''));
   const inputs = useRef<Array<TextInput | null>>([]);
-
-  const [timer, setTimer] = useState<number>(60);
-  const [resendAvailable, setResendAvailable] = useState<boolean>(false);
+  const [timer, setTimer] = useState(60);
+  const [resendAvailable, setResendAvailable] = useState(false);
 
   useEffect(() => {
     if (timer === 0) {
       setResendAvailable(true);
       return;
     }
-
-    const countdown = setInterval(() => {
-      setTimer(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(countdown);
+    const id = setInterval(() => setTimer(t => t - 1), 1000);
+    return () => clearInterval(id);
   }, [timer]);
 
-  const handleChange = (text: string, index: number) => {
-    if (/^\d$/.test(text) || text === '') {
-      const updatedOtp = [...otp];
-      updatedOtp[index] = text;
-      setOtp(updatedOtp);
-
-      if (text && index < inputs.current.length - 1) {
-        inputs.current[index + 1]?.focus();
-      }
-      if (!text && index > 0) {
-        inputs.current[index - 1]?.focus();
-      }
+  const handleChange = (text: string, idx: number) => {
+    if (/^\d?$/.test(text)) {
+      const clone = [...otp];
+      clone[idx] = text;
+      setOtp(clone);
+      if (text && idx < 5) inputs.current[idx + 1]?.focus();
+      else if (!text && idx > 0) inputs.current[idx - 1]?.focus();
     }
   };
 
-  const handleResendCode = () => {
-    setOtp(['', '', '', '', '', '']);
+  const handleResend = () => {
+    setOtp(Array(6).fill(''));
     setTimer(60);
     setResendAvailable(false);
     inputs.current[0]?.focus();
-    // Optional: Call your resend OTP API
+    // TODO: call resend-OTP API here
   };
 
-  const handleVerifyOtp = async () => {
-    const otpCode = otp.join('');
-    if (otpCode.length < 6) {
-      Alert.alert('Invalid OTP', 'Please enter all 6 digits of the code.');
-      return;
+  const handleVerify = async () => {
+    const code = otp.join('');
+    if (code.length < 6) {
+      return Alert.alert('Invalid OTP', 'Please enter all 6 digits.');
     }
 
     try {
-      const response = await fetch(`${baseUrl}/userAuth/verify-registration-otp/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp_code: otpCode }),
-      });
+      const resp = await fetch(
+        `${baseUrl}/userAuth/verify-registration-otp/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, otp_code: code }),
+        }
+      );
+      const data = await resp.json();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        Alert.alert('OTP Verification Failed', data.detail || 'The code you entered is incorrect.');
-        return;
+      if (!resp.ok) {
+        return Alert.alert(
+          'Verification Failed',
+          data.detail || 'Incorrect code.'
+        );
       }
 
-      Alert.alert('Success', data.message || 'OTP verified successfully!');
+      // ── SAVE JWT UNDER "userToken" ─────────────────────────
+      await AsyncStorage.setItem('userToken', data.access_token);
+      console.log('🔥 Saved token:', data.access_token);
+
+      Alert.alert('Success', data.message || 'OTP verified!');
       navigate('VerifyYourIdentity');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Something went wrong.');
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Something went wrong.');
     }
   };
 
-  const formatTimer = (seconds: number) => {
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  const format = (s: number) => {
+    const m = Math.floor(s / 60),
+      sec = s % 60;
+    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
   };
 
   return (
-    <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Header title="Verify OTP" />
-        <ScrollView style={{ marginVertical: 54 }} showsVerticalScrollIndicator={false}>
+
+        <ScrollView
+          style={{ marginVertical: 54 }}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
-            <Image source={images.logo} resizeMode="contain" style={styles.logo} />
+            <Image
+              source={images.logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
 
-          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.black }]}>
+          <Text
+            style={[
+              styles.title,
+              { color: dark ? COLORS.white : COLORS.black },
+            ]}>
             Enter the 6-digit code sent to your email
           </Text>
 
           <View style={styles.otpContainer}>
-            {otp.map((digit, index) => (
+            {otp.map((digit, i) => (
               <TextInput
-                key={index}
-                ref={ref => (inputs.current[index] = ref)}
+                key={i}
+                ref={r => (inputs.current[i] = r)}
                 style={[
                   styles.otpBox,
                   {
                     backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                    color: dark ? COLORS.white : COLORS.black,
                     borderColor: dark ? COLORS.white : COLORS.black,
+                    color: dark ? COLORS.white : COLORS.black,
                   },
                 ]}
                 keyboardType="number-pad"
                 maxLength={1}
                 value={digit}
-                onChangeText={text => handleChange(text, index)}
+                onChangeText={t => handleChange(t, i)}
                 textAlign="center"
                 autoCorrect={false}
               />
             ))}
           </View>
 
-          <Text style={[styles.timerText, { color: dark ? COLORS.white : COLORS.black }]}>
+          <Text
+            style={[
+              styles.timerText,
+              { color: dark ? COLORS.white : COLORS.black },
+            ]}>
             {resendAvailable
               ? "Didn't receive the code?"
-              : `Code expires in ${formatTimer(timer)}`}
+              : `Code expires in ${format(timer)}`}
           </Text>
 
           {resendAvailable && (
-            <TouchableOpacity onPress={handleResendCode}>
+            <TouchableOpacity onPress={handleResend}>
               <Text style={styles.resendLink}>Resend Code</Text>
             </TouchableOpacity>
           )}
         </ScrollView>
 
         <View style={styles.bottomContainer}>
-          <Button title="Continue" filled style={styles.button} onPress={handleVerifyOtp} />
+          <Button
+            title="Continue"
+            filled
+            style={styles.button}
+            onPress={handleVerify}
+          />
         </View>
       </View>
     </SafeAreaView>
@@ -163,14 +181,14 @@ const ReasonForUsingAllPay = () => {
 };
 
 const styles = StyleSheet.create({
-  area: { flex: 1, backgroundColor: COLORS.white },
-  container: { flex: 1, padding: 16, backgroundColor: COLORS.white },
+  area: { flex: 1 },
+  container: { flex: 1, padding: 16 },
+  logoContainer: { alignItems: 'center', marginVertical: 32 },
   logo: { width: 100, height: 100, tintColor: COLORS.primary },
-  logoContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: 32 },
   title: {
+    textAlign: 'center',
     fontSize: 24,
     fontFamily: 'Urbanist Bold',
-    textAlign: 'center',
     marginBottom: 20,
   },
   otpContainer: {
@@ -189,32 +207,24 @@ const styles = StyleSheet.create({
   },
   timerText: {
     textAlign: 'center',
+    marginTop: 16,
     fontSize: 14,
     fontFamily: 'Urbanist Regular',
-    marginTop: 16,
   },
   resendLink: {
     textAlign: 'center',
-    color: COLORS.primary,
-    fontSize: 14,
-    fontFamily: 'Urbanist Medium',
     marginTop: 4,
-  },
-  button: {
-    marginVertical: 6,
-    width: SIZES.width - 32,
-    borderRadius: 30,
+    fontSize: 14,
+    color: COLORS.primary,
   },
   bottomContainer: {
     position: 'absolute',
     bottom: 28,
-    right: 0,
     left: 0,
-    flexDirection: 'row',
+    right: 0,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
   },
+  button: { width: SIZES.width - 32, borderRadius: 30 },
 });
 
 export default ReasonForUsingAllPay;
