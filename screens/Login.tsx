@@ -13,6 +13,7 @@ import OrSeparator from '../components/OrSeparator';
 import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface InputValues {
   email: string
@@ -42,12 +43,8 @@ const initialState: FormState = {
   formIsValid: false,
 }
 
-type Nav = {
-  navigate: (value: string) => void
-}
-
 const Login = () => {
-  const { navigate } = useNavigation<Nav>();
+  const navigation = useNavigation<any>();
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
   const [error, setError] = useState(null);
   const [isChecked, setChecked] = useState(false);
@@ -82,6 +79,58 @@ const Login = () => {
   // Implementing google authentication
   const googleAuthHandler = () => {
     console.log("Google Authentication")
+  };
+
+  // Add login handler
+  const handleLogin = async () => {
+    if (!formState.inputValues.email || !formState.inputValues.password) {
+      Alert.alert('Error', 'Please enter both email and password.');
+      return;
+    }
+    try {
+      const response = await fetch('https://blupay.zakedebt.co.tz/userAuth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formState.inputValues.email,
+          password: formState.inputValues.password,
+        }),
+      });
+      const data = await response.json();
+      console.log('Login API status:', response.status);
+      console.log('Login API data:', data);
+      if (response.ok && data.access_token) {
+        // Save token for later API calls (use userToken for consistency)
+        await AsyncStorage.setItem('userToken', data.access_token);
+        Alert.alert('Success', 'Login successful!');
+        // Only navigate to Home or dashboard if login is fully complete (not OTP flow)
+      } else if (
+        data?.message &&
+        (data.message.toLowerCase().includes('otp code sent') || data.message.toLowerCase().includes('verify to complete login'))
+      ) {
+        // If backend says OTP sent, redirect to LoginOtp after alert
+        Alert.alert(
+          'Login Info',
+          data.message,
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('LoginOtp', { email: formState.inputValues.email }),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          'Login Error',
+          data?.message || data?.detail || JSON.stringify(data, null, 2) || 'Login failed.'
+        );
+      }
+    } catch (error) {
+      console.log('Login API error:', error);
+      Alert.alert('Error', 'An error occurred. Please try again.');
+    }
   };
 
   return (
@@ -144,11 +193,12 @@ const Login = () => {
           <Button
             title="Login"
             filled
-            onPress={() => navigate("Home")}
+            onPress={handleLogin}
             style={styles.button}
           />
           <TouchableOpacity
-            onPress={() => navigate("ForgotPasswordMethods")}>
+            onPress={() => navigation.navigate("ForgotPasswordMethods")}
+          >
             <Text style={styles.forgotPasswordBtnText}>Forgot the password?</Text>
           </TouchableOpacity>
           <View>
@@ -175,7 +225,8 @@ const Login = () => {
             color: dark ? COLORS.white : COLORS.black
           }]}>Don't have an account ?</Text>
           <TouchableOpacity
-            onPress={() => navigate("Signup")}>
+            onPress={() => navigation.navigate("Signup")}
+          >
             <Text style={styles.bottomRight}>{"  "}Sign Up</Text>
           </TouchableOpacity>
         </View>

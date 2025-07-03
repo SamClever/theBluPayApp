@@ -26,7 +26,7 @@ const HomeScreen = () => {
       <View style={styles.headerContainer}>
         <View style={styles.viewLeft}>
           <Image
-            source={images.user1}
+            source={images.user2}
             resizeMode='contain'
             style={styles.userIcon}
           />
@@ -34,7 +34,7 @@ const HomeScreen = () => {
             <Text style={styles.greeeting}>Good Morning👋</Text>
             <Text style={[styles.title, {
               color: dark ? COLORS.white : COLORS.greyscale900
-            }]}>Andrew Ainsley</Text>
+            }]}>SamClever</Text>
           </View>
         </View>
         <View style={styles.viewRight}>
@@ -66,8 +66,8 @@ const HomeScreen = () => {
       <View style={styles.cardContainer}>
         <View style={styles.topCardContainer}>
           <View>
-            <Text style={styles.username}>Andrew Ainsley</Text>
-            <Text style={styles.cardNum}>.... .... .... 3779</Text>
+            <Text style={styles.username}>Salum M Salum</Text>
+            <Text style={styles.cardNum}>.... .... .... 7919</Text>
           </View>
           <Image
             source={icons.mastercard as ImageSourcePropType}

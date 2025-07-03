@@ -70,6 +70,7 @@ import Profile from "./Profile";
 import Fingerprint from "./Fingerprint";
 import CreateNewPassword from "./CreateNewPassword";
 import SettingsPayment from "./SettingsPayment";
+import LoginOtp from "./LoginOtp";
 
 export {
     Onboarding1,
@@ -143,5 +144,6 @@ export {
     Profile,
     Fingerprint,
     CreateNewPassword,
-    SettingsPayment
+    SettingsPayment,
+    LoginOtp
 }
