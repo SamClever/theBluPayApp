@@ -5,12 +5,13 @@ import { ScrollView } from 'react-native-virtualized-view';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { useTheme } from '../theme/ThemeProvider';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { Image } from 'react-native';
 import { COLORS, SIZES, icons, images } from '../constants';
 import { ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from 'react-native-image-picker';
 import SettingsItem from '../components/SettingsItem';
 import Button from '../components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Nav = {
   navigate: (value: string) => void
@@ -19,7 +20,48 @@ type Nav = {
 const Profile = () => {
   const refRBSheet = useRef<any>(null);
   const { dark, colors, setScheme } = useTheme();
-  const { navigate } = useNavigation<Nav>();
+  const navigation = useNavigation<Nav>();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setError(null);
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            })
+          );
+          throw new Error('Session expired. Please log in again.');
+        }
+        const response = await fetch('https://theblupayapi.com/Account/dashboard/', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch user profile');
+        const data = await response.json();
+        setUser({
+          First_name: data.kyc?.First_name,
+          Last_name: data.kyc?.Last_name,
+          email: data.kyc?.email,
+          profile_image: data.kyc?.profile_image,
+        });
+      } catch (e: any) {
+        setUser(null);
+        setError(e.message || 'Failed to load user profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
   /**
    * Render header
@@ -53,46 +95,30 @@ const Profile = () => {
    * Render User Profile
    */
   const renderProfile = () => {
-    const [image, setImage] = useState(images.user1)
-
-    // Image Profile handler
-    const pickImage = () => {
-      const options: ImageLibraryOptions = {
-        mediaType: 'photo',
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      };
-
-      launchImageLibrary(options, (response: ImagePickerResponse) => {
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        } else if (response.errorMessage) {
-          console.log('Image picker error: ', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          let imageUri = response.assets[0].uri;
-          setImage({ uri: imageUri });
-        }
-      });
-    };
-
-
+    if (loading) {
+      return <Text style={{ textAlign: 'center', marginVertical: 20 }}>Loading...</Text>;
+    }
+    if (error) {
+      return <Text style={{ color: 'red', textAlign: 'center', marginVertical: 20 }}>{error}</Text>;
+    }
+    if (!user) {
+      return <Text style={{ textAlign: 'center', marginVertical: 20 }}>No user data found.</Text>;
+    }
     return (
       <View style={styles.profileContainer}>
         <View>
           <Image
-            source={image}
+            source={user.profile_image ? { uri: user.profile_image.startsWith('http') ? user.profile_image : `https://theblupayapi.com${user.profile_image}` } : images.user1}
             resizeMode='cover'
             style={styles.avatar}
           />
-          <TouchableOpacity
-            onPress={pickImage}
-            style={styles.picContainer}>
-            <MaterialIcons name="edit" size={16} color={COLORS.white} />
-          </TouchableOpacity>
         </View>
-        <Text style={[styles.title, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>Nathalie Erneson</Text>
-        <Text style={[styles.subtitle, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>nathalie_erneson@gmail.com</Text>
+        <Text style={[styles.title, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>
+          {user.First_name || ''} {user.Last_name || ''}
+        </Text>
+        <Text style={[styles.subtitle, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>
+          {user.email || ''}
+        </Text>
       </View>
     )
   }
@@ -112,35 +138,35 @@ const Profile = () => {
         <SettingsItem
           icon={icons.bell3}
           name="My Notification"
-          onPress={() => navigate("Notifications")}
+          onPress={() => navigation.navigate("Notifications")}
         />
         <SettingsItem
           icon={icons.location2Outline}
           name="Address"
-          onPress={() => navigate("Address")}
+          onPress={() => navigation.navigate("Address")}
         />
         <SettingsItem
           icon={icons.userOutline}
           name="Edit Profile"
-          onPress={() => navigate("EditProfile")}
+          onPress={() => navigation.navigate("EditProfile")}
         />
         <SettingsItem
           icon={icons.bell2}
           name="Notification"
-          onPress={() => navigate("SettingsNotifications")}
+          onPress={() => navigation.navigate("SettingsNotifications")}
         />
         <SettingsItem
           icon={icons.wallet2Outline}
           name="Payment"
-          onPress={() => navigate("SettingsPayment")}
+          onPress={() => navigation.navigate("SettingsPayment")}
         />
         <SettingsItem
           icon={icons.shieldOutline}
           name="Security"
-          onPress={() => navigate("SettingsSecurity")}
+          onPress={() => navigation.navigate("SettingsSecurity")}
         />
         <TouchableOpacity
-          onPress={() => navigate("SettingsLanguage")}
+          onPress={() => navigation.navigate("SettingsLanguage")}
           style={styles.settingsItemContainer}>
           <View style={styles.leftContainer}>
             <Image
@@ -195,17 +221,17 @@ const Profile = () => {
         <SettingsItem
           icon={icons.lockedComputerOutline}
           name="Privacy Policy"
-          onPress={() => navigate("SettingsPrivacyPolicy")}
+          onPress={() => navigation.navigate("SettingsPrivacyPolicy")}
         />
         <SettingsItem
           icon={icons.infoCircle}
           name="Help Center"
-          onPress={() => navigate("SettingsHelpCenter")}
+          onPress={() => navigation.navigate("SettingsHelpCenter")}
         />
         <SettingsItem
           icon={icons.people4}
           name="Invite Friends"
-          onPress={() => navigate("SettingsInviteFriends")}
+          onPress={() => navigation.navigate("SettingsInviteFriends")}
         />
         <TouchableOpacity
           onPress={() => refRBSheet.current.open()}
@@ -226,6 +252,33 @@ const Profile = () => {
       </View>
     )
   }
+  const handleLogout = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      await fetch('https://theblupayapi.com/userAuth/logout/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+      await AsyncStorage.removeItem('token');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        })
+      );
+    } catch (e) {
+      console.warn('Logout error:', e);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        })
+      );
+    }
+  };
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -278,7 +331,7 @@ const Profile = () => {
             title="Yes, Logout"
             filled
             style={styles.logoutButton}
-            onPress={() => refRBSheet.current.close()}
+            onPress={handleLogout}
           />
         </View>
       </RBSheet>

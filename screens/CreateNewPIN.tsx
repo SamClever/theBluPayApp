@@ -42,7 +42,7 @@ const CreateNewPIN = () => {
         Alert.alert('Error', 'Authentication token not found. Please login again.');
         return;
       }
-      const response = await fetch('https://blupay.zakedebt.co.tz/Account/account/set-pin/', {
+      const response = await fetch('https://theblupayapi.com/Account/account/set-pin/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

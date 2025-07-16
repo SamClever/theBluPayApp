@@ -1,65 +1,31 @@
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, ImageSourcePropType } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
-import { AnalyticsMonthV1, AnalyticsQuarterV1, AnalyticsYearToYearV1, AnalyticsYearV1 } from '../tabs';
-import { useNavigation } from '@react-navigation/native';
+import { ScrollView } from 'react-native-virtualized-view';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
-import { COLORS, SIZES, icons, images } from '../constants';
-import { Image } from 'react-native';
+import { COLORS, SIZES, icons } from '../constants';
+import { InOutPaymentMyHistory, InOutPaymentRequested, InOutPaymentScheduled } from '../tabs';
 
-const renderScene = SceneMap({
-  first: AnalyticsMonthV1,
-  second: AnalyticsQuarterV1,
-  third: AnalyticsYearV1,
-  fourth: AnalyticsYearToYearV1
-});
+type Tab = 'History' | 'Scheduled' | 'Requested';
 
-type Nav = {
-  navigate: (value: string) => void
-}
-
-interface Route {
-  key: string;
-  title: string;
-}
-
-const Statistics = () => {
-  const { navigate } = useNavigation<Nav>();
+const InOutPaymentHistory = () => {
   const { colors, dark } = useTheme();
-  const layout = useWindowDimensions();
-  const [index, setIndex] = React.useState(0);
+  const navigation = useNavigation<NavigationProp<any>>();
+  const [selectedTab, setSelectedTab] = useState<Tab>('History');
 
-  const [routes] = React.useState([
-    { key: 'first', title: 'Month' },
-    { key: 'second', title: 'Quarter' },
-    { key: 'third', title: 'Year' },
-    { key: 'fourth', title: 'YTY' }
-  ]);
-
-  const renderTabBar = (props: any) => (
-    <TabBar
-      {...props}
-      indicatorStyle={{
-        backgroundColor: COLORS.primary,
-      }}
-      style={{
-        backgroundColor: colors.background,
-      }}
-      activeColor={COLORS.primary}
-      inactiveColor={dark ? COLORS.white : COLORS.greyscale900}
-      renderLabel={({ route, focused }: { route: Route; focused: boolean }) => (
-        <Text style={[{
-          color: focused ? COLORS.primary : 'gray',
-          fontSize: 16,
-          fontFamily: "Urbanist Bold"
-        }]}>
-          {route.title}
-        </Text>
-      )}
-    />
-  );
-
+  const renderContent = () => {
+    switch (selectedTab) {
+      case 'History':
+        return <InOutPaymentMyHistory />;
+      case 'Scheduled':
+        return <InOutPaymentScheduled />;
+      case 'Requested':
+        return <InOutPaymentRequested />;
+      default:
+        return null;
+    }
+  };
   /**
    * Render header
    */
@@ -67,18 +33,22 @@ const Statistics = () => {
     return (
       <View style={styles.headerContainer}>
         <View style={styles.headerLeft}>
-          <Image
-            source={images.logo as ImageSourcePropType}
-            resizeMode='contain'
-            style={styles.headerLogo}
-          />
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}>
+            <Image
+              source={icons.back as ImageSourcePropType}
+              resizeMode='contain'
+              style={[styles.headerLogo, { 
+                tintColor: dark? COLORS.white : COLORS.greyscale900
+              }]}
+            />
+          </TouchableOpacity>
           <Text style={[styles.headerTitle, {
             color: dark ? COLORS.white : COLORS.greyscale900
-          }]}>Analytics</Text>
+          }]}>In & Out Payment</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity
-            onPress={() => navigate("InvoiceSettings")}>
+          <TouchableOpacity>
             <Image
               source={icons.moreCircle as ImageSourcePropType}
               resizeMode='contain'
@@ -96,13 +66,30 @@ const Statistics = () => {
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {renderHeader()}
-        <TabView
-          navigationState={{ index, routes }}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: layout.width }}
-          renderTabBar={renderTabBar}
-        />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.viewContainer}>
+            <View style={[styles.tabContainer, { 
+              backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
+              {['History', 'Scheduled', 'Requested'].map((tab) => (
+                <TouchableOpacity
+                  key={tab}
+                  onPress={() => setSelectedTab(tab as Tab)}
+                  style={[
+                    styles.tabButton,
+                    selectedTab === tab && styles.activeTabButton,
+                  ]}>
+                  <Text style={[
+                    styles.tabButtonText,
+                    selectedTab === tab && styles.activeTabButtonText,
+                  ]}>{tab}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.contentContainer}>
+              {renderContent()}
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   )
@@ -132,7 +119,7 @@ const styles = StyleSheet.create({
   headerLogo: {
     height: 24,
     width: 24,
-    tintColor: COLORS.primary
+    tintColor: COLORS.greyscale900
   },
   headerTitle: {
     fontSize: 22,
@@ -155,6 +142,42 @@ const styles = StyleSheet.create({
     tintColor: COLORS.black,
     marginLeft: 12
   },
+  viewContainer: {
+    flex: 1,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: COLORS.white,
+    paddingVertical: 10,
+  },
+  tabButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: COLORS.primary
+  },
+  activeTabButton: {
+    backgroundColor: COLORS.primary,
+  },
+  tabButtonText: {
+    color: COLORS.primary,
+    fontSize: 16,
+    fontFamily: "Urbanist Bold"
+  },
+  activeTabButtonText: {
+    color: COLORS.white,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentText: {
+    fontSize: 18,
+    color: COLORS.black,
+  },
 })
 
-export default Statistics
+export default InOutPaymentHistory

@@ -25,7 +25,7 @@ type Nav = {
   navigate: (screen: string, params?: any) => void;
 };
 
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 const ProofOfResidency: React.FC = () => {
   const { navigate } = useNavigation<Nav>();

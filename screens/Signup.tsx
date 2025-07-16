@@ -25,7 +25,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { reducer } from '../utils/reducers/formReducers';
 import { validateInput } from '../utils/actions/formActions';
 
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 type NavigationProps = {
   navigate: (screen: string, params?: any) => void;

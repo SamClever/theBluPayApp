@@ -231,7 +231,7 @@ const FillYourProfile = () => {
       };
       // Get token from AsyncStorage
       const token = await AsyncStorage.getItem('userToken');
-      const response = await fetch('https://blupay.zakedebt.co.tz/Account/kyc/step4/', {
+      const response = await fetch('https://theblupayapi.com/Account/kyc/step4/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -532,6 +532,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 9999
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    tintColor: COLORS.primary
   }
 })
 

@@ -20,7 +20,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { COLORS, icons, illustrations } from '../constants';
 
 // 1️⃣ Pull this URL from one place
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 // Navigation params (extend as needed)
 type RootStackParamList = {

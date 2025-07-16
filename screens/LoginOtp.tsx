@@ -21,7 +21,7 @@ type Nav = {
   navigate: (screen: string, params?: any) => void;
 };
 
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 const LoginOtp: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -86,8 +86,8 @@ const LoginOtp: React.FC = () => {
         );
       }
 
-      // ── SAVE JWT UNDER "userToken" ─────────────────────────
-      await AsyncStorage.setItem('userToken', data.access_token);
+      // ── SAVE JWT UNDER "token" ─────────────────────────
+      await AsyncStorage.setItem('token', data.access_token);
       console.log('🔥 Saved token:', data.access_token);
 
       Alert.alert('Success', data.message || 'OTP verified!');

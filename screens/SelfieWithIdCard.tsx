@@ -10,7 +10,7 @@ import Header from '../components/Header';
 import { launchCamera, CameraOptions, Asset } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 type Nav = {
   navigate: (value: string) => void

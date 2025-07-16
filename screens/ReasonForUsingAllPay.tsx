@@ -21,7 +21,7 @@ type Nav = {
   navigate: (screen: string) => void;
 };
 
-const baseUrl = 'https://blupay.zakedebt.co.tz';
+const baseUrl = 'https://theblupayapi.com';
 
 const ReasonForUsingAllPay: React.FC = () => {
   const { navigate } = useNavigation<Nav>();

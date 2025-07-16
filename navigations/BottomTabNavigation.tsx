@@ -56,7 +56,7 @@ const BottomTabNavigation = () => {
                 }}
             />
             <Tab.Screen
-                name="Statistics"
+                name="In & Out"
                 component={Statistics}
                 options={{
                     tabBarIcon: ({ focused }: { focused: boolean }) => {
@@ -67,7 +67,7 @@ const BottomTabNavigation = () => {
                                 width: SIZES.width/5
                             }}>
                                 <Image
-                                    source={focused ? icons.activity as ImageSourcePropType : icons.activityOutline as ImageSourcePropType}
+                                    source={icons.swapUpDown as ImageSourcePropType}
                                     resizeMode="contain"
                                     style={{
                                         width: 24,
@@ -78,7 +78,7 @@ const BottomTabNavigation = () => {
                                 <Text style={{
                                     ...FONTS.body4,
                                     color: focused ? COLORS.primary : dark ? COLORS.gray3 : COLORS.gray3,
-                                }}>Statistics</Text>
+                                }}>In & Out</Text>
                             </View>
                         )
                     },
