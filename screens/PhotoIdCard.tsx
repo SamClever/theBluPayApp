@@ -61,7 +61,7 @@ const PhotoIdCard = () => {
     } as any);
 
     try {
-      const token = await AsyncStorage.getItem('userToken');  // or 'accessToken', whichever you use
+      const token = await AsyncStorage.getItem('token');
       const res = await fetch(
         `${baseUrl}/Account/kyc/step2/`,
         {

@@ -7,15 +7,17 @@ import { COLORS, icons } from '../constants';
 interface ContactFavouriteCardProps {
     name: string;
     email: string;
-    image: string;
+    image: ImageSourcePropType;
     onPress: () => void;
+    onToggleFavourite: () => void;
 }
 
 const ContactFavouriteCard: React.FC<ContactFavouriteCardProps> = ({
     name,
     email,
     image,
-    onPress
+    onPress,
+    onToggleFavourite
 }) => {
     const { dark } = useTheme();
 
@@ -23,8 +25,8 @@ const ContactFavouriteCard: React.FC<ContactFavouriteCardProps> = ({
         <TouchableOpacity onPress={onPress} style={styles.container}>
             <View style={styles.leftContainer}>
                 <Image
-                    source={image as ImageSourcePropType}
-                    resizeMode='contain'
+                    source={image}
+                    resizeMode='cover'
                     style={styles.avatar}
                 />
                 <View>
@@ -36,7 +38,7 @@ const ContactFavouriteCard: React.FC<ContactFavouriteCardProps> = ({
                     }]}>{email}</Text>
                 </View>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onToggleFavourite}>
                 <Image
                     source={icons.star as ImageSourcePropType}
                     resizeMode='contain'

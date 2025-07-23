@@ -1,32 +1,56 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ImageSourcePropType } from 'react-native';
+import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-virtualized-view';
-import RNPickerSelect from 'react-native-picker-select';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
 import Header from '../components/Header';
 import { Image } from 'react-native';
-import { COLORS, SIZES, images } from '../constants';
+import { COLORS, SIZES } from '../constants';
 import Button from '../components/Button';
 
-type Nav = {
-    navigate: (value: string) => void
-}
+const DEFAULT_AVATAR = require('../assets/images/default_avatar.png');
+
+type User = {
+    account_number: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    profile_image?: string;
+};
+
+type ReviewSummaryRouteProp = RouteProp<{ params: { user: User; amount: string; note: string; transaction_id?: string; status?: string; transaction_type?: string; sender_account_number?: string; reciver_account_number?: string; date?: string; } }, 'params'>;
 
 const SendMoneyReviewSummary = () => {
-    const { navigate } = useNavigation<Nav>();
+    const navigation = useNavigation<any>();
     const { colors, dark } = useTheme();
-    const [selectedPaymentType, setSelectedPaymentType] = useState('');
+    const route = useRoute<ReviewSummaryRouteProp>();
+    const { user, amount, note, transaction_id, status, transaction_type, sender_account_number, reciver_account_number, date } = route.params;
 
-    const paymentOptions = [
-        { label: 'For goods and services', value: 'for goods and services' },
-        { label: 'For Friends and Family', value: 'for friends and family' },
-    ];
-
-    const handlePaymentTypeChange = (value: any) => {
-        setSelectedPaymentType(value)
+    const getImageSource = (img?: string) => {
+        if (img && (img.startsWith('http') || img.startsWith('file'))) {
+            return { uri: img };
+        }
+        return DEFAULT_AVATAR;
     };
+
+    const handleConfirm = () => {
+        navigation.navigate('ConfirmPayment', {
+            user,
+            amount,
+            note,
+            transaction_id,
+            status,
+            transaction_type,
+            sender_account_number,
+            reciver_account_number,
+            date,
+        });
+    };
+
+    // Calculate VAT and total
+    const vat = 0;
+    const total = amount ? parseFloat(amount) : 0;
 
     return (
         <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
@@ -35,86 +59,62 @@ const SendMoneyReviewSummary = () => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.profileContainer}>
                         <Image
-                            source={images.user3}
-                            resizeMode='contain'
+                            source={getImageSource(user.profile_image)}
+                            resizeMode='cover'
                             style={styles.avatar}
                         />
-                        <Text style={[styles.username, { color: dark ? COLORS.white : COLORS.black }]}>Christian Dawson</Text>
-                        <Text style={[styles.useremail, { color: dark ? COLORS.grayscale200 : COLORS.grayscale700 }]}>christian_dawson@gmail.com</Text>
+                        <Text style={[styles.username, { color: dark ? COLORS.white : COLORS.black }]}>{`${user.first_name} ${user.last_name}`}</Text>
+                        <Text style={[styles.useremail, { color: dark ? COLORS.grayscale200 : COLORS.grayscale700 }]}>{user.email}</Text>
+                        {/* {transaction_id && (
+                            <Text style={{ color: COLORS.primary, fontSize: 16, marginTop: 8, fontFamily: 'Urbanist Bold' }}>
+                                Transaction ID: {transaction_id}
+                            </Text>
+                        )} */}
                         <View style={[styles.viewContainer, {
                             backgroundColor: dark ? COLORS.dark2 : "#FAFAFA",
                         }]}>
                             <View style={styles.view}>
-                                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Amount (USD)</Text>
-                                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>$225.00</Text>
+                                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Amount</Text>
+                                <Text style={[styles.viewRight, { color: COLORS.primary }]}>{amount ? `$${parseFloat(amount).toFixed(2)}` : '-'}</Text>
                             </View>
                             <View style={styles.view}>
-                                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Tax</Text>
-                                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>- $15.50</Text>
+                                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>VAT (0%)</Text>
+                                <Text style={[styles.viewRight, { color: COLORS.primary }]}>{`$${vat.toFixed(2)}`}</Text>
                             </View>
                             <View style={[styles.separateLine, {
                                 backgroundColor: dark ? COLORS.grayscale700 : COLORS.grayscale200
                             }]} />
                             <View style={styles.view}>
                                 <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Total</Text>
-                                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>$209.50</Text>
+                                <Text style={[styles.viewRight, { color: COLORS.primary }]}>{amount ? `$${total.toFixed(2)}` : '-'}</Text>
                             </View>
                         </View>
                     </View>
-                    <Text style={[styles.reviewTitle, {
-                        color: dark ? COLORS.white : COLORS.greyscale900
-                    }]}>Payment Type</Text>
-                    <RNPickerSelect
-                        placeholder={{ label: 'For goods and services', value: 'for goods and services' }}
-                        items={paymentOptions}
-                        onValueChange={(value) => handlePaymentTypeChange(value)}
-                        value={selectedPaymentType}
-                        style={{
-                            inputIOS: {
-                                fontSize: 16,
-                                paddingHorizontal: 10,
-                                borderRadius: 12,
-                                color: COLORS.greyscale600,
-                                paddingRight: 30,
-                                height: 52,
-                                width: SIZES.width - 32,
-                                alignItems: 'center',
-                                backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                fontFamily: "Urbanist Regular"
-                            },
-                            inputAndroid: {
-                                fontSize: 16,
-                                paddingHorizontal: 10,
-                                borderRadius: 12,
-                                color: COLORS.greyscale600,
-                                paddingRight: 30,
-                                height: 52,
-                                width: SIZES.width - 32,
-                                alignItems: 'center',
-                                backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500,
-                                fontFamily: "Urbanist Regular"
-                            }
-                        }}
-                    />
-                    <Text style={[styles.reviewTitle, {
-                        color: dark ? COLORS.white : COLORS.greyscale900
-                    }]}>Notes</Text>
-                    <TextInput
-                        placeholder='Add a note (optional)'
-                        multiline={true}
-                        placeholderTextColor={dark ? COLORS.grayscale400 : COLORS.greyscale900}
-                        style={[styles.noteInput, {
-                            backgroundColor: dark ? COLORS.dark2 : "#FAFAFA",
-                            color: dark ? COLORS.white : COLORS.greyscale900
-                        }]}
-                    />
+                    {/* Description from user input */}
+                    {note ? (
+                        <>
+                            <Text style={[styles.reviewTitle, {
+                                color: dark ? COLORS.white : COLORS.greyscale900,
+                                marginTop: 16
+                            }]}>Description</Text>
+                            <TextInput
+                                value={note}
+                                editable={false}
+                                multiline={true}
+                                style={[styles.noteInput, {
+                                    backgroundColor: dark ? COLORS.dark2 : "#FAFAFA",
+                                    color: dark ? COLORS.white : COLORS.greyscale900
+                                }]}
+                            />
+                        </>
+                    ) : null}
                 </ScrollView>
             </View>
             <View style={styles.bottomContainer}>
                 <Button
                     title="Confirm &  Send"
                     style={styles.sendBtn}
-                    onPress={() => navigate("SendMoneySuccessful")}
+                    onPress={handleConfirm}
                     filled
                 />
             </View>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FAFAFA",
         borderRadius: 16,
         paddingVertical: 16,
-        paddingHorizontal: 6,
+        paddingHorizontal: 16,
         marginVertical: 16
     },
     view: {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     viewRight: {
         fontSize: 16,
         fontFamily: "Urbanist Bold",
-        color: COLORS.greyscale900
+        color: COLORS.primary,
     },
     separateLine: {
         width: "100%",
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     },
     noteInput: {
         width: SIZES.width - 32,
-        height: 116,
+        minHeight: 80,
         borderRadius: 16,
         backgroundColor: "#FAFAFA",
         fontSize: 16,
@@ -211,6 +211,6 @@ const styles = StyleSheet.create({
     sendBtn: {
         width: SIZES.width - 32
     }
-})
+});
 
-export default SendMoneyReviewSummary
+export default SendMoneyReviewSummary;

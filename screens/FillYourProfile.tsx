@@ -230,7 +230,7 @@ const FillYourProfile = () => {
         mobile: formState.inputValues.mobile,
       };
       // Get token from AsyncStorage
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await AsyncStorage.getItem('token');
       const response = await fetch('https://theblupayapi.com/Account/kyc/step4/', {
         method: 'POST',
         headers: {

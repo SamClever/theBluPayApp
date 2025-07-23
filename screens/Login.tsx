@@ -102,8 +102,8 @@ const Login = () => {
       console.log('Login API status:', response.status);
       console.log('Login API data:', data);
       if (response.ok && data.access_token) {
-        // Save token for later API calls (use userToken for consistency)
-        await AsyncStorage.setItem('userToken', data.access_token);
+        // Save token for later API calls (standardize to 'token')
+        await AsyncStorage.setItem('token', data.access_token);
         Alert.alert('Success', 'Login successful!');
         // Only navigate to Home or dashboard if login is fully complete (not OTP flow)
       } else if (

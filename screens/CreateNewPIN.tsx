@@ -32,11 +32,7 @@ const CreateNewPIN = () => {
     }
     setLoading(true);
     try {
-      // Try both 'token' and 'userToken' for compatibility
-      let token = await AsyncStorage.getItem('userToken');
-      if (!token) {
-        token = await AsyncStorage.getItem('token');
-      }
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         setLoading(false);
         Alert.alert('Error', 'Authentication token not found. Please login again.');

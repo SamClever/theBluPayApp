@@ -44,7 +44,7 @@ const ProofOfResidency: React.FC = () => {
 
   // Check user is logged in
   useEffect(() => {
-    AsyncStorage.getItem('userToken')
+    AsyncStorage.getItem('token')
       .then(token => {
         if (!token) {
           Alert.alert('Session', 'You are not logged in.');
@@ -146,7 +146,7 @@ const ProofOfResidency: React.FC = () => {
       return Alert.alert('Validation', 'Choose a verification method.');
     }
 
-    const token = await AsyncStorage.getItem('userToken');
+    const token = await AsyncStorage.getItem('token');
     if (!token) {
       Alert.alert('Auth', 'Missing credentials. Please log in.');
       navigate('Login');
