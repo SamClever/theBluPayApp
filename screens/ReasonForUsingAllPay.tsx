@@ -113,7 +113,7 @@ const ReasonForUsingAllPay: React.FC = () => {
           showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
             <Image
-              source={images.logo}
+              source={require('../assets/images/Blupay_logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -185,6 +185,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   logoContainer: { alignItems: 'center', marginVertical: 32 },
   logo: { width: 100, height: 100, tintColor: COLORS.primary },
+  Blupay_logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+  },
   title: {
     textAlign: 'center',
     fontSize: 24,

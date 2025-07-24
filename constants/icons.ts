@@ -374,6 +374,7 @@ const netflix = require("../assets/icons/netflix.png") as string;
 const airbnb = require("../assets/icons/airbnb.png") as string;
 const amazon = require("../assets/icons/amazon.png") as string;
 const nfc = require("../assets/icons/nfc.png") as string;
+const money = require("../assets/icons/money.png") as string;
 
 const icons = {
     addFileOutline,
@@ -751,6 +752,7 @@ const icons = {
     airbnb,
     amazon,
     nfc,
+    money,
 };
 
 export {
@@ -1129,6 +1131,7 @@ export {
   airbnb,
   amazon,
   nfc,
+  money,
 };
 
 export default icons;

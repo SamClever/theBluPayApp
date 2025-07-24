@@ -9,6 +9,7 @@ import SubHeaderItem from '../components/SubHeaderItem';
 import { services } from '../data';
 import Category from '../components/Category';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SelectTransferType from '../screens/SelectTransferType';
 
 type Nav = {
   navigate: (value: string) => void
@@ -274,16 +275,16 @@ const HomeScreen = () => {
             <Text style={styles.categoryText}>Send</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate("RequestMoney")}
+            onPress={() => navigation.navigate('SelectTransferType')}
             style={styles.categoryContainer}>
             <View style={styles.categoryIconContainer}>
               <Image
-                source={icons.arrowDownSquare as ImageSourcePropType}
+                source={icons.arrowUpSquare as ImageSourcePropType}
                 resizeMode='contain'
                 style={styles.categoryIcon}
               />
             </View>
-            <Text style={styles.categoryText}>Request</Text>
+            <Text style={styles.categoryText}>Transfer</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate("InOutPaymentHistory")}

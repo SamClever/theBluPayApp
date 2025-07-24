@@ -73,6 +73,8 @@ import SettingsPayment from "./SettingsPayment";
 import LoginOtp from "./LoginOtp";
 import ConfirmPayment from "./ConfirmPayment";
 
+export { default as SelectTransferType } from './SelectTransferType';
+
 export {
     Onboarding1,
     Onboarding2,

@@ -144,7 +144,7 @@ const Login = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
             <Image
-              source={images.logo as ImageSourcePropType}
+              source={require('../assets/images/Blupay_logo.png')}
               resizeMode='contain'
               style={styles.logo}
             />
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white
   },
   logo: {
-    width: 100,
+    width: 200,
     height: 100,
     tintColor: COLORS.primary
   },
@@ -260,6 +260,7 @@ const styles = StyleSheet.create({
     fontFamily: "Urbanist Bold",
     color: COLORS.black,
     textAlign: "center",
+    marginTop: -2,
     marginBottom: 16
   },
   center: {
