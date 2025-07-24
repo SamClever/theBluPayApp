@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { COLORS, icons, illustrations } from '../constants';
 import Header from '../components/Header';
 import { useTheme } from '../theme/ThemeProvider';
-import bankSuccess from '../assets/illustrations/bank_success.png'; // or your preferred illustration
+import MobileMoneyTransfer from '../screens/MobileMoneyTransfer';
 
 const SelectTransferType = () => {
   const navigation = useNavigation<any>();

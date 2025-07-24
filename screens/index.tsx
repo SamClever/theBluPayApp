@@ -72,6 +72,7 @@ import CreateNewPassword from "./CreateNewPassword";
 import SettingsPayment from "./SettingsPayment";
 import LoginOtp from "./LoginOtp";
 import ConfirmPayment from "./ConfirmPayment";
+import MobileMoneyTransfer from "./MobileMoneyTransfer";
 
 export { default as SelectTransferType } from './SelectTransferType';
 
@@ -149,5 +150,6 @@ export {
     CreateNewPassword,
     SettingsPayment,
     LoginOtp,
-    ConfirmPayment
+    ConfirmPayment,
+    MobileMoneyTransfer
 }
