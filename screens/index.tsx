@@ -73,6 +73,8 @@ import SettingsPayment from "./SettingsPayment";
 import LoginOtp from "./LoginOtp";
 import ConfirmPayment from "./ConfirmPayment";
 import MobileMoneyTransfer from "./MobileMoneyTransfer";
+import Topup from "./Topup";
+import TopupMobileMoney from "./TopupMobileMoney";
 
 export { default as SelectTransferType } from './SelectTransferType';
 
@@ -151,5 +153,7 @@ export {
     SettingsPayment,
     LoginOtp,
     ConfirmPayment,
-    MobileMoneyTransfer
+    MobileMoneyTransfer,
+    Topup,
+    TopupMobileMoney
 }

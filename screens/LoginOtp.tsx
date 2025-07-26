@@ -113,10 +113,10 @@ const LoginOtp: React.FC = () => {
           style={{ marginVertical: 54 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
-            <Image
-              source={images.logo}
+          <Image
+              source={require('../assets/images/Blupay_logo.png')}
+              resizeMode='contain'
               style={styles.logo}
-              resizeMode="contain"
             />
           </View>
 
@@ -185,7 +185,10 @@ const styles = StyleSheet.create({
   area: { flex: 1 },
   container: { flex: 1, padding: 16 },
   logoContainer: { alignItems: 'center', marginVertical: 32 },
-  logo: { width: 100, height: 100, tintColor: COLORS.primary },
+  logo: { 
+    width: 150, 
+    height: 100 
+  },
   title: {
     textAlign: 'center',
     fontSize: 24,

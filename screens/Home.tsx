@@ -10,6 +10,9 @@ import { services } from '../data';
 import Category from '../components/Category';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectTransferType from '../screens/SelectTransferType';
+import Topup from '../screens/Topup';
+import LinearGradient from 'react-native-linear-gradient';
+
 
 type Nav = {
   navigate: (value: string) => void
@@ -188,37 +191,71 @@ const HomeScreen = () => {
       return '$0.00';
     };
     return (
-      <View style={[styles.cardContainer, { flex: 1 }]}> {/* Ensure flex: 1 for alignment */}
+      <LinearGradient
+        colors={['#E3ECFF', '#3B82F6', '#232323']}
+        style={[styles.cardContainer, { flex: 1, overflow: 'hidden' }]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
+        {/* Abstract lighter gray shapes */}
+        <View style={{
+          position: 'absolute',
+          top: -60,
+          left: -80,
+          width: 220,
+          height: 140,
+          backgroundColor: '#353535',
+          borderRadius: 120,
+          opacity: 0.7,
+        }} />
+        <View style={{
+          position: 'absolute',
+          bottom: -40,
+          right: -60,
+          width: 180,
+          height: 120,
+          backgroundColor: '#353535',
+          borderRadius: 100,
+          opacity: 0.7,
+        }} />
         <View style={styles.cardTopRow}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.cardName}>{getFullName()}</Text>
             </View>
           </View>
-          <Image
-            source={images.logo}
-            style={styles.mixxLogo}
-            resizeMode="contain"
-          />
+          <View>
+            <Image
+              source={require('../assets/images/Blupay_logo.png')}
+              style={[styles.blupayLogo, { width: 60, height: 30 }]}
+              resizeMode="contain"
+            />
+          </View>
         </View>
         <View style={styles.cardBalanceSection}>
-          <Text style={styles.cardBalanceLabel}>Available Balance</Text>
+          <Text style={styles.cardBalanceLabel2}>Available Balance</Text>
           {showBalance ? (
-            <Text style={styles.cardBalanceAmount}>{getBalance()}</Text>
-          ) : (
-            <TouchableOpacity onPress={handleShowBalance} style={{ alignSelf: 'flex-start' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={[styles.cardBalanceAmount, { letterSpacing: 2 }]}>****</Text>
+            <View style={styles.balanceRow}>
+              <Text style={styles.cardBalanceAmount}>{getBalance()}</Text>
+              <TouchableOpacity onPress={handleShowBalance} style={styles.eyeButton}>
                 <Image source={icons.eye as ImageSourcePropType} style={styles.cardEyeIcon} />
-              </View>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={handleShowBalance} style={styles.balanceRow}>
+              <Text style={[styles.cardBalanceAmount, { letterSpacing: 3 }]}>****</Text>
+              <Image source={icons.eye as ImageSourcePropType} style={styles.cardEyeIcon} />
             </TouchableOpacity>
           )}
         </View>
         <View style={styles.cardAccountRow}>
-          <Text style={styles.cardAccountLabel}>Account</Text>
-          <Text style={styles.cardAccountNumber}>{maskAccountNumber(user?.account_number)}</Text>
+          <Text style={styles.cardAccountLabel}>Account Number</Text>
+          <View style={styles.accountNumberRow}>
+            <Text style={styles.cardAccountNumber}>{maskAccountNumber(user?.account_number)}</Text>
+            
+          </View>
         </View>
-      </View>
+      </LinearGradient>
     );
   };
 
@@ -261,42 +298,57 @@ const HomeScreen = () => {
           contentContainerStyle={{ paddingHorizontal: 0, marginBottom: 12, justifyContent: 'center', alignItems: 'center' }}
           style={{ marginTop: 12, marginBottom: 8 }}
         />
-        <View style={styles.actionRowContainer}>
+        <View style={[styles.actionRowContainer, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("SendMoney")}
+            onPress={() => navigation.navigate("Topup")}
             style={styles.categoryContainer}>
-            <View style={styles.categoryIconContainer}>
+            <View style={[styles.categoryIconContainer, { backgroundColor: dark ? COLORS.primary + '20' : COLORS.primary + '15' }]}>
+              <Image
+                source={require('../assets/icons/topup.png')}
+                resizeMode='contain'
+                style={[styles.categoryIcon, { tintColor: COLORS.primary }]}
+              />
+            </View>
+            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Top Up</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SendMoney')}
+            style={styles.categoryContainer}>
+            <View style={[styles.categoryIconContainer, { backgroundColor: dark ? '#4F8EF7' + '20' : '#4F8EF7' + '15' }]}>
               <Image
                 source={icons.sendMoney as ImageSourcePropType}
                 resizeMode='contain'
-                style={styles.categoryIcon}
+                style={[styles.categoryIcon, { tintColor: '#4F8EF7' }]}
               />
             </View>
-            <Text style={styles.categoryText}>Send</Text>
+            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Send</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             onPress={() => navigation.navigate('SelectTransferType')}
             style={styles.categoryContainer}>
-            <View style={styles.categoryIconContainer}>
+            <View style={[styles.categoryIconContainer, { backgroundColor: dark ? '#8F6ED5' + '20' : '#8F6ED5' + '15' }]}>
               <Image
                 source={icons.arrowUpSquare as ImageSourcePropType}
                 resizeMode='contain'
-                style={styles.categoryIcon}
+                style={[styles.categoryIcon, { tintColor: '#8F6ED5' }]}
               />
             </View>
-            <Text style={styles.categoryText}>Transfer</Text>
+            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Transfer</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             onPress={() => navigation.navigate("InOutPaymentHistory")}
             style={styles.categoryContainer}>
-            <View style={styles.categoryIconContainer}>
+            <View style={[styles.categoryIconContainer, { backgroundColor: dark ? '#E91E63' + '20' : '#E91E63' + '15' }]}>
               <Image
                 source={icons.nfc as ImageSourcePropType}
                 resizeMode='contain'
-                style={styles.categoryIcon}
+                style={[styles.categoryIcon, { tintColor: '#E91E63' }]}
               />
             </View>
-            <Text style={styles.categoryText}>Nfc</Text>
+            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Nfc</Text>
           </TouchableOpacity>
         </View>
       </>
@@ -314,11 +366,12 @@ const HomeScreen = () => {
           onPress={() => navigate("AllServices")}
         />
         <FlatList
-          data={services.slice(0, 12)}
+          data={services.slice(0, 8)} // Limit to 8 items for 2 rows of 4
           keyExtractor={(item, index) => index.toString()}
           horizontal={false}
-          numColumns={4} // Render two items per row
+          numColumns={4} // 4 items per row
           style={{ marginTop: 0 }}
+          scrollEnabled={false} // Disable scrolling since we want fixed 2 rows
           renderItem={({ item, index }) => (
             <Category
               name={item.name}
@@ -346,32 +399,61 @@ const HomeScreen = () => {
       onRequestClose={() => setPinModalVisible(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Enter PIN to view balance</Text>
-          <TextInput
-            style={styles.pinInput}
-            value={enteredPin}
-            onChangeText={setEnteredPin}
-            keyboardType="number-pad"
-            maxLength={6}
-            secureTextEntry
-            placeholder="Enter PIN"
-            autoFocus
-          />
-          <View style={{ flexDirection: 'row', marginTop: 16 }}>
+        <View style={[styles.modalContent, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: dark ? COLORS.white : COLORS.black }]}>
+              View Balance
+            </Text>
+            <Text style={[styles.modalSubtitle, { color: dark ? COLORS.grayscale700 : COLORS.grayscale700 }]}>
+              Enter your PIN to view your account balance
+            </Text>
+          </View>
+          
+          <View style={styles.pinInputContainer}>
+            <TextInput
+              style={[styles.pinInput, { 
+                backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
+                color: dark ? COLORS.white : COLORS.black,
+                borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
+              }]}
+              value={enteredPin}
+              onChangeText={setEnteredPin}
+              keyboardType="number-pad"
+              maxLength={6}
+              secureTextEntry
+              placeholder="Enter PIN"
+              placeholderTextColor={dark ? COLORS.gray : COLORS.gray}
+              autoFocus
+            />
+          </View>
+          
+          <View style={styles.modalButtons}>
             <TouchableOpacity
-              style={[styles.modalBtn, { backgroundColor: COLORS.primary }]}
-              onPress={handlePinSubmit}
-              disabled={pinLoading || enteredPin.length < 4}
-            >
-              <Text style={{ color: '#fff', fontWeight: 'bold' }}>{pinLoading ? 'Checking...' : 'Submit'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalBtn, { backgroundColor: COLORS.greyscale500, marginLeft: 12 }]}
+              style={[styles.modalBtn, styles.cancelBtn, { 
+                backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
+                borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
+              }]}
               onPress={() => setPinModalVisible(false)}
               disabled={pinLoading}
             >
-              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cancel</Text>
+              <Text style={[styles.cancelBtnText, { color: dark ? COLORS.white : COLORS.black }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.submitBtn, { 
+                backgroundColor: enteredPin.length >= 4 ? COLORS.primary : (dark ? COLORS.grayscale700 : COLORS.gray2),
+                opacity: enteredPin.length >= 4 ? 1 : 0.6
+              }]}
+              onPress={handlePinSubmit}
+              disabled={pinLoading || enteredPin.length < 4}
+            >
+              {pinLoading ? (
+                <ActivityIndicator size="small" color={COLORS.white} />
+              ) : (
+                <Text style={styles.submitBtnText}>View Balance</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -467,58 +549,57 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 18, // match swipeCard
     backgroundColor: COLORS.primary,
-    // marginTop: 16, // REMOVE to match swipeCard
-    paddingHorizontal: 18, // match swipeCard
+    borderRadius: 18,
+    paddingHorizontal: 18,
     paddingTop: 18,
     paddingBottom: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 8,
+    marginHorizontal: 0,
     justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
   cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  cardAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-  },
-  cardWelcome: {
-    fontSize: 14,
-    fontFamily: "Urbanist Regular",
-    color: COLORS.white,
-    marginBottom: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   cardName: {
-    fontSize: 18,
-    fontFamily: "Urbanist Bold",
-    color: COLORS.white,
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Urbanist Bold',
+    marginBottom: 2,
   },
-  mixxLogo: {
-    width: 80,
-    height: 24,
+  blupayLogo: {
+    width: 70,
+    height: 35,
   },
   cardBalanceSection: {
-    marginVertical: 16,
+    marginVertical: 12,
+    marginTop: 0,
+    
   },
-  cardBalanceLabel: {
-    fontSize: 14,
-    fontFamily: "Urbanist Regular",
-    color: COLORS.white,
-    marginBottom: 4,
-  },
+    cardBalanceLabel: {
+      color: 'rgba(255, 255, 255, 0.8)',
+      fontSize: 12,
+      fontFamily: 'Urbanist Medium',
+      marginBottom: 10,
+    },
+    cardBalanceLabel2: {
+      color: 'rgba(255, 255, 255, 0.8)',
+      fontSize: 12,
+      fontFamily: 'Urbanist Medium',
+      marginTop: 25,
+    },
   cardBalanceAmount: {
-    fontSize: 32,
-    fontFamily: "Urbanist ExtraBold",
-    color: COLORS.white,
+    color: '#fff',
+    fontSize: 24,
+    fontFamily: 'Urbanist Bold',
+    letterSpacing: 1,
   },
   cardAccountRow: {
     marginTop: 8,
@@ -539,7 +620,6 @@ const styles = StyleSheet.create({
     width: SIZES.width - 32,
     height: 90,
     borderRadius: 16,
-    backgroundColor: COLORS.white,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -548,7 +628,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -582,21 +662,47 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 24,
-    width: 300,
+    width: 280,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Urbanist Bold',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    fontFamily: 'Urbanist Regular',
+  },
+  pinInputContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   pinInput: {
     width: 180,
     height: 48,
     borderWidth: 1,
-    borderColor: COLORS.primary,
     borderRadius: 8,
     fontSize: 22,
     textAlign: 'center',
-    marginBottom: 8,
     letterSpacing: 8,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   modalBtn: {
     flex: 1,
@@ -604,6 +710,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginHorizontal: 2,
+  },
+  cancelBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.gray2,
+  },
+  cancelBtnText: {
+    fontSize: 16,
+    fontFamily: 'Urbanist SemiBold',
+  },
+  submitBtn: {
+    backgroundColor: COLORS.primary,
+  },
+  submitBtnText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontFamily: 'Urbanist SemiBold',
   },
   cardEyeIcon: {
     width: 22,
@@ -671,6 +793,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     display: 'flex',
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  eyeButton: {
+    padding: 5,
+  },
+  accountNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  accountNumberMask: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    marginLeft: 8,
+  },
+  accountNumberMaskText: {
+    fontSize: 16,
+    fontFamily: 'Urbanist Bold',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
 })
 

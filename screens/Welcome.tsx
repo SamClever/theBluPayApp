@@ -74,8 +74,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 140,
     marginBottom: -22,
-    marginTop: -22,
-    tintColor: COLORS.primary
+    marginTop: -22
   },
 
   logoBlupay_logo2: {

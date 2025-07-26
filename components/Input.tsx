@@ -1,11 +1,13 @@
 import React, { useState, FC } from 'react';
-import { View, Text, StyleSheet, TextInput, TextInputProps, Image, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TextInputProps, Image, ImageSourcePropType, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../constants';
 import { useTheme } from '../theme/ThemeProvider';
 
 interface InputProps extends TextInputProps {
   id: string;
   icon?: string;
+  rightIcon?: React.ReactNode;
+  onRightIconPress?: () => void;
   errorText?: string[];
   onInputChanged: (id: string, text: string) => void;
 }
@@ -58,6 +60,11 @@ const Input: FC<InputProps> = (props) => {
           placeholderTextColor={props.placeholderTextColor}
           autoCapitalize="none"
         />
+        {props.rightIcon && (
+          <TouchableOpacity onPress={props.onRightIconPress} style={styles.rightIconContainer}>
+            {props.rightIcon}
+          </TouchableOpacity>
+        )}
       </View>
       {props.errorText && (
         <View style={styles.errorContainer}>
@@ -102,6 +109,9 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 12,
+  },
+  rightIconContainer: {
+    paddingLeft: SIZES.padding,
   },
 });
 

@@ -124,7 +124,7 @@ const ReasonForUsingAllPay: React.FC = () => {
               styles.title,
               { color: dark ? COLORS.white : COLORS.black },
             ]}>
-            Enter the 6-digit code sent to your email
+    
           </Text>
 
           <View style={styles.otpContainer}>
@@ -184,11 +184,10 @@ const styles = StyleSheet.create({
   area: { flex: 1 },
   container: { flex: 1, padding: 16 },
   logoContainer: { alignItems: 'center', marginVertical: 32 },
-  logo: { width: 100, height: 100, tintColor: COLORS.primary },
-  Blupay_logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
+  logo: {
+    width: 200,
+    height: 100,
+    // No tintColor, so the logo displays in original colors
   },
   title: {
     textAlign: 'center',

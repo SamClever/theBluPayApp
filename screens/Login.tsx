@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ImageSourcePropType, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ImageSourcePropType, Platform, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES, icons, images } from '../constants';
@@ -14,6 +14,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Feather';
 
 interface InputValues {
   email: string
@@ -48,6 +49,8 @@ const Login = () => {
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
   const [error, setError] = useState(null);
   const [isChecked, setChecked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { colors, dark } = useTheme();
 
   const inputChangedHandler = useCallback(
@@ -65,6 +68,21 @@ const Login = () => {
       Alert.alert('An error occured', error)
     }
   }, [error]);
+
+  useEffect(() => {
+    const loadRememberedEmail = async () => {
+      const savedEmail = await AsyncStorage.getItem('rememberedEmail');
+      if (savedEmail) {
+        dispatchFormState({
+          inputId: 'email',
+          validationResult: true,
+          inputValue: savedEmail,
+        });
+        setChecked(true);
+      }
+    };
+    loadRememberedEmail();
+  }, []);
 
   // Implementing apple authentication
   const appleAuthHandler = () => {
@@ -87,6 +105,7 @@ const Login = () => {
       Alert.alert('Error', 'Please enter both email and password.');
       return;
     }
+    setLoading(true);
     try {
       const response = await fetch('https://theblupayapi.com/userAuth/login/', {
         method: 'POST',
@@ -104,6 +123,11 @@ const Login = () => {
       if (response.ok && data.access_token) {
         // Save token for later API calls (standardize to 'token')
         await AsyncStorage.setItem('token', data.access_token);
+        if (isChecked) {
+          await AsyncStorage.setItem('rememberedEmail', formState.inputValues.email);
+        } else {
+          await AsyncStorage.removeItem('rememberedEmail');
+        }
         Alert.alert('Success', 'Login successful!');
         // Only navigate to Home or dashboard if login is fully complete (not OTP flow)
       } else if (
@@ -130,8 +154,12 @@ const Login = () => {
     } catch (error) {
       console.log('Login API error:', error);
       Alert.alert('Error', 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const iconColor = dark ? COLORS.white : COLORS.black;
 
   return (
     <SafeAreaView style={[styles.area, {
@@ -169,7 +197,9 @@ const Login = () => {
             placeholder="Password"
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.padlock}
-            secureTextEntry={true}
+            secureTextEntry={!showPassword}
+            rightIcon={<Icon name={showPassword ? "eye" : "eye-off"} size={15} color={iconColor} />}
+            onRightIconPress={() => setShowPassword(!showPassword)}
           />
           <View style={styles.checkBoxContainer}>
             <View style={{ flexDirection: 'row' }}>
@@ -190,12 +220,16 @@ const Login = () => {
               </View>
             </View>
           </View>
-          <Button
-            title="Login"
-            filled
-            onPress={handleLogin}
-            style={styles.button}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.primary} style={styles.button} />
+          ) : (
+            <Button
+              title="Login"
+              filled
+              onPress={handleLogin}
+              style={styles.button}
+            />
+          )}
           <TouchableOpacity
             onPress={() => navigation.navigate("ForgotPasswordMethods")}
           >
@@ -247,8 +281,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 200,
-    height: 100,
-    tintColor: COLORS.primary
+    height: 100
   },
   logoContainer: {
     alignItems: "center",

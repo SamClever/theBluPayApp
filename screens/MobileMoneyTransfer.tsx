@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
 import { COLORS, icons, illustrations } from '../constants';
 import Header from '../components/Header';
-import Contacts from 'react-native-contacts';
 import { PermissionsAndroid, Platform } from 'react-native';
 
 const MobileMoneyTransfer = () => {
@@ -36,14 +35,7 @@ const MobileMoneyTransfer = () => {
         return;
       }
     }
-    Contacts.getAll()
-      .then(contacts => {
-        // Show contacts in a modal or picker
-        console.log(contacts);
-      })
-      .catch(e => {
-        Alert.alert('Failed to load contacts');
-      });
+    // Contacts.getAll() call removed. If you want to use contacts, implement here with another package.
   };
 
   return (
