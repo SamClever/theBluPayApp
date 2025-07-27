@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectTransferType from '../screens/SelectTransferType';
 import Topup from '../screens/Topup';
 import LinearGradient from 'react-native-linear-gradient';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 
 type Nav = {
@@ -40,6 +41,8 @@ const HomeScreen = () => {
   const [pinModalVisible, setPinModalVisible] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
   const [pinLoading, setPinLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const fetchUserProfile = async () => {
     try {
@@ -107,7 +110,8 @@ const HomeScreen = () => {
         setTimeout(() => setShowBalance(false), 6000);
       } else {
         setShowBalance(false); // Hide balance if wrong PIN
-        Alert.alert('Incorrect PIN', 'The PIN you entered is incorrect.');
+        setAlertMessage('The PIN you entered is incorrect.');
+        setAlertVisible(true);
       }
     }, 500);
   };
@@ -461,11 +465,28 @@ const HomeScreen = () => {
     </Modal>
   );
 
+  // Custom Alert Modal
+  const renderCustomAlertModal = () => (
+    <CustomAlertModal
+      visible={alertVisible}
+      onClose={() => setAlertVisible(false)}
+      title="Information"
+      message={alertMessage}
+      buttonText="Okay"
+    />
+  );
+
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>  
       <View style={[styles.container, { backgroundColor: colors.background }]}>  
         {renderHeader()}
         {renderPinModal()}
+        <CustomAlertModal
+          visible={alertVisible}
+          onClose={() => setAlertVisible(false)}
+          title="Incorrect PIN"
+          message={alertMessage}
+        />
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 }}>
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -573,6 +594,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Urbanist Bold',
     marginBottom: 2,
+    marginLeft: -10,
   },
   blupayLogo: {
     width: 70,

@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 interface InputValues {
   email: string
@@ -52,6 +53,11 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { colors, dark } = useTheme();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('Information');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info' | 'custom'>('custom');
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
 
   const inputChangedHandler = useCallback(
     (inputId: string, inputValue: string) => {
@@ -65,7 +71,9 @@ const Login = () => {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('An error occured', error)
+      setAlertMessage('An error occured');
+      setAlertTitle('Error');
+      setAlertVisible(true);
     }
   }, [error]);
 
@@ -102,7 +110,10 @@ const Login = () => {
   // Add login handler
   const handleLogin = async () => {
     if (!formState.inputValues.email || !formState.inputValues.password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+      setAlertType('warning');
+      setAlertMessage('Please fill in all required fields');
+      setAlertTitle('Missing Information');
+      setAlertVisible(true);
       return;
     }
     setLoading(true);
@@ -128,32 +139,53 @@ const Login = () => {
         } else {
           await AsyncStorage.removeItem('rememberedEmail');
         }
-        Alert.alert('Success', 'Login successful!');
-        // Only navigate to Home or dashboard if login is fully complete (not OTP flow)
+        // Use custom success message instead of backend API message
+        setAlertMessage('Welcome back! Your login was successful.');
+        setAlertTitle('Login Successful');
+        setAlertType('success');
+        setAlertVisible(true);
+        // Navigate to Home after alert closes
+        setAlertCallback(() => () => navigation.navigate('Home'));
       } else if (
         data?.message &&
         (data.message.toLowerCase().includes('otp code sent') || data.message.toLowerCase().includes('verify to complete login'))
       ) {
-        // If backend says OTP sent, redirect to LoginOtp after alert
-        Alert.alert(
-          'Login Info',
-          data.message,
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.navigate('LoginOtp', { email: formState.inputValues.email }),
-            },
-          ]
-        );
+        // If backend says OTP sent, show custom alert then redirect to LoginOtp
+        setAlertMessage(data.message);
+        setAlertTitle('Verification Required');
+        setAlertType('info');
+        setAlertVisible(true);
+        // Store navigation info to handle after alert closes
+        setAlertCallback(() => () => navigation.navigate('LoginOtp', { email: formState.inputValues.email }));
       } else {
-        Alert.alert(
-          'Login Error',
-          data?.message || data?.detail || JSON.stringify(data, null, 2) || 'Login failed.'
-        );
+        let userMessage = 'Something went wrong.';
+        // Extract message from different possible fields
+        if (data.message) userMessage = data.message;
+        else if (data.detail) userMessage = data.detail;
+        else if (data.error) userMessage = data.error;
+        else if (typeof data === 'string') userMessage = data;
+
+        // Custom overrides for common backend errors
+        if (data.error === 'Invalid credentials.') {
+          userMessage = 'Your email or password is incorrect.';
+        }
+        if (data.detail === 'User not found.') {
+          userMessage = 'No account found with this email.';
+        }
+        if (data.error === 'Network error') {
+          userMessage = 'Please check your internet connection.';
+        }
+        setAlertMessage(userMessage);
+        setAlertTitle('Error');
+        setAlertType('error');
+        setAlertVisible(true);
       }
     } catch (error) {
       console.log('Login API error:', error);
-      Alert.alert('Error', 'An error occurred. Please try again.');
+      setAlertMessage('An error occurred. Please try again.');
+      setAlertTitle('Error');
+      setAlertType('error');
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -265,6 +297,24 @@ const Login = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <CustomAlertModal
+        visible={alertVisible}
+        onClose={() => {
+          setAlertVisible(false);
+          // Execute callback if exists, then clear it
+          if (alertCallback) {
+            alertCallback();
+            setAlertCallback(null);
+          }
+        }}
+        title={alertTitle}
+        message={alertMessage}
+        type={alertType}
+        buttonText="Okay"
+        autoClose={alertType === 'success'}
+        autoCloseDelay={2000}
+        // icon={require('../assets/images/your-illustration.png')} // Optional
+      />
     </SafeAreaView>
   )
 };
