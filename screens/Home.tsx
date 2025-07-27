@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ImageSourcePropType, ActivityIndicator, RefreshControl, Modal, TextInput, Alert, Dimensions } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-virtualized-view';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
@@ -40,9 +40,13 @@ const HomeScreen = () => {
   const [showBalance, setShowBalance] = useState(false);
   const [pinModalVisible, setPinModalVisible] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
+  const pinInputs = useRef([]);
   const [pinLoading, setPinLoading] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [shouldReopenPinModal, setShouldReopenPinModal] = useState(false);
+  const [modalJustOpened, setModalJustOpened] = useState(false);
+  const [canSubmitPin, setCanSubmitPin] = useState(true);
 
   const fetchUserProfile = async () => {
     try {
@@ -229,22 +233,22 @@ const HomeScreen = () => {
             </View>
           </View>
           <View>
-            <Image
+          <Image
               source={require('../assets/images/Blupay_logo.png')}
               style={[styles.blupayLogo, { width: 60, height: 30 }]}
-              resizeMode="contain"
-            />
+            resizeMode="contain"
+          />
           </View>
         </View>
         <View style={styles.cardBalanceSection}>
           <Text style={styles.cardBalanceLabel2}>Available Balance</Text>
           {showBalance ? (
             <View style={styles.balanceRow}>
-              <Text style={styles.cardBalanceAmount}>{getBalance()}</Text>
+            <Text style={styles.cardBalanceAmount}>{getBalance()}</Text>
               <TouchableOpacity onPress={handleShowBalance} style={styles.eyeButton}>
                 <Image source={icons.eye as ImageSourcePropType} style={styles.cardEyeIcon} />
               </TouchableOpacity>
-            </View>
+              </View>
           ) : (
             <TouchableOpacity onPress={handleShowBalance} style={styles.balanceRow}>
               <Text style={[styles.cardBalanceAmount, { letterSpacing: 3 }]}>****</Text>
@@ -255,7 +259,7 @@ const HomeScreen = () => {
         <View style={styles.cardAccountRow}>
           <Text style={styles.cardAccountLabel}>Account Number</Text>
           <View style={styles.accountNumberRow}>
-            <Text style={styles.cardAccountNumber}>{maskAccountNumber(user?.account_number)}</Text>
+          <Text style={styles.cardAccountNumber}>{maskAccountNumber(user?.account_number)}</Text>
             
           </View>
         </View>
@@ -303,7 +307,7 @@ const HomeScreen = () => {
           style={{ marginTop: 12, marginBottom: 8 }}
         />
         <View style={[styles.actionRowContainer, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
-          <TouchableOpacity
+        <TouchableOpacity
             onPress={() => navigation.navigate("Topup")}
             style={styles.categoryContainer}>
             <View style={[styles.categoryIconContainer, { backgroundColor: dark ? COLORS.primary + '20' : COLORS.primary + '15' }]}>
@@ -339,7 +343,7 @@ const HomeScreen = () => {
                 style={[styles.categoryIcon, { tintColor: '#8F6ED5' }]}
               />
             </View>
-            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Transfer</Text>
+            <Text style={[styles.categoryText, { color: dark ? COLORS.white : COLORS.black }]}>Withdraw</Text>
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -403,67 +407,116 @@ const HomeScreen = () => {
       onRequestClose={() => setPinModalVisible(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
-          <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: dark ? COLORS.white : COLORS.black }]}>
-              View Balance
-            </Text>
-            <Text style={[styles.modalSubtitle, { color: dark ? COLORS.grayscale700 : COLORS.grayscale700 }]}>
-              Enter your PIN to view your account balance
-            </Text>
+        <View style={[
+          styles.pinModalContent,
+          { backgroundColor: dark ? COLORS.dark2 : COLORS.white }
+        ]}>
+          <Text style={[
+            styles.modalTitle,
+            { color: dark ? COLORS.white : COLORS.black, marginBottom: 8 }
+          ]}>
+            View Balance
+          </Text>
+          <Text style={[
+            styles.modalSubtitle,
+            { color: dark ? COLORS.grayscale700 : COLORS.grayscale700, marginBottom: 18 }
+          ]}>
+            Enter your PIN to view your account balance
+          </Text>
+          <View style={styles.pinBoxesRow}>
+            {[0,1,2,3].map((i) => (
+              <TextInput
+                key={i}
+                ref={ref => pinInputs.current[i] = ref}
+                style={[
+                  styles.pinBox,
+                  {
+                    backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
+                    color: dark ? COLORS.white : COLORS.black,
+                    borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
+                  }
+                ]}
+                value={enteredPin[i] || ''}
+                onChangeText={text => {
+                  if (/^\d?$/.test(text)) {
+                    const newPin = enteredPin.split('');
+                    newPin[i] = text;
+                    setEnteredPin(newPin.join(''));
+                    if (!canSubmitPin && text) setCanSubmitPin(true);
+                    if (text && i < 3) {
+                      pinInputs.current[i+1]?.focus();
+                    }
+                    if (text === '' && i > 0) {
+                      pinInputs.current[i-1]?.focus();
+                    }
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={1}
+                secureTextEntry
+                placeholder=""
+                placeholderTextColor={dark ? COLORS.gray : COLORS.gray}
+                autoFocus={i === 0}
+                editable={!pinLoading}
+                returnKeyType="next"
+                onSubmitEditing={() => {
+                  if (i < 3) pinInputs.current[i+1]?.focus();
+                }}
+              />
+            ))}
           </View>
-          
-          <View style={styles.pinInputContainer}>
-            <TextInput
-              style={[styles.pinInput, { 
-                backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
-                color: dark ? COLORS.white : COLORS.black,
-                borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
-              }]}
-              value={enteredPin}
-              onChangeText={setEnteredPin}
-              keyboardType="number-pad"
-              maxLength={6}
-              secureTextEntry
-              placeholder="Enter PIN"
-              placeholderTextColor={dark ? COLORS.gray : COLORS.gray}
-              autoFocus
-            />
-          </View>
-          
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={[styles.modalBtn, styles.cancelBtn, { 
-                backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
-                borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
-              }]}
-              onPress={() => setPinModalVisible(false)}
-              disabled={pinLoading}
-            >
-              <Text style={[styles.cancelBtnText, { color: dark ? COLORS.white : COLORS.black }]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.modalBtn, styles.submitBtn, { 
-                backgroundColor: enteredPin.length >= 4 ? COLORS.primary : (dark ? COLORS.grayscale700 : COLORS.gray2),
-                opacity: enteredPin.length >= 4 ? 1 : 0.6
-              }]}
-              onPress={handlePinSubmit}
-              disabled={pinLoading || enteredPin.length < 4}
-            >
-              {pinLoading ? (
-                <ActivityIndicator size="small" color={COLORS.white} />
-              ) : (
-                <Text style={styles.submitBtnText}>View Balance</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+          {pinLoading && (
+            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 18 }} />
+          )}
         </View>
       </View>
     </Modal>
   );
+
+  // Auto-submit PIN when 4 digits are entered
+  useEffect(() => {
+    if (!canSubmitPin) return;
+    if (enteredPin.length === 4 && !pinLoading && pinModalVisible) {
+      handlePinSubmitDelayed(enteredPin);
+    }
+  }, [enteredPin, pinLoading, pinModalVisible, canSubmitPin]);
+
+  // Helper for delayed PIN submit
+  const handlePinSubmitDelayed = (pin: string) => {
+    setPinLoading(true);
+    setTimeout(() => {
+      setPinLoading(false);
+      if (pin === String(user?.pin)) {
+        setShowBalance(true);
+        setPinModalVisible(false);
+        setTimeout(() => setShowBalance(false), 6000);
+      } else {
+        setShowBalance(false);
+        setAlertMessage('The PIN you entered is incorrect.');
+        setAlertVisible(true);
+        setShouldReopenPinModal(true);
+      }
+    }, 500);
+  };
+
+  // When alert closes, if shouldReopenPinModal is true, reopen PIN modal and clear PIN
+  useEffect(() => {
+    if (!alertVisible && shouldReopenPinModal) {
+      setEnteredPin('');
+      setPinModalVisible(true);
+      setShouldReopenPinModal(false);
+      setModalJustOpened(true);
+      setCanSubmitPin(false); // Block auto-submit until user types
+    }
+  }, [alertVisible, shouldReopenPinModal]);
+
+  // On first digit entry after modal opens, allow auto-submit
+  useEffect(() => {
+    if (modalJustOpened && enteredPin.length === 1) {
+      setCanSubmitPin(true);
+      setModalJustOpened(false);
+    }
+  }, [enteredPin, modalJustOpened]);
 
   // Custom Alert Modal
   const renderCustomAlertModal = () => (
@@ -605,7 +658,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
     
   },
-    cardBalanceLabel: {
+  cardBalanceLabel: {
       color: 'rgba(255, 255, 255, 0.8)',
       fontSize: 12,
       fontFamily: 'Urbanist Medium',
@@ -616,7 +669,7 @@ const styles = StyleSheet.create({
       fontSize: 12,
       fontFamily: 'Urbanist Medium',
       marginTop: 25,
-    },
+  },
   cardBalanceAmount: {
     color: '#fff',
     fontSize: 24,
@@ -838,6 +891,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Urbanist Bold',
     color: 'rgba(255, 255, 255, 0.6)',
+  },
+  pinModalContent: {
+    width: 270,
+    borderRadius: 18,
+    padding: 22,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  pinInputOnly: {
+    width: 180,
+    height: 48,
+    borderWidth: 1.5,
+    borderRadius: 8,
+    fontSize: 22,
+    textAlign: 'center',
+    letterSpacing: 8,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  pinBoxesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  pinBox: {
+    width: 40,
+    height: 48,
+    borderWidth: 1.5,
+    borderRadius: 8,
+    fontSize: 22,
+    textAlign: 'center',
+    letterSpacing: 2,
+    marginHorizontal: 6,
   },
 })
 
