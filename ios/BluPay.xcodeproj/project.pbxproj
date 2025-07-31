@@ -7,60 +7,60 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C80B921A6F3F58F76C31292 /* libPods-AllPay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-AllPay.a */; };
+		00F94C08D81E4070B270091F /* Urbanist LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B188D53FF744A38904675FA /* Urbanist LightItalic.ttf */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1CA4440893D94CCCB221A30F /* Urbanist BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 550F9459DB9E459BA42275E2 /* Urbanist BlackItalic.ttf */; };
+		21D8A8CC85CE41AFA84997A6 /* Urbanist MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C7F67AE6D764045ADED1B8C /* Urbanist MediumItalic.ttf */; };
+		222FCE1DD3184D3AAF5341A6 /* Urbanist Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 53486133EF024A908A052508 /* Urbanist Italic.ttf */; };
+		26C093AFC8BA4311BCD55DF8 /* Urbanist ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0EB78E369F944AF3A3C56002 /* Urbanist ExtraLightItalic.ttf */; };
+		2E9CEBA1875D4E82B8B0BE1E /* Urbanist Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9688809A852C48759D736A50 /* Urbanist Regular.ttf */; };
+		4CDD1DA10A714644AA615D63 /* Urbanist SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C205248656F1449483D379BF /* Urbanist SemiBoldItalic.ttf */; };
+		5A8CB8BFBD934FC3878A5102 /* Urbanist Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF17836449FE4215A5A34B77 /* Urbanist Bold.ttf */; };
+		5AD2C70E8E990DF76F9C95B8 /* libPods-AllPay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2851E70AF04F68BBFD03D899 /* libPods-AllPay.a */; };
+		65D41284700A47AA9DF86CAF /* Urbanist Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 430F2F6BC91B410491F8FE9A /* Urbanist Medium.ttf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		79863CB0F9C6C1F94BBE79DF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		9A2271E22F4B43AFB7BC8898 /* Urbanist Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E2E29648A1124FD0819C69CD /* Urbanist Black.ttf */; };
-		1CA4440893D94CCCB221A30F /* Urbanist BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 550F9459DB9E459BA42275E2 /* Urbanist BlackItalic.ttf */; };
-		5A8CB8BFBD934FC3878A5102 /* Urbanist Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF17836449FE4215A5A34B77 /* Urbanist Bold.ttf */; };
-		88102A65728548C3A6171209 /* Urbanist BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 282B5146878747FD980E5BD2 /* Urbanist BoldItalic.ttf */; };
-		B3C29C49EC7B4BAB880BB194 /* Urbanist ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30555A1B4A7A4C17A5E04408 /* Urbanist ExtraBold.ttf */; };
-		E39CA808EFC2477FAC50171B /* Urbanist ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 51C69BED9DF54D11BDE6952C /* Urbanist ExtraBoldItalic.ttf */; };
-		B5C15A7B82D847E496D3A3B0 /* Urbanist ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E368435BA8742259872B172 /* Urbanist ExtraLight.ttf */; };
-		26C093AFC8BA4311BCD55DF8 /* Urbanist ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0EB78E369F944AF3A3C56002 /* Urbanist ExtraLightItalic.ttf */; };
-		222FCE1DD3184D3AAF5341A6 /* Urbanist Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 53486133EF024A908A052508 /* Urbanist Italic.ttf */; };
 		7E680BEE0A844EF89301C828 /* Urbanist Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DB5A769660D94FEC95C4BC65 /* Urbanist Light.ttf */; };
-		00F94C08D81E4070B270091F /* Urbanist LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B188D53FF744A38904675FA /* Urbanist LightItalic.ttf */; };
-		65D41284700A47AA9DF86CAF /* Urbanist Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 430F2F6BC91B410491F8FE9A /* Urbanist Medium.ttf */; };
-		21D8A8CC85CE41AFA84997A6 /* Urbanist MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C7F67AE6D764045ADED1B8C /* Urbanist MediumItalic.ttf */; };
-		2E9CEBA1875D4E82B8B0BE1E /* Urbanist Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9688809A852C48759D736A50 /* Urbanist Regular.ttf */; };
+		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		869C7F4B65984561B1BC06B2 /* Urbanist SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 038E19C7793340589DCF065E /* Urbanist SemiBold.ttf */; };
-		4CDD1DA10A714644AA615D63 /* Urbanist SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C205248656F1449483D379BF /* Urbanist SemiBoldItalic.ttf */; };
-		E8B5547271044FEC925F3E86 /* Urbanist Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 209C82786C2745B4AD39E62D /* Urbanist Thin.ttf */; };
+		88102A65728548C3A6171209 /* Urbanist BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 282B5146878747FD980E5BD2 /* Urbanist BoldItalic.ttf */; };
+		9A2271E22F4B43AFB7BC8898 /* Urbanist Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E2E29648A1124FD0819C69CD /* Urbanist Black.ttf */; };
 		AE1B5E3D6BF141AE9CA6C582 /* Urbanist ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6408F4253ED44F35AFBBDF3D /* Urbanist ThinItalic.ttf */; };
+		B3C29C49EC7B4BAB880BB194 /* Urbanist ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30555A1B4A7A4C17A5E04408 /* Urbanist ExtraBold.ttf */; };
+		B5C15A7B82D847E496D3A3B0 /* Urbanist ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E368435BA8742259872B172 /* Urbanist ExtraLight.ttf */; };
+		E39CA808EFC2477FAC50171B /* Urbanist ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 51C69BED9DF54D11BDE6952C /* Urbanist ExtraBoldItalic.ttf */; };
+		E8B5547271044FEC925F3E86 /* Urbanist Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 209C82786C2745B4AD39E62D /* Urbanist Thin.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* AllPay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AllPay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		038E19C7793340589DCF065E /* Urbanist SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist SemiBold.ttf"; path = "../assets/fonts/Urbanist SemiBold.ttf"; sourceTree = "<group>"; };
+		0EB78E369F944AF3A3C56002 /* Urbanist ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist ExtraLightItalic.ttf"; path = "../assets/fonts/Urbanist ExtraLightItalic.ttf"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* BluPay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluPay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AllPay/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AllPay/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = AllPay/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		3B4392A12AC88292D35C810B /* Pods-AllPay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AllPay.debug.xcconfig"; path = "Target Support Files/Pods-AllPay/Pods-AllPay.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-AllPay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AllPay.release.xcconfig"; path = "Target Support Files/Pods-AllPay/Pods-AllPay.release.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-AllPay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AllPay.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1C9D8633CC904AAE36A57E45 /* Pods-AllPay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AllPay.release.xcconfig"; path = "Target Support Files/Pods-AllPay/Pods-AllPay.release.xcconfig"; sourceTree = "<group>"; };
+		209C82786C2745B4AD39E62D /* Urbanist Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Thin.ttf"; path = "../assets/fonts/Urbanist Thin.ttf"; sourceTree = "<group>"; };
+		282B5146878747FD980E5BD2 /* Urbanist BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist BoldItalic.ttf"; path = "../assets/fonts/Urbanist BoldItalic.ttf"; sourceTree = "<group>"; };
+		2851E70AF04F68BBFD03D899 /* libPods-AllPay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AllPay.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		30555A1B4A7A4C17A5E04408 /* Urbanist ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist ExtraBold.ttf"; path = "../assets/fonts/Urbanist ExtraBold.ttf"; sourceTree = "<group>"; };
+		430F2F6BC91B410491F8FE9A /* Urbanist Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Medium.ttf"; path = "../assets/fonts/Urbanist Medium.ttf"; sourceTree = "<group>"; };
+		51C69BED9DF54D11BDE6952C /* Urbanist ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist ExtraBoldItalic.ttf"; path = "../assets/fonts/Urbanist ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		53486133EF024A908A052508 /* Urbanist Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Italic.ttf"; path = "../assets/fonts/Urbanist Italic.ttf"; sourceTree = "<group>"; };
+		550F9459DB9E459BA42275E2 /* Urbanist BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist BlackItalic.ttf"; path = "../assets/fonts/Urbanist BlackItalic.ttf"; sourceTree = "<group>"; };
+		6408F4253ED44F35AFBBDF3D /* Urbanist ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist ThinItalic.ttf"; path = "../assets/fonts/Urbanist ThinItalic.ttf"; sourceTree = "<group>"; };
+		6B188D53FF744A38904675FA /* Urbanist LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist LightItalic.ttf"; path = "../assets/fonts/Urbanist LightItalic.ttf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = AllPay/AppDelegate.swift; sourceTree = "<group>"; };
+		7C7F67AE6D764045ADED1B8C /* Urbanist MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist MediumItalic.ttf"; path = "../assets/fonts/Urbanist MediumItalic.ttf"; sourceTree = "<group>"; };
+		7E368435BA8742259872B172 /* Urbanist ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist ExtraLight.ttf"; path = "../assets/fonts/Urbanist ExtraLight.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AllPay/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9688809A852C48759D736A50 /* Urbanist Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Regular.ttf"; path = "../assets/fonts/Urbanist Regular.ttf"; sourceTree = "<group>"; };
+		C205248656F1449483D379BF /* Urbanist SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist SemiBoldItalic.ttf"; path = "../assets/fonts/Urbanist SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		DB5A769660D94FEC95C4BC65 /* Urbanist Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Light.ttf"; path = "../assets/fonts/Urbanist Light.ttf"; sourceTree = "<group>"; };
+		DF17836449FE4215A5A34B77 /* Urbanist Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Bold.ttf"; path = "../assets/fonts/Urbanist Bold.ttf"; sourceTree = "<group>"; };
+		E2E29648A1124FD0819C69CD /* Urbanist Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist Black.ttf"; path = "../assets/fonts/Urbanist Black.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		E2E29648A1124FD0819C69CD /* Urbanist Black.ttf */ = {isa = PBXFileReference; name = "Urbanist Black.ttf"; path = "../assets/fonts/Urbanist Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		550F9459DB9E459BA42275E2 /* Urbanist BlackItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist BlackItalic.ttf"; path = "../assets/fonts/Urbanist BlackItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		DF17836449FE4215A5A34B77 /* Urbanist Bold.ttf */ = {isa = PBXFileReference; name = "Urbanist Bold.ttf"; path = "../assets/fonts/Urbanist Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		282B5146878747FD980E5BD2 /* Urbanist BoldItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist BoldItalic.ttf"; path = "../assets/fonts/Urbanist BoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		30555A1B4A7A4C17A5E04408 /* Urbanist ExtraBold.ttf */ = {isa = PBXFileReference; name = "Urbanist ExtraBold.ttf"; path = "../assets/fonts/Urbanist ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		51C69BED9DF54D11BDE6952C /* Urbanist ExtraBoldItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist ExtraBoldItalic.ttf"; path = "../assets/fonts/Urbanist ExtraBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		7E368435BA8742259872B172 /* Urbanist ExtraLight.ttf */ = {isa = PBXFileReference; name = "Urbanist ExtraLight.ttf"; path = "../assets/fonts/Urbanist ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		0EB78E369F944AF3A3C56002 /* Urbanist ExtraLightItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist ExtraLightItalic.ttf"; path = "../assets/fonts/Urbanist ExtraLightItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		53486133EF024A908A052508 /* Urbanist Italic.ttf */ = {isa = PBXFileReference; name = "Urbanist Italic.ttf"; path = "../assets/fonts/Urbanist Italic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		DB5A769660D94FEC95C4BC65 /* Urbanist Light.ttf */ = {isa = PBXFileReference; name = "Urbanist Light.ttf"; path = "../assets/fonts/Urbanist Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		6B188D53FF744A38904675FA /* Urbanist LightItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist LightItalic.ttf"; path = "../assets/fonts/Urbanist LightItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		430F2F6BC91B410491F8FE9A /* Urbanist Medium.ttf */ = {isa = PBXFileReference; name = "Urbanist Medium.ttf"; path = "../assets/fonts/Urbanist Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		7C7F67AE6D764045ADED1B8C /* Urbanist MediumItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist MediumItalic.ttf"; path = "../assets/fonts/Urbanist MediumItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		9688809A852C48759D736A50 /* Urbanist Regular.ttf */ = {isa = PBXFileReference; name = "Urbanist Regular.ttf"; path = "../assets/fonts/Urbanist Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		038E19C7793340589DCF065E /* Urbanist SemiBold.ttf */ = {isa = PBXFileReference; name = "Urbanist SemiBold.ttf"; path = "../assets/fonts/Urbanist SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C205248656F1449483D379BF /* Urbanist SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist SemiBoldItalic.ttf"; path = "../assets/fonts/Urbanist SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		209C82786C2745B4AD39E62D /* Urbanist Thin.ttf */ = {isa = PBXFileReference; name = "Urbanist Thin.ttf"; path = "../assets/fonts/Urbanist Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		6408F4253ED44F35AFBBDF3D /* Urbanist ThinItalic.ttf */ = {isa = PBXFileReference; name = "Urbanist ThinItalic.ttf"; path = "../assets/fonts/Urbanist ThinItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EEB609BE160C95775F12DCC8 /* Pods-AllPay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AllPay.debug.xcconfig"; path = "Target Support Files/Pods-AllPay/Pods-AllPay.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,7 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-AllPay.a in Frameworks */,
+				5AD2C70E8E990DF76F9C95B8 /* libPods-AllPay.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,7 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-AllPay.a */,
+				2851E70AF04F68BBFD03D899 /* libPods-AllPay.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -121,7 +121,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* AllPay.app */,
+				13B07F961A680F5B00A75B9A /* BluPay.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,14 +129,14 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-AllPay.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-AllPay.release.xcconfig */,
+				EEB609BE160C95775F12DCC8 /* Pods-AllPay.debug.xcconfig */,
+				1C9D8633CC904AAE36A57E45 /* Pods-AllPay.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		E409E50EDD044537A3FBCBCC /* Resources */ = {
-			isa = "PBXGroup";
+			isa = PBXGroup;
 			children = (
 				E2E29648A1124FD0819C69CD /* Urbanist Black.ttf */,
 				550F9459DB9E459BA42275E2 /* Urbanist BlackItalic.ttf */,
@@ -159,30 +159,29 @@
 			);
 			name = Resources;
 			sourceTree = "<group>";
-			path = "";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* AllPay */ = {
+		13B07F861A680F5B00A75B9A /* BluPay */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "AllPay" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BluPay" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				D77CB844A979ADE5F74FEE76 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				76ADFBD6B5E22902EEF33B85 /* [CP] Embed Pods Frameworks */,
+				4D0D820768E910B8AB88B49A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = AllPay;
+			name = BluPay;
 			productName = AllPay;
-			productReference = 13B07F961A680F5B00A75B9A /* AllPay.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* BluPay.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -198,7 +197,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "AllPay" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BluPay" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -211,7 +210,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* AllPay */,
+				13B07F861A680F5B00A75B9A /* BluPay */,
 			);
 		};
 /* End PBXProject section */
@@ -264,7 +263,28 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
+		4D0D820768E910B8AB88B49A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		76ADFBD6B5E22902EEF33B85 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -272,16 +292,20 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		D77CB844A979ADE5F74FEE76 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -303,23 +327,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AllPay/Pods-AllPay-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -336,13 +343,17 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-AllPay.debug.xcconfig */;
+			baseConfigurationReference = EEB609BE160C95775F12DCC8 /* Pods-AllPay.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6TNHT5M4GQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = AllPay/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BluPay;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -355,7 +366,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = AllPay;
+				PRODUCT_NAME = BluPay;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -364,12 +375,16 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-AllPay.release.xcconfig */;
+			baseConfigurationReference = 1C9D8633CC904AAE36A57E45 /* Pods-AllPay.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6TNHT5M4GQ;
 				INFOPLIST_FILE = AllPay/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BluPay;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -382,7 +397,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = AllPay;
+				PRODUCT_NAME = BluPay;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -457,10 +472,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -529,10 +541,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -543,7 +552,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "AllPay" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BluPay" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -552,7 +561,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "AllPay" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BluPay" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
