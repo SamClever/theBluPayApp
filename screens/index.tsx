@@ -75,6 +75,7 @@ import ConfirmPayment from "./ConfirmPayment";
 import MobileMoneyTransfer from "./MobileMoneyTransfer";
 import Topup from "./Topup";
 import TopupMobileMoney from "./TopupMobileMoney";
+import ReviewInfo from "./ReviewInfo";
 
 export { default as SelectTransferType } from './SelectTransferType';
 
@@ -155,5 +156,6 @@ export {
     ConfirmPayment,
     MobileMoneyTransfer,
     Topup,
-    TopupMobileMoney
+    TopupMobileMoney,
+    ReviewInfo
 }

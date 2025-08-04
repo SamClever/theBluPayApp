@@ -411,7 +411,7 @@ const FillYourProfile = () => {
       console.log('KYC response:', response.status, data);
       if (response.ok) {
         showCustomAlert('Success', data.message || 'KYC submitted successfully!', 'success');
-        navigation.navigate('CreateNewPIN');
+                        navigation.navigate('ReviewInfo');
       } else {
         // Format API validation errors for better display
         let errorMessage = data.message || 'Validation failed';

@@ -8,7 +8,7 @@ import { AddNewAddress, AddNewCard, Address, AllServices, ChangeEmail, ChangePIN
     SendMoney, SendMoneyChoosePaymentType, SendMoneyReviewSummary, 
     SendMoneySuccessful, SendMoneyTypeAmount, SettingsHelpCenter, SettingsInviteFriends, SettingsLanguage,
      SettingsNotifications, SettingsPayment, SettingsPrivacyPolicy, SettingsSecurity, Signup, StatisticsVersion2, StatisticsVersion3, StatisticsVersion4, TransferToBankAmountForm, TransferToBankReviewSummary, TransferToBankSelectBank, TransferToBankSuccessful, UserAllPay, VerifyYourIdentity, Welcome, LoginOtp, ConfirmPayment,
-      SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney } from '../screens';
+      SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney, ReviewInfo } from '../screens';
 import BottomTabNavigation from './BottomTabNavigation';
 
 const Stack = createNativeStackNavigator();
@@ -67,6 +67,7 @@ const AppNavigation = () => {
         <Stack.Screen name="FaceRecognitionWalkthrough" component={FaceRecognitionWalkthrough} />
         <Stack.Screen name="ScanQrCode" component={ScanQrCode} />
         <Stack.Screen name="FillYourProfile" component={FillYourProfile} />
+        <Stack.Screen name="ReviewInfo" component={ReviewInfo} />
         <Stack.Screen name="Notifications" component={Notifications} />
         <Stack.Screen name="Address" component={Address} />
         <Stack.Screen name="AddNewAddress" component={AddNewAddress} />
