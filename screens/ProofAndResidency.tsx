@@ -7,7 +7,6 @@ import {
   Modal,
   TouchableWithoutFeedback,
   FlatList,
-  Alert,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +19,7 @@ import { COLORS, SIZES, icons } from '../constants';
 import Header from '../components/Header';
 import VerificationMethod from '../components/VerificationMethod';
 import Button from '../components/Button';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 type Nav = {
   navigate: (screen: string, params?: any) => void;
@@ -27,97 +27,47 @@ type Nav = {
 
 const baseUrl = 'https://theblupayapi.com';
 
-const ProofOfResidency: React.FC = () => {
-  const { navigate } = useNavigation<Nav>();
+const ProofAndResidency: React.FC = () => {
+  const navigation = useNavigation<Nav>();
   const { colors, dark } = useTheme();
 
-  const [areas, setAreas] = useState<any[]>([]);
   const [selectedArea, setSelectedArea] = useState<any>(null);
-  const [modalVisible, setModalVisible] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<{
     label: string;
     value: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [countryLoading, setCountryLoading] = useState(true);
-  const [countryError, setCountryError] = useState<string | null>(null);
+
+  // Custom Alert States
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('Information');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info' | 'custom'>('custom');
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
 
   // Check user is logged in
   useEffect(() => {
     AsyncStorage.getItem('token')
       .then(token => {
         if (!token) {
-          Alert.alert('Session', 'You are not logged in.');
-          navigate('Login');
+          setAlertMessage('You are not logged in. Please sign in to continue.');
+          setAlertTitle('Session Expired');
+          setAlertType('error');
+          setAlertCallback(() => () => navigation.navigate('Login'));
+          setAlertVisible(true);
         }
       })
       .catch(err => console.warn('Token load error', err));
   }, []);
 
-  // Load countries
+  // Set Tanzania as default
   useEffect(() => {
-    const fetchCountries = async () => {
-      setCountryLoading(true);
-      setCountryError(null);
-      try {
-        const response = await fetch('https://restcountries.com/v3.1/all?fields=cca2,name');
-        if (!response.ok) {
-          setCountryError(`Country API error: ${response.status} ${response.statusText}`);
-          setCountryLoading(false);
-          console.warn('🌐 API error:', response.status, response.statusText);
-          Alert.alert('Error', `Country API error: ${response.status} ${response.statusText}`);
-          return;
-        }
-        const text = await response.text();
-        let data: any = null;
-        try {
-          data = JSON.parse(text);
-        } catch (parseErr) {
-          setCountryError('Invalid response from country API.');
-          setCountryLoading(false);
-          console.warn('🌐 Parse error:', parseErr, text);
-          Alert.alert('Error', 'Invalid response from country API.');
-          return;
-        }
-
-        if (!Array.isArray(data) || data.length === 0) {
-          setCountryError('Country API did not return a valid list.');
-          setCountryLoading(false);
-          console.warn('🌐 Unexpected API response:', data);
-          Alert.alert('Error', 'Country API did not return a valid list.');
-          return;
-        }
-
-        const countryList = data
-          .filter((c: any) => c.cca2 && c.name?.common)
-          .map((c: any) => ({
-            code: c.cca2,
-            name: c.name.common,
-            flag: `https://flagsapi.com/${c.cca2}/flat/64.png`,
-          }));
-
-        if (countryList.length === 0) {
-          setCountryError('No valid countries found in API response.');
-          setCountryLoading(false);
-          console.warn('🌐 No valid countries:', data);
-          Alert.alert('Error', 'No valid countries found in API response.');
-          return;
-        }
-
-        setAreas(countryList);
-        const defaultCountry = countryList.find((c: { code: string }) => c.code === 'US') || countryList[0];
-        setSelectedArea(defaultCountry);
-        setCountryLoading(false);
-        console.log('✅ Country list loaded:', countryList.length);
-      } catch (err: any) {
-        setCountryError('Unable to fetch country list.');
-        setCountryLoading(false);
-        console.warn('🌐 Fetch error:', err.message);
-        Alert.alert('Error', 'Unable to fetch country list.');
-      }
+    const tanzaniaData = {
+      code: 'TZ',
+      name: 'Tanzania',
+      flag: 'https://flagsapi.com/TZ/flat/64.png',
     };
-
-    fetchCountries();
+    setSelectedArea(tanzaniaData);
   }, []);
 
   const methods = [
@@ -125,31 +75,39 @@ const ProofOfResidency: React.FC = () => {
       icon: icons.idCard,
       label: 'National ID Card',
       value: 'national_id_card',
-    },
-    {
-      icon: icons.certificate,
-      label: 'Drivers Licence',
-      value: 'drivers_licence',
+      description: 'Government-issued national identification card',
     },
     {
       icon: icons.license,
       label: 'International Passport',
       value: 'international_passport',
+      description: 'Valid passport with photo identification',
     },
   ];
 
   const handleVerify = async () => {
     if (!selectedArea) {
-      return Alert.alert('Validation', 'Select your nationality.');
+      setAlertMessage('Please select your nationality to continue.');
+      setAlertTitle('Missing Information');
+      setAlertType('warning');
+      setAlertVisible(true);
+      return;
     }
     if (!selectedMethod) {
-      return Alert.alert('Validation', 'Choose a verification method.');
+      setAlertMessage('Please choose a verification method to continue.');
+      setAlertTitle('Missing Information');
+      setAlertType('warning');
+      setAlertVisible(true);
+      return;
     }
 
     const token = await AsyncStorage.getItem('token');
     if (!token) {
-      Alert.alert('Auth', 'Missing credentials. Please log in.');
-      navigate('Login');
+      setAlertMessage('Your session has expired. Please sign in again.');
+      setAlertTitle('Authentication Required');
+      setAlertType('error');
+      setAlertCallback(() => () => navigation.navigate('Login'));
+      setAlertVisible(true);
       return;
     }
 
@@ -160,7 +118,7 @@ const ProofOfResidency: React.FC = () => {
         identity_type: selectedMethod.value,
       };
 
-      console.log('➡️ Payload:', payload);
+      console.log('➡️ KYC Step 1 Payload:', payload);
 
       const res = await fetch(`${baseUrl}/Account/kyc/step1/`, {
         method: 'POST',
@@ -179,129 +137,108 @@ const ProofOfResidency: React.FC = () => {
       } catch {}
 
       if (!res.ok) {
-        console.log('🔴 Error response:', data || text);
-        const msg =
-          data?.detail ||
-          (data && typeof data === 'object'
-            ? Object.entries(data)
-                .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
-                .join('\n')
-            : text);
-        return Alert.alert('Server Error', msg);
+        console.log('🔴 KYC Step 1 Error response:', data || text);
+        let errorMessage = 'Verification failed. Please try again.';
+        
+        if (data?.detail) {
+          errorMessage = data.detail;
+        } else if (data && typeof data === 'object') {
+          errorMessage = Object.entries(data)
+            .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+            .join('\n');
+        } else if (text) {
+          errorMessage = text;
+        }
+        
+        setAlertMessage(errorMessage);
+        setAlertTitle('Verification Failed');
+        setAlertType('error');
+        setAlertVisible(true);
+        return;
       }
 
-      navigate('PhotoIdCard', { kycStep1: data });
+      // Success - navigate to next step
+      setAlertMessage('Identity verification initiated successfully! Please proceed to upload your document.');
+      setAlertTitle('Verification Started');
+      setAlertType('success');
+      setAlertCallback(() => () => navigation.navigate('PhotoIdCard', { kycStep1: data }));
+      setAlertVisible(true);
+      
     } catch (e: any) {
       console.warn('❌ Network error:', e);
-      Alert.alert('Network Error', e.message);
+      setAlertMessage('Network connection error. Please check your internet connection and try again.');
+      setAlertTitle('Connection Error');
+      setAlertType('error');
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.listItem}
-      onPress={() => {
-        setSelectedArea(item);
-        setModalVisible(false);
-      }}>
-      <Image source={{ uri: item.flag }} style={styles.flagImage} />
-      <Text style={[styles.listText, { color: COLORS.white }]}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Header title="" />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
-            Proof of Residency
-          </Text>
-          <Text style={[styles.subtitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
-            Prove you live in United States
-          </Text>
-
-          <View style={styles.proofContainer}>
-            <Text style={[styles.proofTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
-              Nationality
+        <Header title="Proof of Residency" />
+        
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.contentContainer}>
+            {/* <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+              Identity Verification
             </Text>
-            <TouchableOpacity
-              style={[
-                styles.proofView,
-                {
-                  borderColor: dark ? COLORS.dark2 : COLORS.grayscale200,
-                  backgroundColor: dark ? COLORS.dark2 : COLORS.white,
-                },
-              ]}
-              onPress={() => {
-                if (!countryLoading && areas.length > 0) setModalVisible(true);
-              }}
-              disabled={countryLoading || areas.length === 0}
-            >
-              <View style={styles.countryContainer}>
-                {countryLoading ? (
-                  <Text style={[styles.countryText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>Loading…</Text>
-                ) : selectedArea ? (
-                  <>
-                    <Image source={{ uri: selectedArea.flag }} style={styles.countryImage} />
-                    <Text style={[styles.countryText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>{selectedArea?.name}</Text>
-                  </>
-                ) : (
-                  <Text style={[styles.countryText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>Select Country</Text>
-                )}
-              </View>
-              <Text style={styles.changeText}>{countryLoading ? '' : 'Change'}</Text>
-            </TouchableOpacity>
-            {countryError && (
-              <Text style={{ color: 'red', marginTop: 4, marginBottom: 8, textAlign: 'center' }}>{countryError}</Text>
-            )}
+            <Text style={[styles.subtitle, { color: dark ? COLORS.grayscale700 : COLORS.greyscale900 }]}>
+              Prove you live in Tanzania
+            </Text> */}
 
-            <Text style={[styles.proofTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
-              Choose Verification Method
-            </Text>
-            <View style={{ marginVertical: 22 }}>
-              {methods.map(m => (
-                <VerificationMethod
-                  key={m.value}
-                  icon={m.icon}
-                  name={m.label}
-                  isSelected={selectedMethod?.value === m.value}
-                  onSelect={() => setSelectedMethod(m)}
-                />
-              ))}
-            </View>
-          </View>
-
-          <Modal animationType="slide" transparent visible={modalVisible}>
-            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-              <View style={styles.modalBackdrop}>
-                <View style={styles.modalContent}>
-                  <TouchableOpacity style={styles.closeBtn} onPress={() => setModalVisible(false)}>
-                    <Ionicons name="close-outline" size={24} color={COLORS.primary} />
-                  </TouchableOpacity>
-                  {countryLoading ? (
-                    <Text style={{ color: COLORS.white, textAlign: 'center', marginTop: 40 }}>Loading countries…</Text>
-                  ) : areas.length === 0 ? (
-                    <Text style={{ color: COLORS.white, textAlign: 'center', marginTop: 40 }}>No countries found.</Text>
-                  ) : (
-                    <FlatList
-                      data={areas}
-                      renderItem={renderItem}
-                      keyExtractor={item => item.code}
-                      contentContainerStyle={styles.listContainer}
-                    />
-                  )}
+            <View style={styles.proofContainer}>
+              <Text style={[styles.proofTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                Nationality
+              </Text>
+              <View
+                style={[
+                  styles.proofView,
+                  {
+                    borderColor: dark ? COLORS.dark2 : COLORS.grayscale200,
+                    backgroundColor: dark ? COLORS.dark2 : COLORS.white,
+                  },
+                ]}
+              >
+                <View style={styles.countryContainer}>
+                  <Image source={{ uri: 'https://flagsapi.com/TZ/flat/64.png' }} style={styles.countryImage} />
+                  <Text style={[styles.countryText, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>Tanzania</Text>
+                </View>
+                <View style={styles.lockedIndicator}>
+                  <Ionicons name="lock-closed" size={16} color={COLORS.greyscale500} />
                 </View>
               </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+
+              <Text style={[styles.proofTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                Choose Verification Method
+              </Text>
+                             <Text style={[styles.proofSubtitle, { color: dark ? COLORS.greyscale500 : COLORS.grayscale700 }]}>
+                 Select the document you'll use to verify your identity
+               </Text>
+              
+              <View style={styles.methodsContainer}>
+                                  {methods.map(m => (
+                    <VerificationMethod
+                      key={m.value}
+                      icon={m.icon}
+                      name={m.label}
+                      isSelected={selectedMethod?.value === m.value}
+                      onSelect={() => setSelectedMethod(m)}
+                    />
+                  ))}
+              </View>
+            </View>
+          </View>
         </ScrollView>
 
         <View style={styles.bottomContainer}>
           <Button
-            title={loading ? 'Submitting…' : 'Verify Identity'}
+            title={loading ? 'Verifying...' : 'Continue to Verification'}
             filled
             disabled={loading}
             style={styles.button}
@@ -309,35 +246,118 @@ const ProofOfResidency: React.FC = () => {
           />
         </View>
       </View>
+      
+      <CustomAlertModal
+        visible={alertVisible}
+        onClose={() => {
+          setAlertVisible(false);
+          if (alertCallback) {
+            alertCallback();
+            setAlertCallback(null);
+          }
+        }}
+        title={alertTitle}
+        message={alertMessage}
+        type={alertType}
+        buttonText="Okay"
+        autoClose={alertType === 'success'}
+        autoCloseDelay={2000}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  area: { flex: 1 },
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 28, fontFamily: 'Urbanist Bold', textAlign: 'center', marginVertical: 22 },
-  subtitle: { fontSize: 16, fontFamily: 'Urbanist Regular', textAlign: 'center', paddingHorizontal: 3 },
-  proofContainer: { marginVertical: 22 },
-  proofTitle: { fontSize: 20, fontFamily: 'Urbanist Bold' },
-  proofView: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    height: 72, width: SIZES.width - 32, borderRadius: 20, borderWidth: 1,
-    marginVertical: 10, paddingHorizontal: 16,
+  area: { 
+    flex: 1 
   },
-  countryContainer: { flexDirection: 'row', alignItems: 'center' },
-  countryImage: { width: 32, height: 24 },
-  countryText: { fontSize: 16, fontFamily: 'Urbanist SemiBold', marginLeft: 16 },
-  changeText: { fontSize: 16, fontFamily: 'Urbanist SemiBold', color: COLORS.primary },
-  bottomContainer: { position: 'absolute', bottom: 28, left: 0, right: 0, alignItems: 'center', paddingHorizontal: 16 },
-  button: { marginTop: 12, width: SIZES.width - 32, borderRadius: 32 },
-  closeBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: COLORS.white, position: 'absolute', top: 32, right: 16, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  modalContent: { height: SIZES.height, width: SIZES.width, backgroundColor: COLORS.primary, borderRadius: 12 },
-  listContainer: { padding: 20, paddingBottom: 40 },
-  listItem: { flexDirection: 'row', alignItems: 'center', padding: 10 },
-  flagImage: { width: 30, height: 30, marginRight: 10 },
-  listText: { fontSize: 16 },
+  container: { 
+    flex: 1, 
+    padding: 16 
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  title: { 
+    fontSize: 28, 
+    fontFamily: 'Urbanist Bold', 
+    textAlign: 'center', 
+    marginBottom: 8 
+  },
+  subtitle: { 
+    fontSize: 16, 
+    fontFamily: 'Urbanist Regular', 
+    textAlign: 'center', 
+    marginBottom: 40,
+    lineHeight: 24,
+  },
+  proofContainer: { 
+    marginVertical: 20 
+  },
+  proofTitle: { 
+    fontSize: 20, 
+    fontFamily: 'Urbanist Bold',
+    marginBottom: 8,
+  },
+  proofSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Urbanist Regular',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  proofView: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    height: 72, 
+    width: '100%', 
+    borderRadius: 20, 
+    borderWidth: 1,
+    marginBottom: 30, 
+    paddingHorizontal: 16,
+  },
+  countryContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  countryImage: { 
+    width: 32, 
+    height: 24 
+  },
+  countryText: { 
+    fontSize: 16, 
+    fontFamily: 'Urbanist SemiBold', 
+    marginLeft: 16 
+  },
+  lockedIndicator: {
+    padding: 4,
+  },
+  methodsContainer: {
+    marginTop: 10,
+  },
+  bottomContainer: { 
+    position: 'absolute', 
+    bottom: 0, 
+    left: 0, 
+    right: 0, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    backgroundColor: 'transparent',
+  },
+  button: { 
+    width: '90%', 
+    borderRadius: 20,
+    height: 56,
+    marginBottom: 152, 
+  },
 });
 
-export default ProofOfResidency;
+export default ProofAndResidency;

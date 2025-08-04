@@ -13,6 +13,7 @@ const fingerprint = require("../assets/illustrations/fingerprint.png");
 const identity = require("../assets/illustrations/identity.png");
 const identityDark = require("../assets/illustrations/identity_dark.png");
 const card = require("../assets/illustrations/card.png");
+const nida = require("../assets/illustrations/nida.png");
 const services = require("../assets/illustrations/services.png");
 const servicesDark = require("../assets/illustrations/services_dark.png");
 const friends = require("../assets/illustrations/friends.png");
@@ -55,6 +56,7 @@ const illustrations = {
     identity,
     identityDark,
     card,
+    nida,
     services,
     friends,
     successPaymentType,

@@ -6,15 +6,16 @@ export const reducer = (state: any, action: any) => {
         [inputId]: inputValue,
     };
 
+    // Fix: validationResult is undefined when valid, so we need to invert the logic
     const updatedValidities = {
         ...state.inputValidities,
-        [inputId]: validationResult,
+        [inputId]: validationResult === undefined, // true if valid (no error), false if invalid (has error)
     };
 
     let updatedFormIsValid = true;
 
     for (const key in updatedValidities) {
-        if (updatedValidities[key] !== undefined) {
+        if (!updatedValidities[key]) {
             updatedFormIsValid = false;
             break;
         }

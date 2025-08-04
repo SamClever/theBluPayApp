@@ -18,15 +18,17 @@ const VerificationMethod: React.FC<VerificationMethodProps> = ({ icon, name, isS
       borderColor: dark ? COLORS.dark2 : COLORS.grayscale200,
       backgroundColor: dark ? COLORS.dark2 : COLORS.white
     }]} onPress={onSelect}>
-      <View style={styles.iconContainer}>
-        <Image source={icon} style={styles.icon} />
+      <View style={styles.leftContent}>
+        <View style={styles.iconContainer}>
+          <Image source={icon} style={styles.icon} />
+        </View>
+        <Text style={[styles.name, {
+          color: dark ? COLORS.white : COLORS.greyscale900
+        }]}>{name}</Text>
       </View>
-      <Text style={[styles.name, {
-        color: dark ? COLORS.white : COLORS.greyscale900
-      }]}>{name}</Text>
-      <View style={styles.checkboxContainer}>
-        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-          {isSelected && <View style={styles.checkboxInner} />}
+      <View style={styles.radioContainer}>
+        <View style={[styles.radio, isSelected && styles.radioSelected]}>
+          {isSelected && <View style={styles.radioInner} />}
         </View>
       </View>
     </TouchableOpacity>
@@ -37,16 +39,22 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     height: 72,
-    width: SIZES.width - 32,
+    width: '100%',
     borderRadius: 20,
     borderColor: COLORS.grayscale200,
     borderWidth: 1,
-    padding: 10,
+    paddingHorizontal: 16,
     marginBottom: 10,
   },
+  leftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   iconContainer: {
-    marginRight: 10,
+    marginRight: 12,
   },
   icon: {
     width: 24,
@@ -55,34 +63,34 @@ const styles = StyleSheet.create({
     tintColor: COLORS.primary
   },
   name: {
-    flex: 1,
     fontSize: 16,
     fontFamily: "Urbanist SemiBold",
     color: COLORS.greyscale900
   },
-  checkboxContainer: {
+  radioContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    width: 24,
+    height: 24,
   },
-  checkbox: {
+  radio: {
     width: 20,
     height: 20,
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
-  checkboxSelected: {
+  radioSelected: {
     backgroundColor: COLORS.primary,
   },
-  checkboxInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: COLORS.primary,
-    borderWidth: 2,
-    borderColor: COLORS.white
+  radioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.white,
   },
 });
 
