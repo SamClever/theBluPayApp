@@ -77,7 +77,7 @@ const TopupPinEntry = () => {
             });
 
             // Call topup API to trigger USSD
-            const response = await fetch('https://theblupayapi.com/topup', {
+            const response = await fetch('https://theblupayapi.com/topup/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
