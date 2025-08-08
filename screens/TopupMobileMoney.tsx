@@ -28,6 +28,8 @@ const TopupMobileMoney = () => {
   const [insufficientBalanceAlert, setInsufficientBalanceAlert] = useState(false);
   const [balanceCheckLoading, setBalanceCheckLoading] = useState(false);
   const [mobileBalance, setMobileBalance] = useState<number | null>(null);
+  const [showUssdCompleteModal, setShowUssdCompleteModal] = useState(false);
+  const [showInvalidUssdModal, setShowInvalidUssdModal] = useState(false);
 
   const fetchUserProfile = async () => {
     try {
@@ -165,14 +167,14 @@ const TopupMobileMoney = () => {
       return;
     }
 
-    // Navigate to review summary screen
+    // Navigate to review summary screen (not TopupSuccessful)
     navigation.navigate('TopupReviewSummary', {
-      amount: amount,
-      mobileNumber: mobile,
-      accountNumber: user.account_number,
-      accountName: user.First_name && user.Last_name ? `${user.First_name} ${user.Last_name}` : undefined,
-      remarks: remarks,
-      provider: 'Mobile Money' // You can make this dynamic based on user selection
+        amount: amount,
+        mobileNumber: mobile,
+        accountNumber: user.account_number,
+        accountName: user.First_name && user.Last_name ? `${user.First_name} ${user.Last_name}` : undefined,
+        remarks: remarks,
+        provider: 'Mobile Money'
     });
   };
 
@@ -192,6 +194,30 @@ const TopupMobileMoney = () => {
           <View style={styles.inputIconBox}>
             <Image source={require('../assets/icons/credit-card.png')} style={styles.icon} />
           </View>
+    {showUssdCompleteModal && (
+      <CustomAlertModal
+        visible={showUssdCompleteModal}
+        title="USSD Topup Complete"
+        message="You have successfully submitted a valid USSD PIN. Tap 'Continue' to proceed."
+        onConfirm={() => {
+          setShowUssdCompleteModal(false);
+          navigation.navigate('TopupReviewSummary', {
+            // ...existing code...
+          });
+        }}
+        confirmText="Continue"
+      />
+    )}
+
+    {showInvalidUssdModal && (
+      <CustomAlertModal
+        visible={showInvalidUssdModal}
+        title="Invalid USSD PIN"
+        message="The USSD PIN you entered is invalid. Please try again."
+        onConfirm={() => setShowInvalidUssdModal(false)}
+        confirmText="OK"
+      />
+    )}
           <TextInput
             style={[styles.input, { color: colors.text, backgroundColor: 'transparent' }]}
             placeholder="Loading account number..."
@@ -350,4 +376,4 @@ const styles = StyleSheet.create({
   proceedText: { color: COLORS.white, fontSize: 18, fontWeight: 'bold' },
 });
 
-export default TopupMobileMoney; 
+export default TopupMobileMoney;

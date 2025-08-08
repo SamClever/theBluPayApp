@@ -155,7 +155,7 @@ const Login = () => {
         setAlertTitle('Verification Required');
         setAlertType('info');
         setAlertVisible(true);
-        // Store navigation info to handle after alert closes
+        // Set navigation to LoginOtp after modal closes
         setAlertCallback(() => () => navigation.navigate('LoginOtp', { email: formState.inputValues.email }));
       } else {
         let userMessage = 'Something went wrong.';

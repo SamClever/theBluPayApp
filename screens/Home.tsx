@@ -191,12 +191,12 @@ const HomeScreen = () => {
       if (user?.account_balance !== undefined && user?.account_balance !== null) {
         try {
           const bal = typeof user.account_balance === 'string' ? parseFloat(user.account_balance) : user.account_balance;
-          return `$${Number(bal).toLocaleString()}`;
+          return `Tsh ${Number(bal).toLocaleString()}`;
         } catch {
-          return `$${user.account_balance}`;
+          return `Tsh ${user.account_balance}`;
         }
       }
-      return '$0.00';
+      return 'Tsh 0.00';
     };
     return (
       <LinearGradient

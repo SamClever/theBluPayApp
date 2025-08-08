@@ -86,6 +86,7 @@ const TopupPinEntry = () => {
                 body: JSON.stringify({
                     amount: amount,
                     phone: mobileNumber,
+                    pin: pin.join(''),
                 }),
             });
 
@@ -93,29 +94,74 @@ const TopupPinEntry = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('USSD initiated successfully:', data);
-                
-                // Show USSD instructions
-                Alert.alert(
-                    'USSD Prompt Initiated',
-                    `A USSD prompt has been sent to your phone (${mobileNumber}).\n\nPlease complete the topup by entering your PIN when prompted.\n\nYou will receive a confirmation SMS once completed.`,
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                // Navigate to success screen (user will complete via USSD)
-                                navigation.navigate('TopupSuccessful', {
-                                    amount,
-                                    mobileNumber,
-                                    accountNumber,
-                                    accountName,
-                                    remarks,
-                                    provider
-                                });
-                            }
+                const orderReference = data.orderReference || data.reference || data.order_reference;
+                console.log('Order Reference for webhook:', orderReference);
+                if (!orderReference) {
+                    Alert.alert('Webhook Error', 'No orderReference returned from topup API.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Call webhook to update user balance
+                try {
+                    const webhookPayload = {
+                        orderReference: orderReference,
+                        status: 'SUCCESS'
+                    };
+                    console.log('Webhook payload:', webhookPayload);
+
+                    const webhookRes = await fetch('https://theblupayapi.com/webhook/clickpesa/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(webhookPayload),
+                    });
+
+                    let webhookResBody;
+                    let webhookResJson;
+                    try {
+                        webhookResBody = await webhookRes.text();
+                        webhookResJson = JSON.parse(webhookResBody);
+                    } catch (e) {
+                        webhookResJson = null;
+                    }
+                    console.log('Webhook response status:', webhookRes.status);
+                    console.log('Webhook response body:', webhookResBody);
+
+                    if (webhookRes.ok) {
+                        Alert.alert(
+                            'USSD Topup Complete',
+                            `Your USSD topup was successful. You will receive a confirmation SMS shortly.`,
+                            [
+                                {
+                                    text: 'OK',
+                                    onPress: () => {
+                                        navigation.navigate('TopupSuccessful', {
+                                            amount,
+                                            mobileNumber,
+                                            accountNumber,
+                                            accountName,
+                                            remarks,
+                                            provider
+                                        });
+                                    }
+                                }
+                            ]
+                        );
+                    } else {
+                        let errorMsg = 'Topup succeeded but failed to update balance. Please contact support.';
+                        if (webhookResJson && (webhookResJson.message || webhookResJson.detail || webhookResJson.error)) {
+                            errorMsg += `\n${webhookResJson.message || webhookResJson.detail || webhookResJson.error}`;
+                        } else if (webhookResBody) {
+                            errorMsg += `\n${webhookResBody}`;
                         }
-                    ]
-                );
+                        Alert.alert('Webhook Error', errorMsg);
+                    }
+                } catch (webhookError) {
+                    Alert.alert('Webhook Error', 'Topup succeeded but failed to update balance. Please contact support.');
+                }
             } else {
                 let errorMessage = 'Failed to initiate USSD topup. Please try again.';
                 try {
@@ -386,4 +432,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TopupPinEntry; 
+export default TopupPinEntry;

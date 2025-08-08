@@ -30,7 +30,7 @@ const TopupReviewSummary = () => {
 
 
     const handleConfirm = () => {
-        // Navigate to PIN entry screen
+        // Navigate to PIN entry screen (not TopupSuccessful)
         navigation.navigate('TopupPinEntry', {
             amount,
             mobileNumber,
@@ -365,4 +365,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default TopupReviewSummary; 
+export default TopupReviewSummary;
