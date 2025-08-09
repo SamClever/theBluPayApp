@@ -79,6 +79,8 @@ import TopupReviewSummary from "./TopupReviewSummary";
 import TopupPinEntry from "./TopupPinEntry";
 import TopupSuccessful from "./TopupSuccessful";
 import ReviewInfo from "./ReviewInfo";
+import PayoutReviewSummary from "./PayoutReviewSummary";
+import PayoutSuccessful from "./PayoutSuccessful";
 
 export { default as SelectTransferType } from './SelectTransferType';
 
@@ -163,5 +165,7 @@ export {
     TopupReviewSummary,
     TopupPinEntry,
     TopupSuccessful,
-    ReviewInfo
+    ReviewInfo,
+    PayoutReviewSummary,
+    PayoutSuccessful
 }

@@ -8,7 +8,7 @@ import { AddNewAddress, AddNewCard, Address, AllServices, ChangeEmail, ChangePIN
     SendMoney, SendMoneyChoosePaymentType, SendMoneyReviewSummary, 
     SendMoneySuccessful, SendMoneyTypeAmount, SettingsHelpCenter, SettingsInviteFriends, SettingsLanguage,
      SettingsNotifications, SettingsPayment, SettingsPrivacyPolicy, SettingsSecurity, Signup, StatisticsVersion2, StatisticsVersion3, StatisticsVersion4, TransferToBankAmountForm, TransferToBankReviewSummary, TransferToBankSelectBank, TransferToBankSuccessful, UserAllPay, VerifyYourIdentity, Welcome, LoginOtp, ConfirmPayment,
-      SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney, TopupReviewSummary, TopupPinEntry, TopupSuccessful, ReviewInfo } from '../screens';
+      SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney, TopupReviewSummary, TopupPinEntry, TopupSuccessful, ReviewInfo, PayoutReviewSummary, PayoutSuccessful } from '../screens';
 import BottomTabNavigation from './BottomTabNavigation';
 
 const Stack = createNativeStackNavigator();
@@ -126,6 +126,8 @@ const AppNavigation = () => {
         <Stack.Screen name="TopupReviewSummary" component={TopupReviewSummary} />
         <Stack.Screen name="TopupPinEntry" component={TopupPinEntry} />
         <Stack.Screen name="TopupSuccessful" component={TopupSuccessful} />
+        <Stack.Screen name="PayoutReviewSummary" component={PayoutReviewSummary} />
+        <Stack.Screen name="PayoutSuccessful" component={PayoutSuccessful} />
       </Stack.Navigator>
     </NavigationContainer>
   )

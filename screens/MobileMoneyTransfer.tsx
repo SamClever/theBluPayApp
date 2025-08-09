@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, Linking, ActivityIndicator, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
 import { COLORS, icons, illustrations } from '../constants';
 import Header from '../components/Header';
 import { PermissionsAndroid, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Button from '../components/Button';
+import Input from '../components/Input';
 
 const MobileMoneyTransfer = () => {
   const navigation = useNavigation();
   const [mobile, setMobile] = useState('');
   const [amount, setAmount] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [loading, setLoading] = useState(false);
   const { colors, dark } = useTheme();
 
   const openContacts = async () => {
@@ -38,78 +42,180 @@ const MobileMoneyTransfer = () => {
     // Contacts.getAll() call removed. If you want to use contacts, implement here with another package.
   };
 
+  const handleProceed = async () => {
+    if (!mobile || !amount) {
+      Alert.alert('Missing Information', 'Please enter both mobile number and amount.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Session Expired', 'Please log in again.');
+        // @ts-ignore
+        navigation.navigate('Login');
+        return;
+      }
+
+      const resp = await fetch('https://theblupayapi.com/payout/preview/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount, phone: mobile }),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        const msg = data?.message || data?.detail || 'Unable to preview payout.';
+        Alert.alert('Preview Failed', msg);
+        return;
+      }
+
+      // @ts-ignore
+      navigation.navigate('PayoutReviewSummary', {
+        amount: data.amount || amount,
+        fee: data.fee,
+        total_amount: data.total_amount,
+        currency: data.currency,
+        channel_provider: data.channel_provider,
+        payout_fee_bearer: data.payout_fee_bearer,
+        account_balance: data.account_balance,
+        sufficient_balance: data.sufficient_balance,
+        phone: data.phone || mobile,
+        estimated_completion: data.estimated_completion,
+        remarks,
+      });
+    } catch (e: any) {
+      Alert.alert('Network Error', e?.message || 'Failed to preview payout.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onInputChanged = (id: string, text: string) => {
+    if (id === 'mobile') setMobile(text);
+    if (id === 'amount') setAmount(text);
+    if (id === 'remarks') setRemarks(text);
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }] }>
       <Header title="MobileMoneyTransfer" />
-      <View style={{ alignItems: 'center', marginTop: 32 }}>
-        <Image
-          source={dark ? illustrations.bankSuccessDark : illustrations.bankSuccess}
-          style={{ width: 180, height: 180 }}
-          resizeMode="contain"
-        />
-      </View>
-      <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
-        <Text style={[styles.label, { color: colors.primary }]}>Mobile Number</Text>
-        <View style={[styles.inputRow, { backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite, borderColor: dark ? COLORS.grayscale700 : COLORS.gray2, borderWidth: 1 }]}>
-          <View style={styles.inputIconBox}>
-            <Image source={require('../assets/icons/call.png')} style={styles.icon} />
-          </View>
-          <TextInput
-            style={[styles.input, { color: colors.text, backgroundColor: 'transparent' }]}
+      <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+        <View style={{ alignItems: 'center', marginTop: 16 }}>
+          {/* <Image
+            source={dark ? illustrations.bankSuccessDark : illustrations.bankSuccess}
+            style={{ width: 180, height: 180, opacity: 0.9 }}
+            resizeMode="contain"
+          /> */}
+          <Text style={[styles.heroTitle, { color: colors.text }]}>Send To Mobile Money</Text>
+          <Text style={[styles.heroCaption, { color: dark ? COLORS.grayscale400 : COLORS.gray }]}>
+            Secure and fast payout to your contact
+          </Text>
+        </View>
+
+        <View style={[
+          styles.card,
+          {
+            backgroundColor: dark ? COLORS.dark2 : COLORS.white,
+            borderColor: colors.border || (dark ? COLORS.grayscale700 : COLORS.gray2)
+          }
+        ]}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>Transfer Details</Text>
+
+          <Input
+            id="mobile"
+            icon={icons.call}
             placeholder="Mobile Number"
-            placeholderTextColor="#888"
             keyboardType="phone-pad"
             value={mobile}
-            onChangeText={setMobile}
+            onInputChanged={onInputChanged}
+            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
+            style={{
+              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
+              color: dark ? COLORS.white : COLORS.grayscale900,
+              borderColor: dark ? COLORS.primary : COLORS.gray3,
+              borderWidth: 1.5,
+              borderRadius: 12,
+              paddingVertical: 14,
+              paddingHorizontal: 16,
+              marginBottom: 12,
+              fontSize: 16,
+            }}
+            rightIcon={
+              <Image
+                source={require('../assets/icons/user.png')}
+                style={{ width: 20, height: 20, tintColor: colors.primary }}
+              />
+            }
+            onRightIconPress={openContacts}
           />
-        </View>
 
-        <Text style={[styles.label, { color: colors.primary }]}>Amount</Text>
-        <View style={[styles.inputRow, { backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite, borderColor: dark ? COLORS.grayscale700 : COLORS.gray2, borderWidth: 1 }]}>
-          <View style={styles.inputIconBox}>
-            <Image source={require('../assets/icons/money.png')} style={styles.icon} />
-          </View>
-          <TextInput
-            style={[styles.input, { color: colors.text, backgroundColor: 'transparent' }]}
+          <Input
+            id="amount"
+            icon={icons.money}
             placeholder="Amount"
-            placeholderTextColor="#888"
             keyboardType="numeric"
             value={amount}
-            onChangeText={setAmount}
+            onInputChanged={onInputChanged}
+            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
+            style={{
+              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
+              color: dark ? COLORS.white : COLORS.grayscale900,
+              borderColor: dark ? COLORS.primary : COLORS.gray3,
+              borderWidth: 1.5,
+              borderRadius: 12,
+              paddingVertical: 14,
+              paddingHorizontal: 16,
+              marginBottom: 12,
+              fontSize: 16,
+            }}
           />
-        </View>
 
-        <Text style={[styles.label, { color: colors.primary }]}>
-          Remarks <Text style={styles.optional}>(optional)</Text>
-        </Text>
-        <View style={[styles.inputRow, { backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite, borderColor: dark ? COLORS.grayscale700 : COLORS.gray2, borderWidth: 1 }]}>
-          <View style={styles.inputIconBox}>
-            <Image source={require('../assets/icons/edit_pencil.png')} style={styles.icon} />
-          </View>
-          <TextInput
-            style={[styles.input, { color: colors.text, backgroundColor: 'transparent' }]}
+          <Input
+            id="remarks"
+            icon={icons.editPencil}
             placeholder="Remarks (optional)"
-            placeholderTextColor="#888"
             value={remarks}
-            onChangeText={setRemarks}
+            onInputChanged={onInputChanged}
+            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
+            style={{
+              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
+              color: dark ? COLORS.white : COLORS.grayscale900,
+              borderColor: dark ? COLORS.primary : COLORS.gray3,
+              borderWidth: 1.5,
+              borderRadius: 12,
+              paddingVertical: 14,
+              paddingHorizontal: 16,
+              marginBottom: 4,
+              fontSize: 16,
+            }}
+          />
+
+          <Button
+            title="Preview"
+            filled
+            isLoading={loading}
+            onPress={handleProceed}
+            style={{ marginTop: 12, backgroundColor: colors.primary }}
+            textStyle={{ color: colors.buttonText }}
           />
         </View>
 
-        <TouchableOpacity style={[styles.proceedBtn, { backgroundColor: colors.primary }]}>
-          <Text style={styles.proceedText}>Proceed</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{
-        backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite,
-        borderRadius: 12,
-        padding: 12,
-        marginTop: 9,
-        alignItems: 'center'
-      }}>
-        <Text style={{ color: colors.text, fontSize: 13 }}>
-          Tip: Make sure the mobile number is registered for mobile money.
-        </Text>
-      </View>
+        <View style={[
+          styles.tipCard,
+          { backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite }
+        ]}>
+          <Image source={require('../assets/icons/info-square.png')} style={{ width: 18, height: 18, tintColor: colors.primary }} />
+          <Text style={{ color: colors.text, fontSize: 13, marginLeft: 8 }}>
+            Tip: Make sure the mobile number is registered for mobile money.
+          </Text>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -118,60 +224,36 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   card: {
     borderRadius: 20,
-    padding: 20,
-    marginTop: -10,
+    padding: 16,
+    marginTop: 12,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
+    borderWidth: 1,
   },
-  label: {
+  sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
-    marginTop: 16,
   },
-  optional: { color: COLORS.gray, fontWeight: 'normal', fontSize: 14 },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  heroTitle: {
+    marginTop: 8,
+    fontSize: 20,
+    fontFamily: 'Urbanist Bold',
+  },
+  heroCaption: {
+    fontSize: 13,
+    fontFamily: 'Urbanist Regular',
+    marginTop: 2,
+  },
+  tipCard: {
     borderRadius: 12,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    // borderColor and borderWidth are set inline for theme
-  },
-  inputIconBox: {
-    width: 32, height: 32, justifyContent: 'center', alignItems: 'center',
-  },
-  icon: { width: 20, height: 20, tintColor: COLORS.primary },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    // backgroundColor is set inline for theme
-  },
-  contactsBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    marginLeft: 8,
-  },
-  contactsText: { color: COLORS.white, fontWeight: 'bold' },
-  proceedBtn: {
-    borderRadius: 16,
-    marginTop: 24,
-    paddingVertical: 14,
+    padding: 12,
+    marginTop: 12,
     alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    flexDirection: 'row',
   },
-  proceedText: { color: COLORS.white, fontSize: 18, fontWeight: 'bold' },
 });
 
-export default MobileMoneyTransfer; 
+export default MobileMoneyTransfer;
