@@ -64,7 +64,22 @@ const HomeScreen = () => {
           'Accept': 'application/json',
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch user profile');
+      if (!response.ok) {
+        const status = response.status;
+        let bodyText = '';
+        try {
+          bodyText = await response.text();
+        } catch {}
+        console.warn('Dashboard fetch failed', { status, bodyText });
+        if (status === 401 || status === 403) {
+          // Token invalid/expired – clear and force re-login
+          await AsyncStorage.removeItem('token');
+          navigate('Login');
+          throw new Error('Session expired. Please log in again.');
+        }
+        const snippet = bodyText ? (bodyText.length > 140 ? bodyText.slice(0, 140) + '…' : bodyText) : '';
+        throw new Error(`Failed to fetch user profile (status ${status})${snippet ? `: ${snippet}` : ''}`);
+      }
       const data = await response.json();
       setUser({
         First_name: data.kyc?.First_name,

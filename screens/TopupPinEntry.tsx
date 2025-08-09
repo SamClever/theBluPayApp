@@ -77,10 +77,11 @@ const TopupPinEntry = () => {
             });
 
             // Call topup API to trigger USSD
-            const response = await fetch('https://theblupayapi.com/topup/', {
+            const response = await fetch('https://theblupayapi.com/topup/initiate/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
@@ -110,7 +111,7 @@ const TopupPinEntry = () => {
                     };
                     console.log('Webhook payload:', webhookPayload);
 
-                    const webhookRes = await fetch('https://theblupayapi.com/webhook/clickpesa/', {
+                    const webhookRes = await fetch('https://theblupayapi.com/webhooks/clickpesa/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

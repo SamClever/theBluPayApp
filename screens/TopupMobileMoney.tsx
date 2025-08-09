@@ -47,7 +47,18 @@ const TopupMobileMoney = () => {
         },
       });
       
-      if (!response.ok) throw new Error('Failed to fetch user profile');
+      if (!response.ok) {
+        const status = response.status;
+        let bodyText = '';
+        try { bodyText = await response.text(); } catch {}
+        console.warn('TopupMobileMoney dashboard fetch failed', { status, bodyText });
+        if (status === 401 || status === 403) {
+          await AsyncStorage.removeItem('token');
+          navigate('Login');
+          throw new Error('Session expired. Please log in again.');
+        }
+        throw new Error('Failed to fetch user profile');
+      }
       
       const data = await response.json();
       setUser({

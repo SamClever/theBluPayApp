@@ -111,8 +111,20 @@ const ReasonForUsingAllPay: React.FC = () => {
       }
 
       // ── SAVE JWT UNDER "token" ─────────────────────────
-      await AsyncStorage.setItem('token', data.access_token);
-      console.log('🔥 Saved token:', data.access_token);
+      const accessToken =
+        (data && (data.access_token || data.access || data.token)) ||
+        (data?.data && (data.data.access_token || data.data.access || data.data.token));
+
+      if (!accessToken || typeof accessToken !== 'string') {
+        setAlertType('error');
+        setAlertMessage('Verification succeeded but no access token was returned.');
+        setAlertTitle('Authentication Error');
+        setAlertVisible(true);
+        return;
+      }
+
+      await AsyncStorage.setItem('token', accessToken);
+      console.log('�� Saved token length:', accessToken.length);
 
       // Custom success message with custom alert
       setAlertType('success');

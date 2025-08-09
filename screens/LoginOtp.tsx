@@ -101,6 +101,8 @@ const LoginOtp: React.FC = () => {
         }
       );
       const data = await resp.json();
+      console.log('Verify-login-otp status:', resp.status);
+      console.log('Verify-login-otp data:', data);
 
       if (!resp.ok) {
         setAlertType('error');
@@ -111,8 +113,20 @@ const LoginOtp: React.FC = () => {
       }
 
       // ── SAVE JWT UNDER "token" ─────────────────────────
-      await AsyncStorage.setItem('token', data.access_token);
-      console.log('🔥 Saved token:', data.access_token);
+      const accessToken =
+        (data && (data.access_token || data.access || data.token)) ||
+        (data?.data && (data.data.access_token || data.data.access || data.data.token));
+
+      if (!accessToken || typeof accessToken !== 'string') {
+        setAlertType('error');
+        setAlertMessage('Login succeeded but no access token was returned. Please try again.');
+        setAlertTitle('Authentication Error');
+        setAlertVisible(true);
+        return;
+      }
+
+      await AsyncStorage.setItem('token', accessToken);
+      console.log('🔥 Saved token length:', accessToken.length);
 
       // Custom success message with custom alert
       setAlertType('success');

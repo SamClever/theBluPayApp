@@ -131,21 +131,18 @@ const Login = () => {
       const data = await response.json();
       console.log('Login API status:', response.status);
       console.log('Login API data:', data);
-      if (response.ok && data.access_token) {
-        // Save token for later API calls (standardize to 'token')
-        await AsyncStorage.setItem('token', data.access_token);
+      if (response.ok) {
+        // Desired flow: Login -> LoginOtp -> Home
         if (isChecked) {
           await AsyncStorage.setItem('rememberedEmail', formState.inputValues.email);
         } else {
           await AsyncStorage.removeItem('rememberedEmail');
         }
-        // Use custom success message instead of backend API message
-        setAlertMessage('Welcome back! Your login was successful.');
-        setAlertTitle('Login Successful');
-        setAlertType('success');
+        setAlertMessage(data?.message || 'OTP code sent. Please verify to complete login.');
+        setAlertTitle('Verification Required');
+        setAlertType('info');
         setAlertVisible(true);
-        // Navigate to Home after alert closes
-        setAlertCallback(() => () => navigation.navigate('Home'));
+        setAlertCallback(() => () => navigation.navigate('LoginOtp', { email: formState.inputValues.email }));
       } else if (
         data?.message &&
         (data.message.toLowerCase().includes('otp code sent') || data.message.toLowerCase().includes('verify to complete login'))

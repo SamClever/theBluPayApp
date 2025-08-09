@@ -72,7 +72,15 @@ const SendMoney = () => {
       console.log('Fetching users...');
       const start = Date.now();
       let token = await AsyncStorage.getItem('token');
-      if (!token) token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        const legacy = await AsyncStorage.getItem('userToken');
+        if (legacy) {
+          console.warn('Migrating legacy userToken -> token');
+          await AsyncStorage.setItem('token', legacy);
+          await AsyncStorage.removeItem('userToken');
+          token = legacy;
+        }
+      }
       if (!token) {
         setUsers([]);
         setFilteredUsers([]);
