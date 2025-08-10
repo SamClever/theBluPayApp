@@ -50,11 +50,15 @@ export const commonStyles = StyleSheet.create({
         width: 16,
     },
     btn: {
-        width: SIZES.width - 44,
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: SIZES.width - 44,
         marginBottom: SIZES.padding,
     },
     btn1: {
-        width: SIZES.width - 44,
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: SIZES.width - 44,
         marginVertical: SIZES.padding,
     },
     center: {

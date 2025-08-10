@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageSourcePropType, ViewStyl
 import { SIZES, COLORS, icons } from '../constants';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HeaderProps {
     title: string;
@@ -11,10 +12,13 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title }) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const { colors, dark } = useTheme();
+    const insets = useSafeAreaInsets();
 
     return (
         <View style={[styles.container, {
-            backgroundColor: dark ? COLORS.dark1 : COLORS.white
+            backgroundColor: dark ? COLORS.dark1 : COLORS.white,
+            paddingTop: insets.top + 8,
+            minHeight: insets.top + 56,
         }]}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Image
@@ -25,7 +29,13 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                     }]}
                 />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+            <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[styles.title, { color: colors.text }]}
+            >
+                {title}
+            </Text>
         </View>
     );
 };
@@ -33,7 +43,9 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: COLORS.white,
-        width: SIZES.width - 32,
+        width: '100%',
+        paddingHorizontal: 16,
+        paddingBottom: 12,
         flexDirection: "row",
         alignItems: "center",
     } as ViewStyle,
@@ -46,6 +58,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontFamily: "Urbanist Bold",
         color: COLORS.black,
+        flexShrink: 1,
     } as TextStyle,
 });
 

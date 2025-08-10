@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType, ScrollView } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, SIZES, icons, images } from "../constants";
@@ -17,43 +17,45 @@ const Welcome = () => {
 
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Image
-          source={require('../assets/images/Blupay_logo.png')}
-          resizeMode="contain"
-          style={styles.logo}
-        />
-        <Text style={[styles.title, { color: colors.text }]}>Welcome Back!</Text>
-        <Text style={[styles.subtitle, { color: dark ? COLORS.white : "black" }]}>
-          Hello there, personalize your financial journey for maximum returns and peace of mind on AllPay.
-        </Text>
-        <View style={{ marginVertical: 32 }}>
-          <SocialButtonV2 title="Continue with Apple" icon={icons.appleLogo} onPress={() => navigate("Signup")}
-            iconStyles={{ tintColor: dark ? COLORS.white : COLORS.black }} />
-          <SocialButtonV2 title="Continue with Google" icon={icons.google} onPress={() => navigate("Signup")} />
-          <SocialButtonV2 title="Continue with Email" icon={icons.email2} onPress={() => navigate("Signup")} />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <Image
+            source={require('../assets/images/Blupay_logo.png')}
+            resizeMode="contain"
+            style={styles.logo}
+          />
+          <Text style={[styles.title, { color: colors.text }]}>Welcome Back!</Text>
+          <Text style={[styles.subtitle, { color: dark ? COLORS.white : "black" }]}>
+            Hello there, personalize your financial journey for maximum returns and peace of mind on AllPay.
+          </Text>
+          <View style={{ marginVertical: 32 }}>
+            <SocialButtonV2 title="Continue with Apple" icon={icons.appleLogo} onPress={() => navigate("Signup")}
+              iconStyles={{ tintColor: dark ? COLORS.white : COLORS.black }} />
+            <SocialButtonV2 title="Continue with Google" icon={icons.google} onPress={() => navigate("Signup")} />
+            <SocialButtonV2 title="Continue with Email" icon={icons.email2} onPress={() => navigate("Signup")} />
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={[styles.loginTitle, {
+              color: dark ? COLORS.white : "black"
+            }]}>Already have account? </Text>
+            <TouchableOpacity
+              onPress={() => navigate("Login")}>
+              <Text style={styles.loginSubtitle}>Log In</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={[styles.loginTitle, {
-            color: dark ? COLORS.white : "black"
-          }]}>Already have account? </Text>
-          <TouchableOpacity
-            onPress={() => navigate("Login")}>
-            <Text style={styles.loginSubtitle}>Log In</Text>
+        <View style={styles.bottomContainer}>
+          <Text style={[styles.bottomTitle, {
+            color: dark ? COLORS.white : COLORS.black }]}>
+            By continuing, you accept the Terms Of Use and
+          </Text>
+          <TouchableOpacity onPress={() => navigate("Login")}>
+            <Text style={[styles.bottomSubtitle, {
+              color: dark ? COLORS.white : COLORS.black
+            }]}>Privacy Policy.</Text>
           </TouchableOpacity>
         </View>
-      </View>
-      <View style={styles.bottomContainer}>
-        <Text style={[styles.bottomTitle, {
-          color: dark ? COLORS.white : COLORS.black }]}>
-          By continuing, you accept the Terms Of Use and
-        </Text>
-        <TouchableOpacity onPress={() => navigate("Login")}>
-          <Text style={[styles.bottomSubtitle, {
-            color: dark ? COLORS.white : COLORS.black
-          }]}>Privacy Policy.</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -109,11 +111,9 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   bottomContainer: {
-    position: "absolute",
-    bottom: 32,
-    right: 0,
-    left: 0,
+    paddingVertical: 24,
     width: SIZES.width - 32,
+    alignSelf: 'center',
     alignItems: "center",
   },
   bottomTitle: {

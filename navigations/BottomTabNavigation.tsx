@@ -21,7 +21,7 @@ const BottomTabNavigation = () => {
                 right: 0,
                 left: 0,
                 elevation: 0,
-                height: Platform.OS === 'ios' ? 90 : 60,
+                height: Platform.OS === 'ios' ? 90 : 64,
                 backgroundColor: dark ? COLORS.dark1 : COLORS.white,
                 borderTopColor: "transparent",
             }
@@ -34,7 +34,7 @@ const BottomTabNavigation = () => {
                         return (
                             <View style={{
                                 alignItems: "center",
-                                paddingTop: 16,
+                                paddingTop: 12,
                                 width: SIZES.width/5
                             }}>
                                 <Image
@@ -63,7 +63,7 @@ const BottomTabNavigation = () => {
                         return (
                             <View style={{
                                 alignItems: "center",
-                                paddingTop: 16,
+                                paddingTop: 12,
                                 width: SIZES.width/5
                             }}>
                                 <Image
@@ -91,13 +91,13 @@ const BottomTabNavigation = () => {
                     tabBarIcon: () => {
                         return (
                             <View style={{
-                                height: 64,
-                                width: 64,
-                                borderRadius: 32,
+                                height: 60,
+                                width: 60,
+                                borderRadius: 30,
                                 justifyContent: "center",
                                 alignItems: "center",
                                 backgroundColor: COLORS.primary,
-                                marginBottom: 16
+                                marginBottom: 12
                             }}>
                                 <Image
                                     source={icons.scan2 as ImageSourcePropType}
@@ -121,7 +121,7 @@ const BottomTabNavigation = () => {
                         return (
                             <View style={{
                                 alignItems: "center",
-                                paddingTop: 16,
+                                paddingTop: 12,
                                 width: SIZES.width/5
                             }}>
                                 <Image
@@ -150,7 +150,7 @@ const BottomTabNavigation = () => {
                         return (
                             <View style={{
                                 alignItems: "center",
-                                paddingTop: 16,
+                                paddingTop: 12,
                                 width: SIZES.width/5
                             }}>
                                 <Image

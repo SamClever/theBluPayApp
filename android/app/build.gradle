@@ -21,7 +21,7 @@ react {
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-    namespace 'com.allpay'
+    namespace 'com.blupay'
 
     defaultConfig {
         applicationId "com.allpay"

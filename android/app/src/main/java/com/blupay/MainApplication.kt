@@ -1,4 +1,4 @@
-package com.allpay
+package com.blupay
 
 import android.app.Application
 import com.facebook.react.PackageList

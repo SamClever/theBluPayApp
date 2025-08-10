@@ -7,6 +7,7 @@ import {
     TouchableOpacityProps,
     StyleProp,
     ViewStyle,
+    TextStyle,
 } from 'react-native';
 import { COLORS, SIZES } from '../constants';
 
@@ -17,6 +18,7 @@ interface ButtonProps extends TouchableOpacityProps {
     filled?: boolean;
     isLoading?: boolean;
     style?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -27,6 +29,7 @@ const Button: React.FC<ButtonProps> = (props) => {
         filled = false,
         isLoading = false,
         style,
+        textStyle,
         onPress,
         ...rest
     } = props;
@@ -43,7 +46,7 @@ const Button: React.FC<ButtonProps> = (props) => {
             {isLoading ? (
                 <ActivityIndicator size="small" color={COLORS.white} />
             ) : (
-                <Text style={[styles.text, { color: resolvedTextColor }]}>
+                <Text style={[styles.text, { color: resolvedTextColor }, textStyle]}>
                     {title}
                 </Text>
             )}

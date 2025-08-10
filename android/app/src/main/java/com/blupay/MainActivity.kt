@@ -1,4 +1,4 @@
-package com.allpay
+package com.blupay
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

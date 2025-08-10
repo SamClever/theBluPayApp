@@ -198,7 +198,7 @@ const Login = () => {
         backgroundColor: colors.background
       }]}>
         <Header title="" />
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
           <View style={styles.logoContainer}>
             <Image
               source={require('../assets/images/Blupay_logo.png')}
@@ -384,10 +384,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 18,
-    position: "absolute",
-    bottom: 12,
-    right: 0,
-    left: 0,
+    paddingBottom: 12,
   },
   bottomLeft: {
     fontSize: 14,

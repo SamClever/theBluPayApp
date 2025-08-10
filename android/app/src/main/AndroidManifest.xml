@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.allpay">
+    package="com.blupay">
 
     <!-- All permissions go before <application> -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
-        android:name=".MainApplication"
+        android:name="com.blupay.MainApplication"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -29,7 +29,7 @@
             android:value="Your Google maps API Key Here" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.blupay.MainActivity"
             android:label="@string/app_name"
             android:exported="true"
             android:launchMode="singleTask"

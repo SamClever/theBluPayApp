@@ -7,19 +7,19 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 16,
     },
     illustration: {
-        height: SIZES.width * 0.96,
-        width: SIZES.width * 0.96,
-        position: "absolute",
-        bottom: 360
+        width: SIZES.width * 0.9,
+        aspectRatio: 1,
+        maxHeight: SIZES.height * 0.45,
     },
     ornament: {
-        position: "absolute",
-        bottom: 372,
         zIndex: -99,
-        width: SIZES.width * 0.7
+        width: SIZES.width * 0.7,
     },
     titleContainer: {
         marginVertical: 18,
@@ -47,22 +47,25 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     buttonContainer: {
-        position: 'absolute',
-        bottom: 0,
+        width: '100%',
         padding: 22,
         borderTopLeftRadius: SIZES.radius,
         borderTopRightRadius: SIZES.radius,
-        height: 360,
+        backgroundColor: 'transparent',
     },
     nextButton: {
-        width: SIZES.width - 44,
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: SIZES.width - 44,
         marginBottom: SIZES.padding,
         backgroundColor: COLORS.primary,
         borderColor: COLORS.primary,
         marginTop: 22
     },
     skipButton: {
-        width: SIZES.width - 44,
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: SIZES.width - 44,
         marginBottom: SIZES.padding,
         backgroundColor: 'transparent',
         borderColor: COLORS.primary

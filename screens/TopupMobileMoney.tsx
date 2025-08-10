@@ -328,11 +328,11 @@ const TopupMobileMoney = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, paddingHorizontal: 16, paddingBottom: 16 },
   card: {
     borderRadius: 20,
     padding: 20,
-    marginTop: 40,
+    marginTop: 16,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 16,
