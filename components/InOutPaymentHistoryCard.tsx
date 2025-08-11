@@ -11,6 +11,7 @@ interface InOutPaymentHistoryCardProps {
     time: string;
     price: string;
     type: string;
+    status?: string; // SUCCESS | PENDING | PROCESSING | FAILED
     onPress: () => void;
 }
 
@@ -21,9 +22,11 @@ const InOutPaymentHistoryCard: React.FC<InOutPaymentHistoryCardProps> = ({
     time,
     price,
     type,
+    status,
     onPress
 }) => {
     const { dark } = useTheme();
+    const { badgeBg, badgeFg, badgeText } = getStatusColors(status);
 
     return (
         <TouchableOpacity onPress={onPress} style={[styles.container, {
@@ -48,6 +51,11 @@ const InOutPaymentHistoryCard: React.FC<InOutPaymentHistoryCardProps> = ({
                 <Text style={[styles.price, {
                     color: type === "Income" ? COLORS.primary : COLORS.red
                 }]}>{price}</Text>
+                {!!status && (
+                  <View style={[styles.statusBadge, { backgroundColor: badgeBg, borderColor: badgeFg }]}> 
+                    <Text style={[styles.statusBadgeText, { color: badgeText }]}>{status}</Text>
+                  </View>
+                )}
                 <View style={styles.typeContainer}>
                     <SimpleLineIcons name={
                         type === "Income" ?
@@ -63,6 +71,20 @@ const InOutPaymentHistoryCard: React.FC<InOutPaymentHistoryCardProps> = ({
         </TouchableOpacity>
     )
 };
+
+function getStatusColors(status?: string) {
+    const normalized = (status || '').toUpperCase();
+    if (normalized === 'SUCCESS' || normalized === 'COMPLETED') {
+        return { badgeBg: 'rgba(10, 190, 117, 0.12)', badgeFg: COLORS.success, badgeText: COLORS.success };
+    }
+    if (normalized === 'PENDING' || normalized === 'PROCESSING' || normalized === 'AUTHORIZED') {
+        return { badgeBg: 'rgba(250, 204, 21, 0.12)', badgeFg: COLORS.warning, badgeText: COLORS.warning };
+    }
+    if (normalized === 'FAILED' || normalized === 'CANCELLED' || normalized === 'ERROR') {
+        return { badgeBg: 'rgba(247, 85, 85, 0.12)', badgeFg: COLORS.error, badgeText: COLORS.error };
+    }
+    return { badgeBg: COLORS.tansparentPrimary, badgeFg: COLORS.primary, badgeText: COLORS.primary };
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -118,6 +140,20 @@ const styles = StyleSheet.create({
     viewContainer: {
         flexDirection: "column",
         alignItems: "flex-end"
+    },
+    statusBadge: {
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 999,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 6,
+        alignSelf: 'flex-end'
+    },
+    statusBadgeText: {
+        fontSize: 10,
+        fontFamily: 'Urbanist Bold'
     }
 });
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS, FONTS, SIZES, icons } from '../constants';
 import { useTheme } from '../theme/ThemeProvider';
-import { Home, MyCard, Profile, ScanQrCode, Statistics } from '../screens';
+import { Home, MyCard, Profile, ScanQrCode, InOutPaymentHistory } from '../screens';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,7 +57,7 @@ const BottomTabNavigation = () => {
             />
             <Tab.Screen
                 name="In & Out"
-                component={Statistics}
+                component={InOutPaymentHistory}
                 options={{
                     tabBarIcon: ({ focused }: { focused: boolean }) => {
                         return (
