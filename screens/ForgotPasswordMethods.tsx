@@ -34,8 +34,9 @@ const ForgotPasswordMethods = () => {
           </View>
           <Text style={[styles.title, {
             color: dark ? COLORS.white : COLORS.greyscale900
-          }]}>Select which contact details
-            should we use to reset your password</Text>
+          }]}>
+            Only email method  we be used to reset your password
+          </Text>
           {/* SMS method hidden as requested */}
           <TouchableOpacity
             style={[
@@ -53,7 +54,7 @@ const ForgotPasswordMethods = () => {
               <Text style={styles.methodTitle}>via Email:</Text>
               <Text style={[styles.methodSubtitle, {
                 color: dark ? COLORS.white : COLORS.black
-              }]}>and***ley@yourdomain.com</Text>
+              }]}>example@gmail.com</Text>
             </View>
           </TouchableOpacity>
           <Button

@@ -258,7 +258,11 @@ const Signup = () => {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.logoContainer}>
-            <Image source={images.logo2} resizeMode="contain" style={styles.logo2} />
+            <Image
+              source={require('../assets/images/Blupay_logo.png')}
+              resizeMode="contain"
+              style={{ width: 200, height: 100 }}
+            />
           </View>
 
           <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.black }]}>

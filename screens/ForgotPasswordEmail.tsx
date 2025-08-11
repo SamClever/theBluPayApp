@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Image, ImageSourcePropType, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ImageSourcePropType, Platform, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES, icons, images } from '../constants';
@@ -10,6 +10,7 @@ import CheckBox from '@react-native-community/checkbox';
 import Button from '../components/Button';
 import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 type Nav = {
   navigate: (value: string, params?: any) => void
@@ -34,6 +35,11 @@ const ForgotPasswordEmail = () => {
   const [isChecked, setChecked] = useState(false);
   const { colors, dark } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('Information');
+  const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info' | 'custom'>('custom');
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
 
   const inputChangedHandler = useCallback(
     (inputId: string, inputValue: string) => {
@@ -51,12 +57,26 @@ const ForgotPasswordEmail = () => {
     }
   }, [error])
 
+  const showAlert = (
+    type: 'success' | 'error' | 'warning' | 'info' | 'custom',
+    message: string,
+    cb?: () => void,
+    title?: string
+  ) => {
+    setAlertType(type);
+    setAlertMessage(message);
+    setAlertTitle(title || (type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Information'));
+    setAlertVisible(true);
+    setAlertCallback(() => cb || null);
+    // Do not auto-dismiss here, let CustomAlertModal handle animation and timing
+  };
+
   const handleForgotPassword = async () => {
     try {
       const email = formState.inputValues.email;
       // basic guard
       if (!email) {
-        Alert.alert('Missing email', 'Please enter your email address.');
+        showAlert('warning', 'Please enter your email address.', undefined, 'Missing Email');
         return;
       }
       setLoading(true);
@@ -68,15 +88,14 @@ const ForgotPasswordEmail = () => {
       const data = await resp.json().catch(() => ({}));
       if (resp.ok) {
         const message = data?.message || 'OTP code sent to your email.';
-        Alert.alert('Check your email', message);
-        navigate('OtpVerification' as any, { email });
+        showAlert('success', message, () => navigate('OtpVerification' as any, { email }), 'Check your email');
       } else {
         // Extract reasonable message
         const msg = data?.message || data?.detail || data?.error || 'Unable to process request.';
-        Alert.alert('Request failed', String(msg));
+        showAlert('error', String(msg), undefined, 'Request failed');
       }
     } catch (e: any) {
-      Alert.alert('Network error', e?.message || 'Please check your internet connection.');
+      showAlert('error', e?.message || 'Please check your internet connection.', undefined, 'Network error');
     } finally {
       setLoading(false);
     }
@@ -89,9 +108,9 @@ const ForgotPasswordEmail = () => {
         <ScrollView style={{ marginVertical: 54 }} showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
             <Image
-              source={images.logo as ImageSourcePropType}
+              source={require('../assets/images/Blupay_logo.png')}
               resizeMode='contain'
-              style={styles.logo}
+              style={[styles.logo, { tintColor: undefined }]}
             />
           </View>
           <Text style={[styles.title, {
@@ -151,6 +170,28 @@ const ForgotPasswordEmail = () => {
             <Text style={styles.bottomRight}>{"  "}Sign Up</Text>
           </TouchableOpacity>
         </View>
+        <CustomAlertModal
+          visible={alertVisible}
+          onClose={() => {
+            setAlertVisible(false);
+            if (alertCallback) {
+              alertCallback();
+              setAlertCallback(null);
+            }
+          }}
+          title={alertTitle}
+          message={alertMessage}
+          type={alertType}
+          buttonText="Okay"
+          animationType="fade" // Use fade for a modal-like effect
+          position="center"    // Ensure position is center for modal
+          modalStyle={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+            // Optional: add a little scale or opacity animation if your modal supports it
+          }}
+        />
       </View>
     </SafeAreaView>
   )
@@ -167,7 +208,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white
   },
   logo: {
-    width: 100,
+    width: 200,
     height: 100,
     tintColor: COLORS.primary
   },
