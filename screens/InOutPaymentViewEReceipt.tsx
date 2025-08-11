@@ -132,6 +132,9 @@ const InOutPaymentViewEreceipt = () => {
    */
   const renderContent = () => {
     const transactionId = (isTopup ? (item as TopupDetail)?.payment_reference : (item as PayoutDetail)?.payout_reference) || '—';
+    const amountText = `${formatMoney((item as any)?.amount)} ${(item as any)?.currency}`;
+    const statusText = String((item as any)?.status || '—').toUpperCase();
+    const { bg: statusBg, fg: statusFg, text: statusColor } = getStatusColors(statusText);
 
     const handleCopyToClipboard = () => {
       Clipboard.setString(transactionId);
@@ -140,133 +143,69 @@ const InOutPaymentViewEreceipt = () => {
 
     return (
       <View style={{ marginVertical: 22 }}>
-        <Barcode
-          format="EAN13"
-          value="0123456789012"
-          text="0123456789012"
-          width={SIZES.width - 64}
-          height={72}
-          style={{
-            marginBottom: 4,
-            backgroundColor: dark ? COLORS.dark1 : COLORS.white,
-          }}
-          lineColor={dark ? COLORS.white : COLORS.black}
-          textStyle={{
-            color: dark ? COLORS.white : COLORS.black
-          }}
-          maxWidth={SIZES.width - 64}
-        />
-          <View style={[styles.summaryContainer, {
-          backgroundColor: dark ? COLORS.dark2 : COLORS.white,
-          borderRadius: 6,
-        }]}>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Amount</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-              {formatMoney((item as any)?.amount)} {(item as any)?.currency}
-            </Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>{isTopup ? 'Channel' : 'Provider'}</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>{providerOrChannel || '—'}</Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Account</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>{(item as any)?.account_number || '—'}</Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Date</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>{formatDateTime((item as any)?.created_at) || '—'}</Text>
-          </View>
-          {isTopup ? (
-            <>
-              <View style={styles.viewContainer}>
-                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Customer</Text>
-                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-                  {(item as TopupDetail)?.customer_name || '—'}
-                </Text>
-              </View>
-              <View style={styles.viewContainer}>
-                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Mobile</Text>
-                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-                  {(item as TopupDetail)?.customer_phone || '—'}
-                </Text>
-              </View>
-            </>
-          ) : (
-            <>
-              <View style={styles.viewContainer}>
-                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Beneficiary</Text>
-                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-                  {(item as PayoutDetail)?.beneficiary_name || (item as PayoutDetail)?.preview_data?.receiver?.accountName || '—'}
-                </Text>
-              </View>
-              <View style={styles.viewContainer}>
-                <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Mobile</Text>
-                <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-                  {(item as PayoutDetail)?.beneficiary_phone || (item as PayoutDetail)?.preview_data?.receiver?.accountNumber || '—'}
-                </Text>
-              </View>
-            </>
-          )}
+        {/* Barcode card */}
+        <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}> 
+          <Barcode
+            format="EAN13"
+            value="0123456789012"
+            text="0123456789012"
+            width={SIZES.width - 64}
+            height={72}
+            style={{ marginBottom: 8, backgroundColor: 'transparent' }}
+            lineColor={dark ? COLORS.white : COLORS.black}
+            textStyle={{ color: dark ? COLORS.white : COLORS.black }}
+            maxWidth={SIZES.width - 64}
+          />
         </View>
 
-        <View style={[styles.summaryContainer, {
-          backgroundColor: dark ? COLORS.dark2 : COLORS.white,
-          borderRadius: 6,
-        }]}>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Reference</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-              {isTopup ? (item as TopupDetail)?.payment_reference : (item as PayoutDetail)?.payout_reference || '—'}
-            </Text>
+        {/* Summary header card */}
+        <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}> 
+          <View style={styles.summaryHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.cardTitle, { color: dark ? COLORS.white : COLORS.greyscale900 }]}>
+                {isTopup ? 'Topup' : 'Payout'} {providerOrChannel ? `• ${providerOrChannel}` : ''}
+              </Text>
+              <Text style={[styles.dateSmall, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>
+                {formatDateTime((item as any)?.created_at) || '—'}
+              </Text>
+            </View>
+            <View style={[styles.statusChip, { backgroundColor: statusBg, borderColor: statusFg }]}> 
+              <Text style={[styles.statusChipText, { color: statusColor }]}>{statusText}</Text>
+            </View>
           </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Order Ref</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-              {isTopup ? (item as TopupDetail)?.order_reference : (item as PayoutDetail)?.order_reference || '—'}
-            </Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Status</Text>
-            <TouchableOpacity style={styles.statusBtn}>
-              <Text style={styles.statusBtnText}>{(item as any)?.status || '—'}</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={[styles.amountText, { color: isTopup ? COLORS.primary : COLORS.red }]}>{amountText}</Text>
+          <Text style={[styles.subtleText, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Account { (item as any)?.account_number || '—' }</Text>
         </View>
-        <View style={[styles.summaryContainer, {
-          backgroundColor: dark ? COLORS.dark2 : COLORS.white,
-          borderRadius: 6,
-        }]}>
+
+        {/* Parties and account card */}
+        <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}> 
+          <InfoRow label={isTopup ? 'Customer' : 'Beneficiary'} value={(isTopup ? (item as TopupDetail)?.customer_name : (item as PayoutDetail)?.beneficiary_name) || (isTopup ? undefined : (item as PayoutDetail)?.preview_data?.receiver?.accountName) || '—'} />
+          <InfoRow label="Mobile" value={(isTopup ? (item as TopupDetail)?.customer_phone : (item as PayoutDetail)?.beneficiary_phone) || (!isTopup ? (item as PayoutDetail)?.preview_data?.receiver?.accountNumber : undefined) || '—'} />
+          <View style={styles.divider} />
+          <InfoRow label={isTopup ? 'Channel' : 'Provider'} value={providerOrChannel || '—'} />
+        </View>
+
+        {/* References card */}
+        <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}> 
+          <InfoRow label="Reference" value={(isTopup ? (item as TopupDetail)?.payment_reference : (item as PayoutDetail)?.payout_reference) || '—'} />
+          <InfoRow label="Order Ref" value={(isTopup ? (item as TopupDetail)?.order_reference : (item as PayoutDetail)?.order_reference) || '—'} />
+          <View style={styles.divider} />
           <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>{isTopup ? 'Collected' : 'Total'}</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-              {formatMoney((item as any)?.total_amount || (item as any)?.collected_amount || (item as any)?.amount)} {(item as any)?.currency || (item as any)?.collected_currency || ''}
-            </Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>{isTopup ? 'Method' : 'Fee'}</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>
-              {isTopup ? ((item as TopupDetail)?.payment_method || '—') : `${formatMoney((item as PayoutDetail)?.fee || 0)} ${(item as PayoutDetail)?.currency || ''}`}
-            </Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : "gray" }]}>Message</Text>
-            <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]} numberOfLines={2}>
-              {(item as any)?.message || '—'}
-            </Text>
-          </View>
-          <View style={styles.viewContainer}>
-            <Text style={[styles.viewLeft, {
-              color: dark ? COLORS.grayscale400 : "gray"
-            }]}>Transaction ID</Text>
+            <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : 'gray' }]}>Transaction ID</Text>
             <View style={styles.copyContentContainer}>
               <Text style={styles.viewRight}>{transactionId}</Text>
               <TouchableOpacity style={{ marginLeft: 8 }} onPress={handleCopyToClipboard}>
-                <MaterialCommunityIcons name="content-copy" size={24} color={COLORS.primary} />
+                <MaterialCommunityIcons name="content-copy" size={20} color={COLORS.primary} />
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+
+        {/* Payment card */}
+        <View style={[styles.card, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}> 
+          <InfoRow label={isTopup ? 'Collected' : 'Total'} value={`${formatMoney((item as any)?.total_amount || (item as any)?.collected_amount || (item as any)?.amount)} ${ (item as any)?.currency || (item as any)?.collected_currency || '' }`} />
+          <InfoRow label={isTopup ? 'Method' : 'Fee'} value={isTopup ? ((item as TopupDetail)?.payment_method || '—') : `${formatMoney((item as PayoutDetail)?.fee || 0)} ${(item as PayoutDetail)?.currency || ''}`} />
+          <InfoRow label="Message" value={(item as any)?.message || '—'} />
         </View>
       </View>
     )
@@ -371,12 +310,18 @@ const styles = StyleSheet.create({
     height: 24,
     tintColor: COLORS.black
   },
-  summaryContainer: {
+  card: {
     width: SIZES.width - 32,
     backgroundColor: COLORS.white,
-    alignItems: "center",
+    borderRadius: 16,
     padding: 16,
-    marginVertical: 8
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    alignSelf: 'center'
   },
   viewContainer: {
     flexDirection: "row",
@@ -411,6 +356,48 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Urbanist Medium",
     color: COLORS.primary
+  },
+  summaryHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  cardTitle: {
+    fontFamily: 'Urbanist Bold',
+    fontSize: 16,
+    marginBottom: 4
+  },
+  dateSmall: {
+    fontFamily: 'Urbanist Regular',
+    fontSize: 12
+  },
+  statusChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  statusChipText: {
+    fontFamily: 'Urbanist Bold',
+    fontSize: 12
+  },
+  amountText: {
+    fontFamily: 'Urbanist Bold',
+    fontSize: 24,
+    marginTop: 8
+  },
+  subtleText: {
+    fontFamily: 'Urbanist Regular',
+    fontSize: 12,
+    marginTop: 6
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    backgroundColor: COLORS.grayscale100,
+    marginVertical: 8
   }
 })
 
@@ -432,3 +419,32 @@ function formatDateTime(iso?: string): string {
     return `${date} | ${time}`;
   } catch { return ''; }
 }
+
+function getStatusColors(status?: string) {
+  const s = String(status || '').toUpperCase();
+  if (s === 'SUCCESS' || s === 'COMPLETED') {
+    return { bg: 'rgba(10, 190, 117, 0.12)', fg: COLORS.success, text: COLORS.success };
+  }
+  if (s === 'PENDING' || s === 'PROCESSING' || s === 'AUTHORIZED') {
+    return { bg: 'rgba(250, 204, 21, 0.12)', fg: COLORS.warning, text: COLORS.warning };
+  }
+  if (s.includes('FAIL') || s === 'FAILED' || s === 'CANCELLED' || s === 'ERROR') {
+    return { bg: 'rgba(247, 85, 85, 0.12)', fg: COLORS.error, text: COLORS.error };
+  }
+  return { bg: COLORS.tansparentPrimary, fg: COLORS.primary, text: COLORS.primary };
+}
+
+// Reusable label/value row
+const InfoRow: React.FC<{ label: string; value?: any }> = ({ label, value }) => {
+  const { dark } = useTheme();
+  return (
+    <View style={styles.viewContainer}>
+      <Text style={[styles.viewLeft, { color: dark ? COLORS.grayscale400 : 'gray' }]}>{label}</Text>
+      {typeof value === 'string' || typeof value === 'number' ? (
+        <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]} numberOfLines={2}>{String(value)}</Text>
+      ) : (
+        value || <Text style={[styles.viewRight, { color: dark ? COLORS.white : COLORS.black }]}>—</Text>
+      )}
+    </View>
+  );
+};

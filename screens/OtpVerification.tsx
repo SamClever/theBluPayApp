@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -6,7 +6,7 @@ import { COLORS } from '../constants';
 import { OtpInput } from "react-native-otp-entry";
 import Button from "../components/Button";
 import { useTheme } from '../theme/ThemeProvider';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type Nav = {
   navigate: (value: string) => void
@@ -14,7 +14,11 @@ type Nav = {
 
 const OTPVerification = () => {
   const { navigate } = useNavigation<Nav>();
+  const route = useRoute<any>();
+  const email: string = route?.params?.email || '';
   const [time, setTime] = useState(50);
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
   const { colors, dark } = useTheme();
 
   useEffect(() => {
@@ -27,6 +31,46 @@ const OTPVerification = () => {
     };
   }, [])
 
+  const maskEmail = (e: string) => {
+    if (!e) return 'your email';
+    const [name, domain] = e.split('@');
+    if (!domain) return e;
+    const maskedName = name.length <= 2 ? name[0] + '*' : name[0] + '*'.repeat(Math.max(1, name.length - 2)) + name[name.length - 1];
+    return `${maskedName}@${domain}`;
+  };
+
+  const handleVerify = async () => {
+    if ((otp || '').length !== 6) {
+      Alert.alert('Invalid code', 'Please enter the 6-digit code sent to your email.');
+      return;
+    }
+    if (!email) {
+      Alert.alert('Missing email', 'Email is required to verify your code.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const resp = await fetch('https://theblupayapi.com/userAuth/verify-forgot-password-otp/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp_code: otp }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok) {
+        const message = data?.message || 'OTP verified successfully.';
+        Alert.alert('Verified', message);
+        navigate('CreateNewPassword' as any, { email, otp_code: otp });
+      } else {
+        const msg = data?.message || data?.detail || data?.error || 'Verification failed. Please try again.';
+        Alert.alert('Verification failed', String(msg));
+      }
+    } catch (e: any) {
+      Alert.alert('Network error', e?.message || 'Please check your internet connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -34,13 +78,13 @@ const OTPVerification = () => {
         <ScrollView>
           <Text style={[styles.title, {
             color: dark ? COLORS.white : COLORS.black
-          }]}>Code has been send to +1 111 ******99</Text>
+          }]}>Code has been sent to {maskEmail(email)}</Text>
           <OtpInput
-            numberOfDigits={4}
-            onTextChange={(text) => console.log(text)}
+            numberOfDigits={6}
+            onTextChange={(text) => setOtp(text)}
             focusColor={COLORS.primary}
             focusStickBlinkingDuration={500}
-            onFilled={(text) => console.log(`OTP is ${text}`)}
+            onFilled={(text) => setOtp(text)}
             theme={{
               pinCodeContainerStyle: {
                 backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite,
@@ -65,12 +109,16 @@ const OTPVerification = () => {
             }]}>s</Text>
           </View>
         </ScrollView>
-        <Button
-          title="Verify"
-          filled
-          style={styles.button}
-          onPress={() => { navigate("CreateNewPassword") }}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color={COLORS.primary} style={styles.button} />
+        ) : (
+          <Button
+            title="Verify"
+            filled
+            style={styles.button}
+            onPress={handleVerify}
+          />
+        )}
       </View>
     </SafeAreaView>
   )

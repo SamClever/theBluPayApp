@@ -13,7 +13,7 @@ type Nav = {
 
 const ForgotPasswordMethods = () => {
   const { navigate } = useNavigation<Nav>();
-  const [selectedMethod, setSelectedMethod] = useState('sms');
+  const [selectedMethod, setSelectedMethod] = useState('email');
   const { colors, dark } = useTheme();
 
   const handleMethodPress = (method: any) => {
@@ -36,25 +36,7 @@ const ForgotPasswordMethods = () => {
             color: dark ? COLORS.white : COLORS.greyscale900
           }]}>Select which contact details
             should we use to reset your password</Text>
-          <TouchableOpacity
-            style={[
-              styles.methodContainer,
-              selectedMethod === 'sms' && { borderColor: COLORS.primary, borderWidth: 2 },
-            ]}
-            onPress={() => handleMethodPress('sms')}>
-            <View style={styles.iconContainer}>
-              <Image
-                source={icons.chat as ImageSourcePropType}
-                resizeMode='contain'
-                style={styles.icon} />
-            </View>
-            <View>
-              <Text style={styles.methodTitle}>via SMS:</Text>
-              <Text style={[styles.methodSubtitle, {
-                color: dark ? COLORS.white : COLORS.black
-              }]}>+1 111 ******99</Text>
-            </View>
-          </TouchableOpacity>
+          {/* SMS method hidden as requested */}
           <TouchableOpacity
             style={[
               styles.methodContainer,
@@ -78,13 +60,7 @@ const ForgotPasswordMethods = () => {
             title="Continue"
             filled
             style={styles.button}
-            onPress={() =>
-              navigate(
-                selectedMethod === "sms"
-                  ? 'ForgotPasswordPhoneNumber'
-                  : 'ForgotPasswordEmail'
-              )
-            }
+            onPress={() => navigate('ForgotPasswordEmail')}
           />
         </ScrollView>
       </View>

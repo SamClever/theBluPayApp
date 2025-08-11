@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Image, ImageSourcePropType, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Image, ImageSourcePropType, Platform, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SIZES, icons, images } from '../constants';
@@ -12,7 +12,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 
 type Nav = {
-  navigate: (value: string) => void
+  navigate: (value: string, params?: any) => void
 } 
 
 const isTestMode = true;
@@ -33,6 +33,7 @@ const ForgotPasswordEmail = () => {
   const [error, setError] = useState(null);
   const [isChecked, setChecked] = useState(false);
   const { colors, dark } = useTheme();
+  const [loading, setLoading] = useState(false);
 
   const inputChangedHandler = useCallback(
     (inputId: string, inputValue: string) => {
@@ -49,6 +50,37 @@ const ForgotPasswordEmail = () => {
       Alert.alert('An error occured', error)
     }
   }, [error])
+
+  const handleForgotPassword = async () => {
+    try {
+      const email = formState.inputValues.email;
+      // basic guard
+      if (!email) {
+        Alert.alert('Missing email', 'Please enter your email address.');
+        return;
+      }
+      setLoading(true);
+      const resp = await fetch('https://theblupayapi.com/userAuth/forgot-password/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok) {
+        const message = data?.message || 'OTP code sent to your email.';
+        Alert.alert('Check your email', message);
+        navigate('OtpVerification' as any, { email });
+      } else {
+        // Extract reasonable message
+        const msg = data?.message || data?.detail || data?.error || 'Unable to process request.';
+        Alert.alert('Request failed', String(msg));
+      }
+    } catch (e: any) {
+      Alert.alert('Network error', e?.message || 'Please check your internet connection.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
@@ -93,12 +125,16 @@ const ForgotPasswordEmail = () => {
               </View>
             </View>
           </View>
-          <Button
-            title="Reset Password"
-            filled
-            onPress={() => navigate("OtpVerification")}
-            style={styles.button}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.primary} style={styles.button} />
+          ) : (
+            <Button
+              title="Reset Password"
+              filled
+              onPress={handleForgotPassword}
+              style={styles.button}
+            />
+          )}
           <TouchableOpacity
             onPress={() => navigate("Login")}>
             <Text style={styles.forgotPasswordBtnText}>Remenber the password?</Text>
