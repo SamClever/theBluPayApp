@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Checkbox from 'expo-checkbox';
 import Icon from 'react-native-vector-icons/Feather';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 import { COLORS, SIZES, icons, images } from '../constants';
 import Header from '../components/Header';
@@ -53,6 +54,49 @@ const Signup = () => {
   const [alertTitle, setAlertTitle] = useState('Information');
   const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info' | 'custom'>('custom');
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
+
+  // Google Sign-In for React Native CLI
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // Required for web and Android
+      offlineAccess: false,
+    });
+  }, []);
+
+  const handleGoogleSignUp = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      setAlertType('success');
+      setAlertTitle('Google Sign Up');
+      setAlertMessage('Google account connected successfully!');
+      setAlertVisible(true);
+      // TODO: Send userInfo.user info to your backend for registration/login
+    } catch (err) {
+      const error = err as { code?: string };
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        setAlertType('error');
+        setAlertTitle('Google Sign Up');
+        setAlertMessage('Google sign up cancelled.');
+        setAlertVisible(true);
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        setAlertType('warning');
+        setAlertTitle('Google Sign Up');
+        setAlertMessage('Google sign in already in progress.');
+        setAlertVisible(true);
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setAlertType('error');
+        setAlertTitle('Google Sign Up');
+        setAlertMessage('Google Play Services not available or outdated.');
+        setAlertVisible(true);
+      } else {
+        setAlertType('error');
+        setAlertTitle('Google Sign Up');
+        setAlertMessage('Google sign up failed. Please try again.');
+        setAlertVisible(true);
+      }
+    }
+  };
 
   const inputChangedHandler = useCallback((inputId: string, inputValue: string) => {
     const result = validateInput(inputId, inputValue);
@@ -338,7 +382,10 @@ const Signup = () => {
           <View style={styles.socialBtnContainer}>
             <SocialButton icon={icons.appleLogo} onPress={() => console.log('Apple Auth')} />
             <SocialButton icon={icons.facebook} onPress={() => console.log('Facebook Auth')} />
-            <SocialButton icon={icons.google} onPress={() => console.log('Google Auth')} />
+            <SocialButton
+              icon={icons.google}
+              onPress={handleGoogleSignUp}
+            />
           </View>
         </ScrollView>
 
