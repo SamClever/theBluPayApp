@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { View, Text, StyleSheet, ActivityIndicator, Modal } from 'react-native';
+=======
+import { View, Text, StyleSheet, Alert, ActivityIndicator, Modal } from 'react-native';
+>>>>>>> 47a2ff4a (move activete account to create new pin)
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -32,6 +36,7 @@ const CreateNewPIN = () => {
   const { colors, dark } = useTheme();
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
   
   // Custom alert state variables
   const [showAlert, setShowAlert] = useState(false);
@@ -62,6 +67,9 @@ const CreateNewPIN = () => {
     setAlertVisible(false);
     navigation.navigate('Login');
   };
+=======
+  const [successModal, setSuccessModal] = useState(false);
+>>>>>>> 47a2ff4a (move activete account to create new pin)
 
   // Remove setPin from handlePinFilled to avoid double state update
   const handlePinFilled = async (text: string) => {
@@ -82,8 +90,12 @@ const CreateNewPIN = () => {
         showCustomAlert('Error', 'Authentication token not found. Please login again.');
         return;
       }
+<<<<<<< HEAD
       
       // Add error handling for network issues
+=======
+      // 1. Set PIN
+>>>>>>> 47a2ff4a (move activete account to create new pin)
       const response = await fetch('https://theblupayapi.com/Account/account/set-pin/', {
         method: 'POST',
         headers: {
@@ -104,6 +116,7 @@ const CreateNewPIN = () => {
       console.log('PIN API data:', data);
       
       if (response.ok) {
+<<<<<<< HEAD
         // Instead of showing custom alert, show success modal with account details
         try {
           // Fetch account details
@@ -141,6 +154,35 @@ const CreateNewPIN = () => {
         const errorMessage = data?.message || 
           (data ? JSON.stringify(data, null, 2) : 'Failed to create PIN due to server error');
         showCustomAlert('Error', errorMessage);
+=======
+        // 2. After PIN is set, call KYC confirm API
+        try {
+          const confirmResponse = await fetch('https://theblupayapi.com/Account/kyc/activate/', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'User-Agent': 'AllPay-Mobile-App',
+            },
+          });
+          if (!confirmResponse.ok) {
+            const confirmError = await confirmResponse.text();
+            console.log('❌ KYC Confirm API Error:', confirmError);
+            // Optionally show a warning, but still show PIN success modal
+            Alert.alert('Warning', 'PIN set, but KYC confirmation failed. Please contact support if your account is not activated.');
+          } else {
+            const confirmData = await confirmResponse.json();
+            console.log('✅ KYC Confirm API Response:', confirmData);
+          }
+        } catch (kycError) {
+          console.log('KYC Confirm API error:', kycError);
+          Alert.alert('Warning', 'PIN set, but KYC confirmation failed due to network error.');
+        }
+        setSuccessModal(true);
+      } else {
+        Alert.alert('Error', data?.message || JSON.stringify(data, null, 2) || 'Failed to create PIN.');
+>>>>>>> 47a2ff4a (move activete account to create new pin)
       }
     } catch (error) {
       console.log('PIN API error:', error);
@@ -187,6 +229,7 @@ const CreateNewPIN = () => {
           onPress={handleContinue}
           disabled={loading}
         />
+<<<<<<< HEAD
         
         {/* Custom Alert Component with better error handling */}
         {showAlert && (
@@ -267,6 +310,27 @@ const CreateNewPIN = () => {
                 onPress={handleSuccessContinue}
                 filled={true}
                 style={styles.successButton}
+=======
+        {/* Success Modal */}
+        <Modal
+          visible={successModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setSuccessModal(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ backgroundColor: colors.background, borderRadius: 16, padding: 32, alignItems: 'center', width: 320 }}>
+              <Text style={{ fontSize: 24, fontFamily: 'Urbanist Bold', color: COLORS.success, marginBottom: 16 }}>PIN Created!</Text>
+              <Text style={{ fontSize: 16, fontFamily: 'Urbanist Regular', color: colors.text, textAlign: 'center', marginBottom: 24 }}>Your PIN was set successfully. You can now use it to secure your account.</Text>
+              <Button
+                title="Go to Login"
+                filled
+                style={{ width: '100%' }}
+                onPress={() => {
+                  setSuccessModal(false);
+                  navigate('Login');
+                }}
+>>>>>>> 47a2ff4a (move activete account to create new pin)
               />
             </View>
           </View>

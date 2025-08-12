@@ -207,112 +207,7 @@ const ReviewInfo = () => {
     }
   };
 
-  const handleConfirm = async () => {
-    try {
-      setSubmitting(true);
-      const token = await AsyncStorage.getItem('token');
-      
-      console.log('Confirming KYC with token:', token ? 'Token exists' : 'No token');
-      console.log('Retry count:', retryCount);
-      console.log('Making API call to:', 'https://theblupayapi.com/Account/kyc/activate/');
-      
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      const response = await fetch('https://theblupayapi.com/Account/kyc/activate/', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'User-Agent': 'AllPay-Mobile-App',
-        },
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      console.log('Confirm API Response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Confirm API Response data:', data);
-        
-        // Store success data and show custom alert
-        setSuccessData(data);
-        setAlertVisible(true);
-      } else {
-        const errorData = await response.text();
-        console.log('❌ Confirm API Error response:', errorData);
-        console.log('❌ Confirm Response status:', response.status);
-        
-        let errorMessage = 'Failed to confirm information';
-        try {
-          const data = JSON.parse(errorData);
-          errorMessage = data.message || data.detail || data.error || errorMessage;
-        } catch (e) {
-          // If response is not JSON, use the text as is
-          errorMessage = errorData || errorMessage;
-        }
-        
-        Alert.alert('Error', errorMessage);
-      }
-    } catch (error: any) {
-      console.error('Error confirming info:', error);
-      console.log('Error details:', error);
-      
-      // More specific error handling
-      let errorMessage = 'Network error occurred. Please try again.';
-      
-      if (error.name === 'AbortError') {
-        errorMessage = 'Request timed out. Please check your connection and try again.';
-      } else if (error instanceof TypeError && error.message.includes('fetch')) {
-        errorMessage = 'No internet connection. Please check your network and try again.';
-      } else if (error instanceof Error) {
-        errorMessage = `Error: ${error.message}`;
-      }
-      
-      // Set error alert state to hide the screen
-      setShowErrorAlert(true);
-      
-      // Show retry option for network errors
-      if (errorMessage.includes('connection') || errorMessage.includes('timed out')) {
-        Alert.alert(
-          'Network Error', 
-          errorMessage,
-          [
-            { 
-              text: 'Cancel', 
-              style: 'cancel',
-              onPress: () => setShowErrorAlert(false)
-            },
-            { 
-              text: 'Retry', 
-              onPress: () => {
-                setShowErrorAlert(false);
-                setRetryCount(prev => prev + 1);
-                setTimeout(() => handleConfirm(), 1000);
-              }
-            }
-          ]
-        );
-      } else {
-        Alert.alert(
-          'Error', 
-          errorMessage,
-          [
-            {
-              text: 'OK',
-              onPress: () => setShowErrorAlert(false)
-            }
-          ]
-        );
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // handleConfirm removed: KYC confirm API now only called in CreateNewPIN screen
 
   const handleEdit = () => {
     navigation.goBack();
@@ -502,41 +397,28 @@ const ReviewInfo = () => {
           </InfoSection>
         </ScrollView>
 
-        {/* Action Buttons */}
+        {/* Action Buttons: Only Edit and Continue */}
         <View style={styles.buttonContainer}>
           <Button
-            title="Edit Information"
+            title="Update Information"
             onPress={handleEdit}
             filled={false}
             textColor={COLORS.primary}
             style={styles.editButton}
           />
           <Button
-            title={submitting ? "Confirming..." : "Confirm Information"}
-            onPress={handleConfirm}
-            disabled={submitting}
+            title="Continue"
+            onPress={() => navigation.navigate('CreateNewPIN')}
             filled={true}
             style={styles.confirmButton}
           />
-            </View>
+        </View>
           </>
         )}
       </View>
 
-      {/* Custom Success Alert Modal */}
-      <Modal
-        visible={alertVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setAlertVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.successAlert, { backgroundColor: colors.background }]}>
-            {/* Success Icon */}
-            <View style={styles.successIconContainer}>
-              <MaterialCommunityIcons name="check-circle" size={64} color={COLORS.success} />
-            </View>
 
+<<<<<<< HEAD
             {/* Title */}
             <Text style={[styles.successTitle, { color: colors.text }]}>
               Account Activated!
@@ -599,6 +481,8 @@ const ReviewInfo = () => {
           </View>
         </View>
       </Modal>
+=======
+>>>>>>> 47a2ff4a (move activete account to create new pin)
     </View>
   );
 };
