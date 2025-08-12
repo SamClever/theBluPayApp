@@ -327,14 +327,20 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white
   },
   logo: {
-    width: 200,
-    height: 100
+    width: '60%',
+    maxWidth: 240,
+    height: undefined,
+    aspectRatio: 2,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginBottom: 8,
   },
   logoContainer: {
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 32
   },
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
   title: {
     fontSize: 28,
     fontFamily: "Urbanist Bold",
