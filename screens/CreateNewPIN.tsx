@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -8,6 +8,7 @@ import Button from "../components/Button";
 import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomAlert from '../components/CustomAlert'; // Import custom alert component
 
 type Nav = {
   navigate: (value: string) => void
@@ -18,6 +19,26 @@ const CreateNewPIN = () => {
   const { colors, dark } = useTheme();
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Custom alert state variables
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [alertAction, setAlertAction] = useState<() => void>(() => {});
+
+  // Function to show custom alert - improved implementation
+  const showCustomAlert = (title: string, message: string, success: boolean = false, action?: () => void) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsSuccess(success);
+    if (action) {
+      setAlertAction(() => action);
+    } else {
+      setAlertAction(() => () => setShowAlert(false));
+    }
+    setShowAlert(true);
+  };
 
   // Remove setPin from handlePinFilled to avoid double state update
   const handlePinFilled = async (text: string) => {
@@ -27,7 +48,7 @@ const CreateNewPIN = () => {
 
   const handleContinue = async () => {
     if (pin.length !== 4) {
-      Alert.alert('Error', 'Please enter a 4-digit PIN.');
+      showCustomAlert('Error', 'Please enter a 4-digit PIN.');
       return;
     }
     setLoading(true);
@@ -35,9 +56,11 @@ const CreateNewPIN = () => {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         setLoading(false);
-        Alert.alert('Error', 'Authentication token not found. Please login again.');
+        showCustomAlert('Error', 'Authentication token not found. Please login again.');
         return;
       }
+      
+      // Add error handling for network issues
       const response = await fetch('https://theblupayapi.com/Account/account/set-pin/', {
         method: 'POST',
         headers: {
@@ -45,21 +68,33 @@ const CreateNewPIN = () => {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ pin }),
+      }).catch(error => {
+        throw new Error('Network request failed: ' + error.message);
       });
-      const data = await response.json();
+      
+      if (!response) {
+        throw new Error('No response received from server');
+      }
+      
+      const data = await response.json().catch(() => null);
       console.log('PIN API status:', response.status);
       console.log('PIN API data:', data);
+      
       if (response.ok) {
-        Alert.alert('Success', 'PIN created successfully!', [
-          { text: 'OK', onPress: () => navigate('Fingerprint') }
-        ]);
+        showCustomAlert('Success', 'PIN created successfully!', true, () => {
+          setShowAlert(false);
+          navigate('Fingerprint');
+        });
       } else {
-        // Show full error details for debugging
-        Alert.alert('Error', data?.message || JSON.stringify(data, null, 2) || 'Failed to create PIN.');
+        // Improved error message formatting
+        const errorMessage = data?.message || 
+          (data ? JSON.stringify(data, null, 2) : 'Failed to create PIN due to server error');
+        showCustomAlert('Error', errorMessage);
       }
     } catch (error) {
       console.log('PIN API error:', error);
-      Alert.alert('Error', 'An error occurred. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      showCustomAlert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -101,6 +136,17 @@ const CreateNewPIN = () => {
           onPress={handleContinue}
           disabled={loading}
         />
+        
+        {/* Custom Alert Component with better error handling */}
+        {showAlert && (
+          <CustomAlert 
+            visible={showAlert}
+            title={alertTitle}
+            message={alertMessage}
+            success={isSuccess}
+            onClose={alertAction}
+          />
+        )}
       </View>
     </SafeAreaView>
   )
