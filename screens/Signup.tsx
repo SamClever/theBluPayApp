@@ -223,7 +223,7 @@ const Signup = () => {
         isUserExists
       ) {
         console.log('🔍 User exists detection triggered - showing alert');
-        setAlertMessage('Welcome back! It looks like you already have an account with us. Please sign in to continue.');
+        setAlertMessage('A user with this email already exists in our system. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.');
         setAlertTitle('Account Already Exists');
         setAlertType('info');
         setAlertCallback(() => () => navigate('Login'));
@@ -258,10 +258,10 @@ const Signup = () => {
         }
       } else {
         // ❌ Show error message from API (or full JSON if missing)
-        let userMessage = 'Registration failed.';
-        let alertTitle = 'Registration Error';
+        let userMessage = 'We were unable to create your account at this time. Please try again, or contact support if the problem persists.';
+        let alertTitle = 'Registration Issue';
         let alertType: 'success' | 'error' | 'warning' | 'info' | 'custom' = 'error';
-        
+
         // Very specific fallback check for user existence - require strong evidence
         const fallbackUserExistsCheck = 
           response.status === 409 || // Conflict status specifically for duplicates
@@ -274,23 +274,42 @@ const Signup = () => {
             (responseText.includes('already') && responseText.includes('taken')) ||
             responseText.includes('duplicate entry')
           ));
-        
+
         if (fallbackUserExistsCheck) {
           console.log('🔍 Strict fallback user exists check triggered');
-          userMessage = 'Welcome back! It looks like you already have an account with us. Please sign in to continue.';
+          userMessage = 'A user with this email already exists. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.';
+          alertTitle = 'Account Already Exists';
+          alertType = 'info';
+          setAlertCallback(() => () => navigate('Login'));
+        } else if (
+          (data.message && data.message.toLowerCase().includes('email is already registered')) ||
+          (data.detail && data.detail.toLowerCase().includes('email is already registered')) ||
+          (data.error && data.error.toLowerCase().includes('email is already registered'))
+        ) {
+          userMessage = 'A user with this email already exists. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.';
           alertTitle = 'Account Already Exists';
           alertType = 'info';
           setAlertCallback(() => () => navigate('Login'));
         } else if (data.message?.toLowerCase().includes('password') || data.detail?.toLowerCase().includes('password')) {
           userMessage = 'Password must be at least 6 characters long.';
+          alertTitle = 'Password Issue';
+          alertType = 'warning';
         } else if (data.message?.toLowerCase().includes('email') || data.detail?.toLowerCase().includes('email')) {
           userMessage = 'Please enter a valid email address.';
+          alertTitle = 'Email Issue';
+          alertType = 'warning';
         } else if (data.error === 'Invalid credentials.') {
           userMessage = 'Your email or password is incorrect.';
+          alertTitle = 'Invalid Credentials';
+          alertType = 'warning';
         } else if (data.detail === 'User not found.') {
           userMessage = 'No account found with this email.';
+          alertTitle = 'User Not Found';
+          alertType = 'info';
         } else if (data.error === 'Network error') {
           userMessage = 'Please check your internet connection.';
+          alertTitle = 'Network Error';
+          alertType = 'error';
         } else if (data.message) {
           userMessage = data.message;
         } else if (data.detail) {
@@ -303,6 +322,7 @@ const Signup = () => {
         setAlertMessage(userMessage);
         setAlertTitle(alertTitle);
         setAlertType(alertType);
+        setAlertCallback(() => null); // Always provide a callback, even if it's just to close
         setAlertVisible(true);
       }
     } catch (error) {

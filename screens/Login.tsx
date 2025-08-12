@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 32
   },
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 100 }} keyboardShouldPersistTaps="handled">
+        // ...existing code...
   title: {
     fontSize: 28,
     fontFamily: "Urbanist Bold",
