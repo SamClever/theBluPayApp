@@ -104,8 +104,14 @@ const CreateNewPIN = () => {
         let pinErrorMsg = 'Failed to create PIN due to server error.';
         if (data) {
           const msg = (data.message || data.detail || data.error || '').toLowerCase();
-          if (msg.includes('already set')) {
-            pinErrorMsg = 'You have already set a PIN for your account.';
+          if (
+            msg.includes('already set') ||
+            msg.includes('user already exists') ||
+            msg.includes('account already exists') ||
+            msg.includes('email already exists') ||
+            msg.includes('email is already registered')
+          ) {
+            pinErrorMsg = 'A user with this account already exists. Please log in or reset your PIN if you forgot it.';
           } else if (msg.includes('invalid') || msg.includes('not valid')) {
             pinErrorMsg = 'The PIN you entered is invalid. Please enter a valid 4-digit PIN.';
           } else if (msg.includes('too short') || msg.includes('at least')) {

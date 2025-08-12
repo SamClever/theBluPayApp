@@ -222,13 +222,12 @@ const Signup = () => {
         )) ||
         isUserExists
       ) {
-        console.log('🔍 User exists detection triggered - showing alert');
-        setAlertMessage('A user with this email already exists in our system. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.');
-        setAlertTitle('Account Already Exists');
-        setAlertType('info');
+        setAlertMessage('A user with this email already exists. Please log in to your account. If you forgot your password, you can reset it from the login screen.');
+        setAlertTitle('User Already Exists');
+        setAlertType('custom');
         setAlertCallback(() => () => navigate('Login'));
         setAlertVisible(true);
-        return; // Add return to prevent further execution
+        return;
       } else if (response.ok || (response.status >= 200 && response.status < 300)) {
         // ✅ Check if the user was actually created successfully
         console.log('🔍 Registration appears successful:', response.status, data);
@@ -257,47 +256,91 @@ const Signup = () => {
           setAlertVisible(true);
         }
       } else {
-        // ❌ Show error message from API (or full JSON if missing)
-        let userMessage = 'We were unable to create your account at this time. Please try again, or contact support if the problem persists.';
-        let alertTitle = 'Registration Issue';
-        let alertType: 'success' | 'error' | 'warning' | 'info' | 'custom' = 'error';
-
-        // Very specific fallback check for user existence - require strong evidence
-        const fallbackUserExistsCheck = 
-          response.status === 409 || // Conflict status specifically for duplicates
+        // Robust fallback check for user existence - match all common duplicate user phrases
+        const fallbackUserExistsCheck =
+          response.status === 409 ||
           (response.status === 400 && (
-            // Only check for these specific combinations of words
+            responseText.includes('user already exists') ||
+            responseText.includes('email already exists') ||
+            responseText.includes('account already exists') ||
+            responseText.includes('email is already registered') ||
+            responseText.includes('user is already registered') ||
+            responseText.includes('email address is already in use') ||
+            responseText.includes('email already in use') ||
+            responseText.includes('duplicate entry') ||
+            responseText.includes('this email is already taken') ||
+            responseText.includes('user with this email already exists') ||
             (responseText.includes('user') && responseText.includes('exist')) ||
             (responseText.includes('email') && responseText.includes('exist')) ||
             (responseText.includes('account') && responseText.includes('exist')) ||
             (responseText.includes('already') && responseText.includes('registered')) ||
-            (responseText.includes('already') && responseText.includes('taken')) ||
-            responseText.includes('duplicate entry')
+            (responseText.includes('already') && responseText.includes('taken'))
           ));
 
-        if (fallbackUserExistsCheck) {
-          console.log('🔍 Strict fallback user exists check triggered');
-          userMessage = 'A user with this email already exists. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.';
-          alertTitle = 'Account Already Exists';
-          alertType = 'info';
-          setAlertCallback(() => () => navigate('Login'));
-        } else if (
-          (data.message && data.message.toLowerCase().includes('email is already registered')) ||
-          (data.detail && data.detail.toLowerCase().includes('email is already registered')) ||
-          (data.error && data.error.toLowerCase().includes('email is already registered'))
+        // Debug: log the response and data for user-exists check
+        if (fallbackUserExistsCheck ||
+          (data.message && (
+            data.message.toLowerCase().includes('user already exists') ||
+            data.message.toLowerCase().includes('email already exists') ||
+            data.message.toLowerCase().includes('account already exists') ||
+            data.message.toLowerCase().includes('email is already registered') ||
+            data.message.toLowerCase().includes('user is already registered') ||
+            data.message.toLowerCase().includes('email address is already in use') ||
+            data.message.toLowerCase().includes('email already in use') ||
+            data.message.toLowerCase().includes('duplicate entry') ||
+            data.message.toLowerCase().includes('this email is already taken') ||
+            data.message.toLowerCase().includes('user with this email already exists')
+          )) ||
+          (data.detail && (
+            data.detail.toLowerCase().includes('user already exists') ||
+            data.detail.toLowerCase().includes('email already exists') ||
+            data.detail.toLowerCase().includes('account already exists') ||
+            data.detail.toLowerCase().includes('email is already registered') ||
+            data.detail.toLowerCase().includes('user is already registered') ||
+            data.detail.toLowerCase().includes('email address is already in use') ||
+            data.detail.toLowerCase().includes('email already in use') ||
+            data.detail.toLowerCase().includes('duplicate entry') ||
+            data.detail.toLowerCase().includes('this email is already taken') ||
+            data.detail.toLowerCase().includes('user with this email already exists')
+          )) ||
+          (data.error && (
+            data.error.toLowerCase().includes('user already exists') ||
+            data.error.toLowerCase().includes('email already exists') ||
+            data.error.toLowerCase().includes('account already exists') ||
+            data.error.toLowerCase().includes('email is already registered') ||
+            data.error.toLowerCase().includes('user is already registered') ||
+            data.error.toLowerCase().includes('email address is already in use') ||
+            data.error.toLowerCase().includes('email already in use') ||
+            data.error.toLowerCase().includes('duplicate entry') ||
+            data.error.toLowerCase().includes('this email is already taken') ||
+            data.error.toLowerCase().includes('user with this email already exists')
+          ))
         ) {
-          userMessage = 'A user with this email already exists. If this is your account, please log in to continue. If you forgot your password, you can reset it from the login screen.';
-          alertTitle = 'Account Already Exists';
-          alertType = 'info';
+          console.log('🔴 USER EXISTS ALERT TRIGGERED', {
+            responseStatus: response.status,
+            responseText,
+            data
+          });
+          setAlertMessage('A user with this email already exists. Please log in to your account. If you forgot your password, you can reset it from the login screen.');
+          setAlertTitle('User Already Exists');
+          setAlertType('custom');
           setAlertCallback(() => () => navigate('Login'));
-        } else if (data.message?.toLowerCase().includes('password') || data.detail?.toLowerCase().includes('password')) {
+          setAlertVisible(true);
+          return;
+        }
+
+        // Only show the generic error if not a user-exists case
+        let userMessage = 'A user with this email already exists. Please log in to your account. If you forgot your password, you can reset it from the login screen.';
+        let alertTitle = 'User Already Exists';
+        let alertType: 'success' | 'error' | 'warning' | 'info' | 'custom' = 'custom';
+
+        if (data.message?.toLowerCase().includes('password') || data.detail?.toLowerCase().includes('password')) {
           userMessage = 'Password must be at least 6 characters long.';
           alertTitle = 'Password Issue';
           alertType = 'warning';
         } else if (data.message?.toLowerCase().includes('email') || data.detail?.toLowerCase().includes('email')) {
           userMessage = 'Please enter a valid email address.';
           alertTitle = 'Email Issue';
-          alertType = 'warning';
         } else if (data.error === 'Invalid credentials.') {
           userMessage = 'Your email or password is incorrect.';
           alertTitle = 'Invalid Credentials';
@@ -344,17 +387,18 @@ const Signup = () => {
         (errorString.includes('duplicate') && errorString.includes('email')) ||
         errorString.includes('email is already registered')
       ) {
-        setAlertMessage('Welcome back! It looks like you already have an account with us. Please sign in to continue.');
-        setAlertTitle('Account Already Exists');
-        setAlertType('info');
+        setAlertMessage('A user with this email already exists. Please log in to your account. If you forgot your password, you can reset it from the login screen.');
+        setAlertTitle('User Already Exists');
+        setAlertType('custom');
         setAlertCallback(() => () => navigate('Login'));
+        setAlertVisible(true);
+        return;
       } else {
         setAlertMessage(errorMessage);
         setAlertTitle('Network Error');
         setAlertType('error');
+        setAlertVisible(true);
       }
-      
-      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -547,4 +591,5 @@ const styles = StyleSheet.create({
   },
 });
 
+export default Signup;
 export default Signup;
