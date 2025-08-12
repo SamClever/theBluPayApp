@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Modal } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -9,13 +9,26 @@ import { useTheme } from '../theme/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '../components/CustomAlert'; // Import custom alert component
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 type Nav = {
   navigate: (value: string) => void
 }
 
+interface AccountData {
+  account_number: string;
+  pin_number: string;
+  red_code: string;
+  account_status: string;
+}
+
+interface SuccessData {
+  message: string;
+  account?: AccountData;
+}
+
 const CreateNewPIN = () => {
-  const { navigate } = useNavigation<Nav>();
+  const navigation = useNavigation<Nav>();
   const { colors, dark } = useTheme();
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,6 +39,10 @@ const CreateNewPIN = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [alertAction, setAlertAction] = useState<() => void>(() => {});
+  
+  // Success modal state variables
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [successData, setSuccessData] = useState<SuccessData | null>(null);
 
   // Function to show custom alert - improved implementation
   const showCustomAlert = (title: string, message: string, success: boolean = false, action?: () => void) => {
@@ -38,6 +55,12 @@ const CreateNewPIN = () => {
       setAlertAction(() => () => setShowAlert(false));
     }
     setShowAlert(true);
+  };
+  
+  // Function to handle success modal dismissal
+  const handleSuccessContinue = () => {
+    setAlertVisible(false);
+    navigation.navigate('Login');
   };
 
   // Remove setPin from handlePinFilled to avoid double state update
@@ -81,10 +104,38 @@ const CreateNewPIN = () => {
       console.log('PIN API data:', data);
       
       if (response.ok) {
-        showCustomAlert('Success', 'PIN created successfully!', true, () => {
-          setShowAlert(false);
-          navigate('Fingerprint');
-        });
+        // Instead of showing custom alert, show success modal with account details
+        try {
+          // Fetch account details
+          const accountResponse = await fetch('https://theblupayapi.com/Account/account/details/', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          
+          if (accountResponse.ok) {
+            const accountData = await accountResponse.json();
+            setSuccessData({
+              message: 'Your account has been activated successfully! Please log in to continue using BluPay.',
+              account: accountData
+            });
+            setAlertVisible(true);
+          } else {
+            // If can't get account details, still show success but without account details
+            setSuccessData({
+              message: 'PIN created successfully! Your account is now active. Please log in to continue.',
+            });
+            setAlertVisible(true);
+          }
+        } catch (error) {
+          console.log('Account details fetch error:', error);
+          // Still show success even if we couldn't get account details
+          setSuccessData({
+            message: 'PIN created successfully! Your account is now active.',
+          });
+          setAlertVisible(true);
+        }
       } else {
         // Improved error message formatting
         const errorMessage = data?.message || 
@@ -141,12 +192,85 @@ const CreateNewPIN = () => {
         {showAlert && (
           <CustomAlert 
             visible={showAlert}
-            title={alertTitle}
+            type={isSuccess ? "success" : "error"}
             message={alertMessage}
-            success={isSuccess}
-            onClose={alertAction}
+            onDismiss={alertAction}
           />
         )}
+        
+        {/* Custom Success Alert Modal */}
+        <Modal
+          visible={alertVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setAlertVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.successAlert, { backgroundColor: colors.background }]}>
+              {/* Success Icon */}
+              <View style={styles.successIconContainer}>
+                <MaterialCommunityIcons name="check-circle" size={64} color={COLORS.success} />
+              </View>
+
+              {/* Title */}
+              <Text style={[styles.successTitle, { color: colors.text }]}>
+                Account Activated!
+              </Text>
+
+              {/* Message */}
+              <Text style={[styles.successMessage, { color: colors.text }]}>
+                {successData?.message || 'Your account is active! We\'re reviewing your KYC now.'}
+              </Text>
+
+              {/* Account Information */}
+              {successData?.account && (
+                <View style={[styles.accountInfoContainer, { backgroundColor: dark ? COLORS.dark2 : COLORS.greyscale500 }]}>
+                  <Text style={[styles.accountInfoTitle, { color: colors.text }]}>
+                    Account Details
+                  </Text>
+                  
+                  <View style={styles.accountInfoRow}>
+                    <Text style={[styles.accountInfoLabel, { color: colors.text }]}>Account Number:</Text>
+                    <Text style={[styles.accountInfoValue, { color: COLORS.primary }]}>
+                      {successData.account.account_number}
+                    </Text>
+                  </View>
+
+                  <View style={styles.accountInfoRow}>
+                    <Text style={[styles.accountInfoLabel, { color: colors.text }]}>PIN:</Text>
+                    <Text style={[styles.accountInfoValue, { color: COLORS.primary }]}>
+                      {successData.account.pin_number}
+                    </Text>
+                  </View>
+
+                  <View style={styles.accountInfoRow}>
+                    <Text style={[styles.accountInfoLabel, { color: colors.text }]}>Red Code:</Text>
+                    <Text style={[styles.accountInfoValue, { color: COLORS.primary }]}>
+                      {successData.account.red_code}
+                    </Text>
+                  </View>
+
+                  <View style={styles.accountInfoRow}>
+                    <Text style={[styles.accountInfoLabel, { color: colors.text }]}>Status:</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: COLORS.success + '20' }]}>
+                      <Text style={[styles.statusText, { color: COLORS.success }]}>
+                        {successData.account.account_status}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Action Button */}
+              <Button
+                title="Go to Login"
+                onPress={handleSuccessContinue}
+                filled={true}
+                style={styles.successButton}
+              />
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   )
@@ -205,6 +329,81 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 144
   },
+  // Success Modal Styles
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20
+  },
+  successAlert: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: COLORS.white,
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  successIconContainer: {
+    marginBottom: 16
+  },
+  successTitle: {
+    fontSize: 24,
+    fontFamily: 'Urbanist Bold',
+    textAlign: 'center',
+    marginBottom: 12
+  },
+  successMessage: {
+    fontSize: 16,
+    fontFamily: 'Urbanist Regular',
+    textAlign: 'center',
+    marginBottom: 24
+  },
+  accountInfoContainer: {
+    width: '100%',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24
+  },
+  accountInfoTitle: {
+    fontSize: 16,
+    fontFamily: 'Urbanist SemiBold',
+    marginBottom: 12
+  },
+  accountInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  accountInfoLabel: {
+    fontSize: 14,
+    fontFamily: 'Urbanist Regular'
+  },
+  accountInfoValue: {
+    fontSize: 14,
+    fontFamily: 'Urbanist Medium',
+    color: COLORS.primary
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 16
+  },
+  statusText: {
+    fontSize: 12,
+    fontFamily: 'Urbanist Medium',
+  },
+  successButton: {
+    width: '100%',
+    borderRadius: 32,
+  }
 })
 
 export default CreateNewPIN

@@ -591,8 +591,7 @@ const ReviewInfo = () => {
               title="Continue"
               onPress={() => {
                 setAlertVisible(false);
-                // navigation.navigate('CreateNewPIN');
-                navigation.navigate('Login');  
+                navigation.navigate('CreateNewPIN');
               }}
               filled={true}
               style={styles.successButton}

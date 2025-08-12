@@ -118,7 +118,25 @@ const Signup = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
+      
+      // Always try to parse response as JSON, but handle cases where it's not valid JSON
+      let data;
+      try {
+        data = await response.json();
+        
+        // Log detailed response for debugging
+        console.log('🔍 Detailed API Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: [...response.headers.entries()],
+          data: data
+        });
+        
+      } catch (parseError) {
+        console.log('Response is not valid JSON:', parseError);
+        data = { error: 'Invalid server response format' };
+      }
+      
       console.log('Register response:', response.status, data);
       console.log('API Error Data:', {
         message: data.message,
@@ -138,18 +156,23 @@ const Signup = () => {
         fullResponseData: data
       });
 
-      // Check for user already exists patterns (more comprehensive)
+      // Refined list of specific patterns that definitively indicate user exists
+      // Only using very specific phrases that clearly indicate a user already exists
       const userExistsPatterns = [
-        'user is exist', 'already exists', 'user exist', 'user already', 'email already',
-        'user exists', 'email exists', 'account exists', 'already registered',
-        'user is already', 'email is already', 'account is already',
-        'duplicate', 'already taken', 'email taken', 'user taken',
-        'user with this email', 'email address is already', 'email is already',
-        'this email is already', 'email already registered', 'user already registered',
-        'account already exists', 'user already exists', 'email already exists',
-        'registration failed', 'user creation failed', 'email already in use',
-        'email address already', 'user with email', 'existing user'
+        'user already exists',
+        'email already exists',
+        'account already exists',
+        'email is already registered',
+        'user is already registered',
+        'email address is already in use',
+        'email already in use',
+        'duplicate entry',
+        'this email is already taken',
+        'user with this email already exists'
       ];
+
+      // Only consider 409 Conflict as definitive proof of existing user
+      // but don't act on it immediately - let the full response check handle it
 
       const responseText = [
         data.message?.toLowerCase(),
@@ -164,13 +187,23 @@ const Signup = () => {
 
       console.log('🔍 Response text for pattern matching:', responseText);
 
-      // Check multiple conditions for user existence
+      // More precise check for user existence - require explicit confirmation
       const isUserExists = 
-        userExistsPatterns.some(pattern => responseText.includes(pattern)) ||
-        response.status === 409 || // HTTP 409 Conflict
-        response.status === 422 || // HTTP 422 Unprocessable Entity (often used for validation errors)
-        (response.status === 400 && responseText.includes('email')) || // HTTP 400 with email-related error
-        (response.status >= 400 && response.status < 500 && !response.ok); // Any 4xx error that's not a success
+        // Only accept clear indications from the response text
+        (response.status === 409 && (
+          responseText.includes('exist') || 
+          responseText.includes('already') ||
+          responseText.includes('registered') ||
+          responseText.includes('duplicate')
+        )) || // HTTP 409 Conflict with explicit message
+        (responseText.includes('user already exists') || 
+         responseText.includes('email already exists') ||
+         responseText.includes('account already exists') ||
+         responseText.includes('already registered') ||
+         (responseText.includes('already') && responseText.includes('email')) ||
+         (responseText.includes('already') && responseText.includes('user')) ||
+         (responseText.includes('exists') && responseText.includes('email')) ||
+         (responseText.includes('exists') && responseText.includes('user')));
 
       console.log('🔍 User exists detection result:', {
         isUserExists,
@@ -178,33 +211,72 @@ const Signup = () => {
         responseStatus: response.status
       });
 
-      if (isUserExists) {
-        // Show a friendly alert if user already exists
+      // Check if the response contains explicit indication that the user exists
+      if (
+        // Only look for very explicit signals
+        (response.status === 409) || // 409 Conflict status code
+        (data && (
+          (typeof data.message === 'string' && data.message.toLowerCase().includes('already exists')) ||
+          (typeof data.error === 'string' && data.error.toLowerCase().includes('already exists')) ||
+          (typeof data.detail === 'string' && data.detail.toLowerCase().includes('already exists'))
+        )) ||
+        isUserExists
+      ) {
+        console.log('🔍 User exists detection triggered - showing alert');
         setAlertMessage('Welcome back! It looks like you already have an account with us. Please sign in to continue.');
         setAlertTitle('Account Already Exists');
         setAlertType('info');
         setAlertCallback(() => () => navigate('Login'));
         setAlertVisible(true);
-      } else if (response.ok) {
-        // ✅ Show success message from API
-        setAlertMessage('Account created successfully! Please verify your email to continue.');
-        setAlertTitle('Registration Successful');
-        setAlertType('success');
-        setAlertCallback(() => () => navigate('ReasonForUsingAllPay', { email: formState.inputValues.email }));
-        setAlertVisible(true);
+        return; // Add return to prevent further execution
+      } else if (response.ok || (response.status >= 200 && response.status < 300)) {
+        // ✅ Check if the user was actually created successfully
+        console.log('🔍 Registration appears successful:', response.status, data);
+        
+        // Specifically check if the API returned a success message or user data
+        const isSuccessful = 
+          (data && data.user) || 
+          (data && data.id) ||
+          (data && data.success === true) ||
+          (data && data.status === 'success') ||
+          (data && data.message && typeof data.message === 'string' && 
+           data.message.toLowerCase().includes('success'));
+        
+        if (isSuccessful) {
+          setAlertMessage('Account created successfully! Please verify your email to continue.');
+          setAlertTitle('Registration Successful');
+          setAlertType('success');
+          setAlertCallback(() => () => navigate('ReasonForUsingAllPay', { email: formState.inputValues.email }));
+          setAlertVisible(true);
+        } else {
+          // Handle unexpected success response without confirmation data
+          setAlertMessage('Your account has been created. Please verify your email to continue.');
+          setAlertTitle('Registration Complete');
+          setAlertType('success');
+          setAlertCallback(() => () => navigate('ReasonForUsingAllPay', { email: formState.inputValues.email }));
+          setAlertVisible(true);
+        }
       } else {
         // ❌ Show error message from API (or full JSON if missing)
         let userMessage = 'Registration failed.';
         let alertTitle = 'Registration Error';
         let alertType: 'success' | 'error' | 'warning' | 'info' | 'custom' = 'error';
         
-        // Additional fallback check for user existence
+        // Very specific fallback check for user existence - require strong evidence
         const fallbackUserExistsCheck = 
-          response.status >= 400 && response.status < 500 && 
-          (responseText.includes('email') || responseText.includes('user') || responseText.includes('account'));
+          response.status === 409 || // Conflict status specifically for duplicates
+          (response.status === 400 && (
+            // Only check for these specific combinations of words
+            (responseText.includes('user') && responseText.includes('exist')) ||
+            (responseText.includes('email') && responseText.includes('exist')) ||
+            (responseText.includes('account') && responseText.includes('exist')) ||
+            (responseText.includes('already') && responseText.includes('registered')) ||
+            (responseText.includes('already') && responseText.includes('taken')) ||
+            responseText.includes('duplicate entry')
+          ));
         
         if (fallbackUserExistsCheck) {
-          // Likely a user existence issue
+          console.log('🔍 Strict fallback user exists check triggered');
           userMessage = 'Welcome back! It looks like you already have an account with us. Please sign in to continue.';
           alertTitle = 'Account Already Exists';
           alertType = 'info';
@@ -244,9 +316,24 @@ const Signup = () => {
         errorMessage = `Error: ${error.message}`;
       }
       
-      setAlertMessage(errorMessage);
-      setAlertTitle('Network Error');
-      setAlertType('error');
+      // Much more strict check for errors that specifically indicate user exists
+      const errorString = String(error).toLowerCase();
+      if (
+        errorString.includes('user already exists') || 
+        errorString.includes('email already exists') ||
+        (errorString.includes('duplicate') && errorString.includes('email')) ||
+        errorString.includes('email is already registered')
+      ) {
+        setAlertMessage('Welcome back! It looks like you already have an account with us. Please sign in to continue.');
+        setAlertTitle('Account Already Exists');
+        setAlertType('info');
+        setAlertCallback(() => () => navigate('Login'));
+      } else {
+        setAlertMessage(errorMessage);
+        setAlertTitle('Network Error');
+        setAlertType('error');
+      }
+      
       setAlertVisible(true);
     } finally {
       setLoading(false);

@@ -410,8 +410,16 @@ const FillYourProfile = () => {
       const data = await response.json();
       console.log('KYC response:', response.status, data);
       if (response.ok) {
+        // Set up a callback function to navigate after the alert is closed or auto-closes
+        const navigateToReviewInfo = () => {
+          navigation.navigate('ReviewInfo');
+        };
+        
+        // Show success alert and set up navigation
         showCustomAlert('Success', data.message || 'KYC submitted successfully!', 'success');
-                        navigation.navigate('ReviewInfo');
+        
+        // If auto-close is enabled, set a timeout to navigate after the alert auto-closes
+        setTimeout(navigateToReviewInfo, 2500); // Slightly longer than autoCloseDelay
       } else {
         // Format API validation errors for better display
         let errorMessage = data.message || 'Validation failed';
@@ -738,7 +746,13 @@ const FillYourProfile = () => {
       {/* Custom Alert Modal */}
       <CustomAlertModal
         visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        onClose={() => {
+          setAlertVisible(false);
+          // Navigate to ReviewInfo screen if the alert was a success message
+          if (alertType === 'success') {
+            navigation.navigate('ReviewInfo');
+          }
+        }}
         title={alertTitle}
         message={alertMessage}
         type={alertType}
