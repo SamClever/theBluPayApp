@@ -144,6 +144,9 @@ const TopupMobileMoney = () => {
     // Contacts.getAll() call removed. If you want to use contacts, implement here with another package.
   };
 
+  // State for minimum amount alert modal
+  const [showMinAmountAlert, setShowMinAmountAlert] = useState(false);
+
   const handleTopup = async () => {
     // Validate inputs
     if (!amount || !mobile) {
@@ -155,6 +158,12 @@ const TopupMobileMoney = () => {
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       Alert.alert('Error', 'Please enter a valid amount greater than 0.');
+      return;
+    }
+
+    // Validate minimum amount is at least 1000 Tsh
+    if (amountNum < 1000) {
+      setShowMinAmountAlert(true);
       return;
     }
 
@@ -245,7 +254,7 @@ const TopupMobileMoney = () => {
           </View>
           <TextInput
             style={[styles.input, { color: colors.text, backgroundColor: 'transparent' }]}
-            placeholder="Mobile Number"
+            placeholder="255"
             placeholderTextColor="#888"
             keyboardType="phone-pad"
             value={mobile}
@@ -310,6 +319,20 @@ const TopupMobileMoney = () => {
           Tip: Make sure the mobile number is registered for mobile money.
         </Text>
       </View>
+      
+      <View style={{
+        backgroundColor: dark ? COLORS.dark3 : '#FFF3CD',
+        borderRadius: 12,
+        padding: 12,
+        marginTop: 9,
+        flexDirection: 'row',
+        alignItems: 'center'
+      }}>
+        <Image source={icons.bell as any} style={{ width: 20, height: 20, marginRight: 8, tintColor: '#856404' }} />
+        <Text style={{ color: '#856404', fontSize: 13, flex: 1 }}>
+          The minimum topup amount is Tsh 1,000. Lower amounts will not be processed.
+        </Text>
+      </View>
 
       {/* Insufficient Balance Alert */}
       <CustomAlertModal
@@ -321,6 +344,19 @@ const TopupMobileMoney = () => {
         customIcon="alert-triangle"
         buttonText="OK"
         onButtonPress={() => setInsufficientBalanceAlert(false)}
+        buttonStyle="primary"
+      />
+
+      {/* Minimum Amount Alert */}
+      <CustomAlertModal
+        visible={showMinAmountAlert}
+        onClose={() => setShowMinAmountAlert(false)}
+        title="Minimum Amount Required"
+        message="The minimum topup amount is Tsh 1,000. Please enter a higher amount to continue."
+        type="warning"
+        customIcon="alert-triangle"
+        buttonText="OK"
+        onButtonPress={() => setShowMinAmountAlert(false)}
         buttonStyle="primary"
       />
     </View>

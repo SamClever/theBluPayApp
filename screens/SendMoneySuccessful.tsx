@@ -135,10 +135,10 @@ const SendMoneySuccessful = () => {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Image
+        {/* <Image
           source={require('../assets/icons/star2.png')}
           style={styles.starIcon}
-        />
+        /> */}
         <Text style={[styles.title, { color: dark ? '#fff' : '#1A237E' }]}>
           Successful Sent!
         </Text>

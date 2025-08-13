@@ -6,6 +6,7 @@ import { COLORS, icons } from '../constants';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '../components/Button';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 
 type PayoutReviewRoute = RouteProp<{ params: {
@@ -28,8 +29,32 @@ const PayoutReviewSummary = () => {
   const p = route.params;
   const { colors, dark } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    type: 'error' as 'error' | 'warning' | 'success' | 'info' | 'custom',
+    buttonText: 'Okay',
+  });
 
   const confirmPayout = async () => {
+    // Check for insufficient balance before making API call
+    if (p.sufficient_balance === false) {
+      // Calculate the amount needed
+      const currentBalance = parseFloat(p.account_balance?.toString() || '0');
+      const totalNeeded = parseFloat(p.total_amount?.toString() || '0');
+      const shortfall = (totalNeeded - currentBalance).toFixed(2);
+      
+      setAlertConfig({
+        title: 'Insufficient Balance',
+        message: `Your current balance (${p.currency || 'TZS'} ${p.account_balance}) is less than the total amount needed (${p.currency || 'TZS'} ${p.total_amount}).\n\nYou need ${p.currency || 'TZS'} ${shortfall} more to complete this transaction.`,
+        type: 'warning',
+        buttonText: 'Okay',
+      });
+      setAlertVisible(true);
+      return;
+    }
+
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -49,15 +74,48 @@ const PayoutReviewSummary = () => {
         body: JSON.stringify({ amount: p.amount, phone: p.phone.replace('+', '') }),
       });
       const initData = await initResp.json().catch(() => ({}));
+      
       if (!initResp.ok) {
         const msg = initData?.message || initData?.detail || 'Failed to initiate payout.';
-        Alert.alert('Payout Failed', msg);
+        
+        // Handle specific error cases with user-friendly messages
+        if (msg.toLowerCase().includes('insufficient') || msg.toLowerCase().includes('balance')) {
+          setAlertConfig({
+            title: 'Insufficient Balance',
+            message: `Your current balance (${p.currency || 'TZS'} ${p.account_balance}) is less than the total amount needed (${p.currency || 'TZS'} ${p.total_amount}). Please add more funds to your account before continuing.`,
+            type: 'warning',
+            buttonText: 'Okay',
+          });
+          setAlertVisible(true);
+        } else if (msg.toLowerCase().includes('limit')) {
+          setAlertConfig({
+            title: 'Transaction Limit Reached',
+            message: 'You have reached your transaction limit. Please contact customer support for assistance.',
+            type: 'info',
+            buttonText: 'Contact Support',
+          });
+          setAlertVisible(true);
+        } else {
+          setAlertConfig({
+            title: 'Payout Failed',
+            message: msg,
+            type: 'error',
+            buttonText: 'Try Again',
+          });
+          setAlertVisible(true);
+        }
         return;
       }
 
       const orderRef = initData.order_reference || initData.orderReference;
       if (!orderRef) {
-        Alert.alert('Payout Error', 'No order reference returned from API.');
+        setAlertConfig({
+          title: 'Payout Error',
+          message: 'No order reference returned from API. Please try again.',
+          type: 'error',
+          buttonText: 'Try Again',
+        });
+        setAlertVisible(true);
         return;
       }
 
@@ -74,7 +132,13 @@ const PayoutReviewSummary = () => {
       const webhookData = await webhookResp.json().catch(() => ({}));
       if (!webhookResp.ok) {
         const msg = webhookData?.message || webhookData?.detail || 'Payout completed but webhook failed.';
-        Alert.alert('Webhook Error', msg);
+        setAlertConfig({
+          title: 'Webhook Error',
+          message: msg,
+          type: 'info',
+          buttonText: 'Continue',
+        });
+        setAlertVisible(true);
         return;
       }
 
@@ -89,27 +153,44 @@ const PayoutReviewSummary = () => {
         estimated_completion: initData.estimated_completion || p.estimated_completion,
       });
     } catch (e: any) {
-      Alert.alert('Network Error', e?.message || 'Something went wrong.');
+      setAlertConfig({
+        title: 'Network Error',
+        message: e?.message || 'Something went wrong. Please check your internet connection and try again.',
+        type: 'error',
+        buttonText: 'Try Again',
+      });
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const Row = ({ label, value }: { label: string; value?: string | number | boolean }) => (
+  const Row = ({ 
+    label, 
+    value,
+    highlight = false,
+    highlightColor
+  }: { 
+    label: string; 
+    value?: string | number | boolean;
+    highlight?: boolean;
+    highlightColor?: string;
+  }) => (
     <View style={[
       styles.row,
       {
-        borderBottomColor: colors.border,
-        paddingVertical: 10,
+        borderBottomColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+        paddingVertical: 13,
         alignItems: 'center',
-        minHeight: 38,
+        minHeight: 42,
+        borderBottomWidth: 1,
       }
     ]}>
       <Text
         style={[
           styles.label,
           {
-            color: dark ? COLORS.gray3 : COLORS.grayscale500, // softer, more neutral label color
+            color: dark ? COLORS.gray3 : COLORS.gray, // softer, more neutral label color
             flex: 1,
             fontSize: 15,
             fontFamily: 'Urbanist Medium',
@@ -121,125 +202,259 @@ const PayoutReviewSummary = () => {
       >
         {label}
       </Text>
-      <Text
-        style={[
-          styles.value,
-          {
-            color: dark ? COLORS.white : COLORS.grayscale900, // strong contrast for value
-            flex: 1.2,
-            textAlign: 'right',
-            fontSize: 16,
-            fontFamily: 'Urbanist Bold',
-            letterSpacing: 0.2,
-          }
-        ]}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-      >
-        {String(value ?? '-')}
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1.2, justifyContent: 'flex-end' }}>
+        {highlight && (
+          <View style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: highlightColor || colors.primary,
+            marginRight: 8,
+          }} />
+        )}
+        <Text
+          style={[
+            styles.value,
+            {
+              color: highlight ? (highlightColor || colors.primary) : (dark ? COLORS.white : COLORS.black),
+              textAlign: 'right',
+              fontSize: 16,
+              fontFamily: 'Urbanist Bold',
+              letterSpacing: 0.2,
+            }
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {String(value ?? '-')}
+        </Text>
+      </View>
     </View>
   );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header title="Review Payout Summary" />
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+        {/* Total Withdrawal Card - Blue Card at the top */}
+        <View 
+          style={[
+            styles.amountCard,
+            {
+              backgroundColor: colors.primary,
+              marginTop: 16,
+              marginHorizontal: 16,
+              borderRadius: 20,
+            }
+          ]}
+        >
+          <Text style={styles.amountLabel}>Total Withdrawal</Text>
+          <Text style={styles.amountValue}>{`${p.currency || 'TZS'} ${p.total_amount}`}</Text>
+          <Text style={styles.amountDetails}>
+            {`Including ${p.fee} service fee • ${p.channel_provider}`}
+          </Text>
+        </View>
+
+        {/* Transaction Details Card */}
         <View
           style={[
             styles.card,
             {
-              backgroundColor: colors.card || (dark ? COLORS.dark2 : COLORS.white),
-              borderColor: colors.border || (dark ? COLORS.grayscale700 : COLORS.gray2),
-              marginTop: 24,
+              backgroundColor: dark ? COLORS.dark2 : COLORS.white,
+              borderColor: 'transparent',
+              marginHorizontal: 16,
+              marginTop: 16,
               marginBottom: 16,
-              paddingVertical: 18,
-              paddingHorizontal: 18,
-              shadowOpacity: 0.04,
-              elevation: 2,
+              paddingVertical: 16,
+              paddingHorizontal: 0,
+              shadowOpacity: 0.05,
+              shadowRadius: 15,
+              elevation: 4,
+              borderRadius: 20,
             }
           ]}
         >
+          {/* Card Header */}
           <View style={styles.cardHeader}>
-            <Image
-              source={require('../assets/icons/wallet.png')}
-              style={{
-                width: 22,
-                height: 22,
-                tintColor: colors.primary,
-                marginRight: 6,
-              }}
-            />
-            <Text style={[styles.cardTitle, { color: colors.text, fontSize: 17 }]}>Summary</Text>
+            <View style={styles.iconContainer}>
+              <Image
+                source={require('../assets/icons/wallet.png')}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: '#FFFFFF',
+                }}
+              />
+            </View>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Transaction Details</Text>
           </View>
-          <Row label="Amount" value={`${p.currency || 'TZS'} ${p.amount}`} />
-          <Row label="Fee" value={p.fee} />
-          <Row label="Total" value={p.total_amount} />
-          <Row label="Provider" value={p.channel_provider} />
-          <Row label="Balance" value={p.account_balance} />
-          <Row label="Sufficient Balance" value={p.sufficient_balance ? 'Yes' : 'No'} />
-          <Row label="Phone" value={p.phone} />
-          <Row label="ETA" value={p.estimated_completion} />
+          
+          <View style={{ paddingHorizontal: 20 }}>
+            {/* Transaction Details Rows */}
+            <Row label="Withdrawal Amount" value={`${p.currency || 'TZS'} ${p.amount}`} />
+            <Row label="Service Fee" value={`${p.fee}`} />
+            <Row label="Current Balance" value={`${p.account_balance}`} />
+            
+            {/* Status with colored dot */}
+            <Row 
+              label="Status" 
+              value={p.sufficient_balance ? 'Sufficient Funds' : 'Insufficient Funds'} 
+              highlight={true}
+              highlightColor={p.sufficient_balance ? '#22C55E' : '#EF4444'}
+            />
+          
+            {/* Recipient Section */}
+            <View style={styles.divider} />
+            <Text style={styles.sectionTitle}>Recipient</Text>
+            
+            <Row label="Phone Number" value={p.phone} />
+            <Row label="Estimated Time" value={p.estimated_completion} />
+          </View>
         </View>
+
+        {/* Enhanced Button with vibrant styling */}
         <Button
           title="Confirm Payout"
           filled
           isLoading={loading}
           onPress={confirmPayout}
           style={{
-            marginTop: 8,
-            backgroundColor: colors.primary,
-            borderRadius: 24,
-            height: 52,
+            marginTop: 16,
+            backgroundColor: colors.primary, // Always use primary color
+            borderRadius: 28,
+            height: 56,
             justifyContent: 'center',
             alignItems: 'center',
             shadowColor: colors.primary,
-            shadowOpacity: 0.13,
-            shadowRadius: 8,
-            elevation: 2,
+            shadowOpacity: 0.18,
+            shadowRadius: 12,
+            elevation: 5,
+            marginHorizontal: 8,
           }}
           textStyle={{
-            color: colors.buttonText,
-            fontSize: 17,
+            color: '#FFFFFF',
+            fontSize: 18,
             fontFamily: 'Urbanist Bold',
-            letterSpacing: 0.2,
+            letterSpacing: 0.3,
           }}
         />
       </ScrollView>
+
+      {/* Custom Alert Modal for friendly error messages */}
+      <CustomAlertModal
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttonText={alertConfig.buttonText}
+        showIcon={true}
+        customIcon={alertConfig.type === 'warning' ? 'alert-triangle' : 
+                   alertConfig.type === 'success' ? 'check-circle' : 
+                   alertConfig.type === 'info' ? 'info' : 'alert-circle'}
+        onButtonPress={() => {
+          setAlertVisible(false);
+          if (alertConfig.buttonText === 'Contact Support') {
+            navigation.navigate('CustomerService');
+          }
+        }}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { 
+    flex: 1, 
+    padding: 0
+  },
   card: {
     borderRadius: 20,
-    padding: 16,
-    marginTop: 12,
-    borderWidth: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    borderWidth: 0,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     marginBottom: 8,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: 'Urbanist Bold',
-    marginLeft: 8,
+    marginLeft: 12,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 18,
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
-  label: { fontFamily: 'Urbanist Medium', fontSize: 14 },
-  value: { fontFamily: 'Urbanist Bold', fontSize: 15 },
+  label: { 
+    fontFamily: 'Urbanist Medium', 
+    fontSize: 16,
+    color: '#9CA3AF',
+  },
+  value: { 
+    fontFamily: 'Urbanist Bold', 
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  // Blue card at the top
+  amountCard: {
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  amountLabel: {
+    fontSize: 16,
+    fontFamily: 'Urbanist Regular',
+    color: 'rgba(255,255,255,0.85)',
+    marginBottom: 4,
+  },
+  amountValue: {
+    fontSize: 36,
+    fontFamily: 'Urbanist Bold',
+    color: '#FFFFFF',
+    marginVertical: 4,
+  },
+  amountDetails: {
+    fontSize: 14,
+    fontFamily: 'Urbanist Regular',
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginVertical: 16,
+    width: '100%',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Urbanist Bold',
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
 });
 
 export default PayoutReviewSummary;

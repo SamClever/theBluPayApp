@@ -32,6 +32,7 @@ const CreateNewPIN = () => {
   const { colors, dark } = useTheme();
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pinStrength, setPinStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
 
   // Custom alert state variables
   const [showAlert, setShowAlert] = useState(false);
@@ -63,16 +64,86 @@ const CreateNewPIN = () => {
     navigation.navigate('Login');
   };
 
+  // Function to calculate PIN strength
+  const calculatePinStrength = (pinValue: string): 'weak' | 'medium' | 'strong' | '' => {
+    if (!pinValue || pinValue.length < 4) return '';
+    
+    // Common PINs are weak
+    if (commonPINs.includes(pinValue)) return 'weak';
+    
+    // Check if all digits are the same (e.g., 1111)
+    if (new Set(pinValue.split('')).size === 1) return 'weak';
+    
+    // Check if it's a simple sequence (e.g., 1234, 4321)
+    const isSimpleSequence = 
+      (pinValue === '1234') || 
+      (pinValue === '4321');
+    
+    if (isSimpleSequence) return 'weak';
+    
+    // Check if PIN has 2 different digits repeating (e.g., 1212, 5656)
+    if (pinValue[0] === pinValue[2] && pinValue[1] === pinValue[3]) return 'medium';
+    
+    // If no weak patterns are found, it's strong
+    return 'strong';
+  };
+
+  // Handle PIN input and calculate strength
+  const handlePinChange = (value: string) => {
+    setPin(value);
+    if (value.length === 4) {
+      setPinStrength(calculatePinStrength(value));
+    } else {
+      setPinStrength('');
+    }
+  };
+  
   // Remove setPin from handlePinFilled to avoid double state update
   const handlePinFilled = async (text: string) => {
     // Optionally, you can auto-submit or enable a button here, but do NOT call setPin
   };
 
+  // Common PINs that should be avoided for security
+  const commonPINs = ['0000', '1111', '1234', '2222', '3333', '4321', '4444', '5555', '6666', '7777', '8888', '9999'];
+  
   const handleContinue = async () => {
     if (pin.length !== 4) {
       showCustomAlert('Error', 'Please enter a 4-digit PIN.');
       return;
     }
+
+    // Check if PIN is common or easily guessable
+    if (commonPINs.includes(pin)) {
+      showCustomAlert('Security Warning', 'The PIN you entered is too common and easily guessable. Please choose a more secure PIN.');
+      return;
+    }
+
+    // Check for sequential digits (like 1234, 5678)
+    const isSequential = (pin: string) => {
+      for (let i = 0; i < pin.length - 1; i++) {
+        if (Number(pin[i+1]) - Number(pin[i]) !== 1) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Check for repeated digits (like 1111, 2222)
+    const isRepeated = (pin: string) => {
+      const firstDigit = pin[0];
+      for (let i = 1; i < pin.length; i++) {
+        if (pin[i] !== firstDigit) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    if (isSequential(pin) || isRepeated(pin)) {
+      showCustomAlert('Security Warning', 'Please choose a more secure PIN. Avoid sequential (like 1234) or repeated (like 1111) numbers.');
+      return;
+    }
+
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
@@ -118,6 +189,8 @@ const CreateNewPIN = () => {
             pinErrorMsg = 'PIN must be exactly 4 digits.';
           } else if (msg.includes('server error')) {
             pinErrorMsg = 'Server error. Please try again later.';
+          } else if (msg.includes('common') || msg.includes('easy') || msg.includes('simple') || msg.includes('weak')) {
+            pinErrorMsg = 'The PIN you entered is too common and easily guessable. Please choose a more secure PIN.';
           } else if (msg) {
             // Use the API message if it's not generic
             pinErrorMsg = data.message || data.detail || data.error;
@@ -187,7 +260,18 @@ const CreateNewPIN = () => {
       }
     } catch (error) {
       console.log('PIN API error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      // Try to determine if the error is related to a common PIN
+      let errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      
+      if (errorMessage.toLowerCase().includes('server error')) {
+        // Check if the PIN is common based on our local list
+        if (commonPINs.includes(pin)) {
+          errorMessage = 'The PIN you entered is too common and easily guessable. Please choose a more secure PIN.';
+        } else {
+          errorMessage = 'Unable to create PIN. Please try a different PIN or try again later.';
+        }
+      }
+      
       showCustomAlert('Error', errorMessage);
     } finally {
       setLoading(false);
@@ -201,9 +285,14 @@ const CreateNewPIN = () => {
         <Text style={[styles.title, {
           color: dark ? COLORS.white : COLORS.greyscale900
         }]}>Add a PIN number to make your account more secure.</Text>
+        
+        <Text style={[styles.securityHint, {
+          color: dark ? COLORS.grayscale700 : COLORS.greyscale900
+        }]}>Choose a unique 4-digit PIN that's not easily guessable. Avoid common PINs like 1234, 0000, or birth years.</Text>
+        
         <OtpInput
           numberOfDigits={4}
-          onTextChange={setPin}
+          onTextChange={handlePinChange}
           onFilled={handlePinFilled}
           autoFocus={true}
           focusColor={COLORS.primary}
@@ -222,6 +311,39 @@ const CreateNewPIN = () => {
             }
           }}
         />
+        
+        {pin.length === 4 && (
+          <View style={styles.strengthIndicator}>
+            <Text style={[styles.strengthText, { 
+              color: pinStrength === 'weak' 
+                ? COLORS.error 
+                : pinStrength === 'medium' 
+                  ? COLORS.warning 
+                  : COLORS.success 
+            }]}>
+              {pinStrength === 'weak' 
+                ? 'Weak PIN: Too common or easily guessed' 
+                : pinStrength === 'medium' 
+                  ? 'Medium PIN: Acceptable but could be better' 
+                  : 'Strong PIN: Good choice!'}
+            </Text>
+            <View style={styles.strengthBars}>
+              <View style={[styles.strengthBar, { 
+                backgroundColor: pinStrength ? COLORS.error : COLORS.grayscale400 
+              }]} />
+              <View style={[styles.strengthBar, { 
+                backgroundColor: pinStrength === 'medium' || pinStrength === 'strong' 
+                  ? COLORS.warning 
+                  : COLORS.grayscale400 
+              }]} />
+              <View style={[styles.strengthBar, { 
+                backgroundColor: pinStrength === 'strong' 
+                  ? COLORS.success 
+                  : COLORS.grayscale400 
+              }]} />
+            </View>
+          </View>
+        )}
         {loading && <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 24 }} />}
         <Button
           title="Continue"
@@ -436,6 +558,34 @@ const styles = StyleSheet.create({
   successButton: {
     width: '100%',
     borderRadius: 32,
+  },
+  securityHint: {
+    fontSize: 14,
+    fontFamily: "Urbanist Regular",
+    textAlign: "center",
+    marginBottom: 24,
+    paddingHorizontal: 16
+  },
+  strengthIndicator: {
+    alignItems: 'center',
+    marginVertical: 16,
+    width: '100%'
+  },
+  strengthText: {
+    fontSize: 14,
+    fontFamily: "Urbanist Medium",
+    marginBottom: 8
+  },
+  strengthBars: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 8
+  },
+  strengthBar: {
+    height: 4,
+    width: 50,
+    marginHorizontal: 4,
+    borderRadius: 2
   }
 })
 

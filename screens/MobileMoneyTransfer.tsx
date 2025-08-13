@@ -103,17 +103,14 @@ const MobileMoneyTransfer = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }] }>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header title="MobileMoneyTransfer" />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
-        <View style={{ alignItems: 'center', marginTop: 16 }}>
-          {/* <Image
-            source={dark ? illustrations.bankSuccessDark : illustrations.bankSuccess}
-            style={{ width: 180, height: 180, opacity: 0.9 }}
-            resizeMode="contain"
-          /> */}
-          <Text style={[styles.heroTitle, { color: colors.text }]}>Send To Mobile Money</Text>
-          <Text style={[styles.heroCaption, { color: dark ? COLORS.grayscale400 : COLORS.gray }]}>
+        <View style={styles.heroContainer}>
+          <Text style={[styles.heroTitle, { color: colors.text }]}>
+            Send To Mobile Money
+          </Text>
+          <Text style={[styles.heroSubtitle, { color: dark ? COLORS.gray3 : COLORS.gray }]}>
             Secure and fast payout to your contact
           </Text>
         </View>
@@ -122,96 +119,103 @@ const MobileMoneyTransfer = () => {
           styles.card,
           {
             backgroundColor: dark ? COLORS.dark2 : COLORS.white,
-            borderColor: colors.border || (dark ? COLORS.grayscale700 : COLORS.gray2)
           }
         ]}>
           <Text style={[styles.sectionTitle, { color: colors.primary }]}>Transfer Details</Text>
 
-          <Input
-            id="mobile"
-            icon={icons.call}
-            placeholder="Mobile Number"
-            keyboardType="phone-pad"
-            value={mobile}
-            onInputChanged={onInputChanged}
-            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
-            style={{
-              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
-              color: dark ? COLORS.white : COLORS.grayscale900,
-              borderColor: dark ? COLORS.primary : COLORS.gray3,
-              borderWidth: 1.5,
-              borderRadius: 12,
-              paddingVertical: 14,
-              paddingHorizontal: 16,
-              marginBottom: 12,
-              fontSize: 16,
-            }}
-            rightIcon={
-              <Image
-                source={require('../assets/icons/user.png')}
-                style={{ width: 20, height: 20, tintColor: colors.primary }}
+          {/* Phone Input */}
+          <View style={styles.inputGroup}>
+            <View style={styles.inputWrapper}>
+              <Image 
+                source={require('../assets/icons/call.png')}
+                style={styles.inputIcon} 
               />
-            }
-            onRightIconPress={openContacts}
-          />
+              <TextInput
+                placeholder="255779791909"
+                keyboardType="phone-pad"
+                value={mobile}
+                onChangeText={(text) => onInputChanged('mobile', text)}
+                placeholderTextColor={dark ? COLORS.gray3 : '#AAAAAA'}
+                style={[styles.input, {
+                  backgroundColor: dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5',
+                  color: dark ? COLORS.white : COLORS.black,
+                }]}
+              />
+              <TouchableOpacity style={styles.contactButton} onPress={openContacts}>
+                <Image
+                  source={require('../assets/icons/user.png')}
+                  style={{width: 22, height: 22, tintColor: colors.primary}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <Input
-            id="amount"
-            icon={icons.money}
-            placeholder="Amount"
-            keyboardType="numeric"
-            value={amount}
-            onInputChanged={onInputChanged}
-            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
-            style={{
-              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
-              color: dark ? COLORS.white : COLORS.grayscale900,
-              borderColor: dark ? COLORS.primary : COLORS.gray3,
-              borderWidth: 1.5,
-              borderRadius: 12,
-              paddingVertical: 14,
-              paddingHorizontal: 16,
-              marginBottom: 12,
-              fontSize: 16,
-            }}
-          />
+          {/* Amount Input */}
+          <View style={styles.inputGroup}>
+            <View style={styles.inputWrapper}>
+              <Image 
+                source={require('../assets/icons/money.png')}
+                style={styles.inputIcon} 
+              />
+              <TextInput
+                placeholder="Amout"
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={(text) => onInputChanged('amount', text)}
+                placeholderTextColor={dark ? COLORS.gray3 : '#AAAAAA'}
+                style={[styles.input, {
+                  backgroundColor: dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5',
+                  color: dark ? COLORS.white : COLORS.black,
+                }]}
+              />
+            </View>
+          </View>
 
-          <Input
-            id="remarks"
-            icon={icons.editPencil}
-            placeholder="Remarks (optional)"
-            value={remarks}
-            onInputChanged={onInputChanged}
-            placeholderTextColor={dark ? COLORS.gray3 : COLORS.gray}
-            style={{
-              backgroundColor: dark ? COLORS.grayscale900 : COLORS.white,
-              color: dark ? COLORS.white : COLORS.grayscale900,
-              borderColor: dark ? COLORS.primary : COLORS.gray3,
-              borderWidth: 1.5,
-              borderRadius: 12,
-              paddingVertical: 14,
-              paddingHorizontal: 16,
-              marginBottom: 4,
-              fontSize: 16,
-            }}
-          />
+          {/* Remarks Input */}
+          <View style={styles.inputGroup}>
+            <View style={styles.inputWrapper}>
+              <Image 
+                source={require('../assets/icons/edit_pencil.png')}
+                style={styles.inputIcon} 
+              />
+              <TextInput
+                placeholder="Remarks (optional)"
+                value={remarks}
+                onChangeText={(text) => onInputChanged('remarks', text)}
+                placeholderTextColor={dark ? COLORS.gray3 : '#AAAAAA'}
+                style={[styles.input, {
+                  backgroundColor: dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5',
+                  color: dark ? COLORS.white : COLORS.black,
+                }]}
+              />
+            </View>
+          </View>
 
-          <Button
-            title="Preview"
-            filled
-            isLoading={loading}
+          {/* Preview Button */}
+          <TouchableOpacity
+            style={[
+              styles.previewButton,
+              { backgroundColor: colors.primary }
+            ]}
             onPress={handleProceed}
-            style={{ marginTop: 12, backgroundColor: colors.primary }}
-            textStyle={{ color: colors.buttonText }}
-          />
+            activeOpacity={0.9}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.previewButtonText}>Preview</Text>
+            )}
+          </TouchableOpacity>
         </View>
 
-        <View style={[
-          styles.tipCard,
-          { backgroundColor: dark ? COLORS.dark2 : COLORS.secondaryWhite }
-        ]}>
-          <Image source={require('../assets/icons/info-square.png')} style={{ width: 18, height: 18, tintColor: colors.primary }} />
-          <Text style={{ color: colors.text, fontSize: 13, marginLeft: 8 }}>
+        <View style={styles.tipCard}>
+          <View style={styles.tipIconContainer}>
+            <Image 
+              source={require('../assets/icons/info-square.png')} 
+              style={{width: 22, height: 22, tintColor: '#FFFFFF'}} 
+            />
+          </View>
+          <Text style={[styles.tipText, { color: dark ? COLORS.gray : '#555555' }]}>
             Tip: Make sure the mobile number is registered for mobile money.
           </Text>
         </View>
@@ -221,38 +225,115 @@ const MobileMoneyTransfer = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { 
+    flex: 1,
+    padding: 16
+  },
+  heroContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontFamily: 'Urbanist Bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  heroSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Urbanist Regular',
+    textAlign: 'center',
+    opacity: 0.8,
+  },
   card: {
     borderRadius: 20,
-    padding: 16,
-    marginTop: 12,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
-    borderWidth: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+    borderWidth: 0,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  heroTitle: {
-    marginTop: 8,
-    fontSize: 20,
     fontFamily: 'Urbanist Bold',
+    marginBottom: 16,
   },
-  heroCaption: {
-    fontSize: 13,
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  inputIcon: {
+    width: 20,
+    height: 20,
+    tintColor: COLORS.gray,
+    position: 'absolute',
+    zIndex: 1,
+    left: 16,
+  },
+  input: {
+    flex: 1,
+    height: 56,
+    paddingVertical: 12,
+    paddingLeft: 48,
+    paddingRight: 16,
+    borderRadius: 12,
+    fontSize: 16,
     fontFamily: 'Urbanist Regular',
-    marginTop: 2,
+  },
+  contactButton: {
+    position: 'absolute',
+    right: 12,
+    zIndex: 1,
+    backgroundColor: 'transparent',
+    padding: 8,
+  },
+  previewButton: {
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  previewButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontFamily: 'Urbanist Bold',
+    letterSpacing: 0.5,
   },
   tipCard: {
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 12,
-    alignItems: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  tipIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: 'Urbanist Medium',
+    lineHeight: 20,
   },
 });
 

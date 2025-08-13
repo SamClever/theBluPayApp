@@ -66,8 +66,16 @@ const TopupPinEntry = () => {
             const token = await AsyncStorage.getItem('token');
             
             if (!token) {
-                Alert.alert('Error', 'Session expired. Please log in again.');
+                Alert.alert('Authentication Error', 'Session expired. Please log in again.');
                 navigation.navigate('Login');
+                return;
+            }
+            
+            // Validate minimum amount
+            const amountNum = parseFloat(amount);
+            if (amountNum < 1000) {
+                Alert.alert('Minimum Amount Required', 'The minimum topup amount is Tsh 1,000. Please go back and enter a higher amount.');
+                setLoading(false);
                 return;
             }
 
@@ -103,72 +111,171 @@ const TopupPinEntry = () => {
                     return;
                 }
 
-                // Call webhook to update user balance
-                try {
-                    const webhookPayload = {
-                        orderReference: orderReference,
-                        status: 'SUCCESS'
-                    };
-                    console.log('Webhook payload:', webhookPayload);
-
-                    const webhookRes = await fetch('https://theblupayapi.com/webhooks/clickpesa/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        body: JSON.stringify(webhookPayload),
-                    });
-
-                    let webhookResBody;
-                    let webhookResJson;
-                    try {
-                        webhookResBody = await webhookRes.text();
-                        webhookResJson = JSON.parse(webhookResBody);
-                    } catch (e) {
-                        webhookResJson = null;
-                    }
-                    console.log('Webhook response status:', webhookRes.status);
-                    console.log('Webhook response body:', webhookResBody);
-
-                    if (webhookRes.ok) {
-                        Alert.alert(
-                            'USSD Topup Complete',
-                            `Your USSD topup was successful. You will receive a confirmation SMS shortly.`,
-                            [
-                                {
-                                    text: 'OK',
-                                    onPress: () => {
+                // Instead of immediately calling the webhook and showing success,
+                // we need to wait for the user to complete the USSD process
+                Alert.alert(
+                    'USSD Prompt Sent',
+                    'Please check your phone for a USSD prompt and complete the transaction. After completing the USSD process, tap OK to check the status.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: async () => {
+                                // When user taps OK, we'll check if the transaction was successful
+                                setLoading(true);
+                                
+                                try {
+                                    // Check transaction status
+                                    const statusResponse = await fetch(`https://theblupayapi.com/topup/status/${orderReference}`, {
+                                        method: 'GET',
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Accept': 'application/json',
+                                        },
+                                    });
+                                    
+                                    const statusData = await statusResponse.json();
+                                    console.log('Transaction status:', statusData);
+                                    
+                                    if (statusResponse.ok && statusData.status === 'SUCCESS') {
+                                        // Transaction was successful
                                         navigation.navigate('TopupSuccessful', {
                                             amount,
                                             mobileNumber,
                                             accountNumber,
                                             accountName,
                                             remarks,
-                                            provider
+                                            provider,
+                                            reference: orderReference
                                         });
+                                    } else {
+                                        // If transaction status isn't explicitly success, ask the user if they completed the USSD
+                                        Alert.alert(
+                                            'Did you complete the USSD transaction?',
+                                            'We couldn\'t automatically confirm your USSD transaction. Did you complete the USSD process?',
+                                            [
+                                                {
+                                                    text: 'No, I cancelled it',
+                                                    style: 'cancel',
+                                                    onPress: () => {
+                                                        // User confirms they cancelled the transaction
+                                                        Alert.alert('Transaction Cancelled', 'Your topup was not processed.');
+                                                    }
+                                                },
+                                                {
+                                                    text: 'Yes, I completed it',
+                                                    onPress: async () => {
+                                                        // User confirms they completed the USSD successfully
+                                                        // Force a manual update by calling the webhook directly
+                                                        setLoading(true);
+                                                        try {
+                                                            // Manually trigger success webhook
+                                                            const webhookPayload = {
+                                                                orderReference: orderReference,
+                                                                status: 'SUCCESS'
+                                                            };
+                                                            
+                                                            const webhookRes = await fetch('https://theblupayapi.com/webhooks/clickpesa/', {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json',
+                                                                    'Authorization': `Bearer ${token}`,
+                                                                },
+                                                                body: JSON.stringify(webhookPayload),
+                                                            });
+                                                            
+                                                            if (webhookRes.ok) {
+                                                                // Manually proceed to success screen
+                                                                navigation.navigate('TopupSuccessful', {
+                                                                    amount,
+                                                                    mobileNumber,
+                                                                    accountNumber,
+                                                                    accountName,
+                                                                    remarks,
+                                                                    provider,
+                                                                    reference: orderReference
+                                                                });
+                                                            } else {
+                                                                Alert.alert(
+                                                                    'Update Failed',
+                                                                    'Could not update transaction status. Please contact support with your transaction details.'
+                                                                );
+                                                            }
+                                                        } catch (error) {
+                                                            console.error('Manual webhook error:', error);
+                                                            Alert.alert(
+                                                                'Update Failed',
+                                                                'Network error while updating your transaction. Please contact support.'
+                                                            );
+                                                        } finally {
+                                                            setLoading(false);
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        );
                                     }
+                                } catch (error) {
+                                    console.error('Error checking transaction status:', error);
+                                    Alert.alert(
+                                        'Status Check Failed',
+                                        'Unable to check transaction status. If you completed the USSD process, did the money leave your mobile money account?',
+                                        [
+                                            {
+                                                text: 'No',
+                                                style: 'cancel'
+                                            },
+                                            {
+                                                text: 'Yes, Money was deducted',
+                                                onPress: () => {
+                                                    // If user confirms money was deducted, offer to continue to success screen
+                                                    Alert.alert(
+                                                        'Proceed to Success?',
+                                                        'Would you like to proceed to the success screen? This will mark your transaction as complete.',
+                                                        [
+                                                            { text: 'No', style: 'cancel' },
+                                                            { 
+                                                                text: 'Yes', 
+                                                                onPress: () => {
+                                                                    navigation.navigate('TopupSuccessful', {
+                                                                        amount,
+                                                                        mobileNumber,
+                                                                        accountNumber,
+                                                                        accountName,
+                                                                        remarks,
+                                                                        provider,
+                                                                        reference: orderReference
+                                                                    });
+                                                                }
+                                                            }
+                                                        ]
+                                                    );
+                                                }
+                                            }
+                                        ]
+                                    );
+                                } finally {
+                                    setLoading(false);
                                 }
-                            ]
-                        );
-                    } else {
-                        let errorMsg = 'Topup succeeded but failed to update balance. Please contact support.';
-                        if (webhookResJson && (webhookResJson.message || webhookResJson.detail || webhookResJson.error)) {
-                            errorMsg += `\n${webhookResJson.message || webhookResJson.detail || webhookResJson.error}`;
-                        } else if (webhookResBody) {
-                            errorMsg += `\n${webhookResBody}`;
+                            }
                         }
-                        Alert.alert('Webhook Error', errorMsg);
-                    }
-                } catch (webhookError) {
-                    Alert.alert('Webhook Error', 'Topup succeeded but failed to update balance. Please contact support.');
-                }
+                    ]
+                );
             } else {
                 let errorMessage = 'Failed to initiate USSD topup. Please try again.';
                 try {
                     const errorData = await response.json();
                     console.log('Error response:', errorData);
                     errorMessage = errorData.message || errorData.detail || errorData.error || errorMessage;
+                    
+                    // Check for minimum amount error
+                    const errorText = errorMessage.toLowerCase();
+                    if (errorText.includes('minimum') && errorText.includes('amount') || 
+                        errorText.includes('too low') || 
+                        errorText.includes('too small') ||
+                        (errorText.includes('less') && errorText.includes('1000'))) {
+                        
+                        errorMessage = 'The minimum topup amount is Tsh 1,000. Please go back and enter a higher amount.';
+                    }
                 } catch (parseError) {
                     console.log('Could not parse error response:', parseError);
                     if (response.status === 404) {
