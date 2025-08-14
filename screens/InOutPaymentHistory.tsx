@@ -9,21 +9,21 @@ import { InOutPaymentRequested } from '../tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import InOutPaymentHistoryCard from '../components/InOutPaymentHistoryCard';
 
-type Tab = 'Topup' | 'Payouts' | 'Send';
+type Tab = 'All' | 'Topup' | 'Payouts';
 
 const InOutPaymentHistory = () => {
   const { colors, dark } = useTheme();
   const navigation = useNavigation<NavigationProp<any>>();
-  const [selectedTab, setSelectedTab] = useState<Tab>('Topup');
+  const [selectedTab, setSelectedTab] = useState<Tab>('All');
 
   const renderContent = () => {
     switch (selectedTab) {
+      case 'All':
+        return <AllTransactionsContent />;
       case 'Topup':
         return <HistoryContent initialKind="Topups" showSegment={false} />;
       case 'Payouts':
         return <HistoryContent initialKind="Payouts" showSegment={false} />;
-      case 'Send':
-        return <InOutPaymentRequested />;
       default:
         return null;
     }
@@ -72,7 +72,7 @@ const InOutPaymentHistory = () => {
           <View style={styles.viewContainer}>
             <View style={[styles.tabContainer, { 
               backgroundColor: dark ? COLORS.dark1 : COLORS.white }]}>
-              {['Topup', 'Payouts', 'Send'].map((tab) => (
+              {['All', 'Topup', 'Payouts'].map((tab) => (
                 <TouchableOpacity
                   key={tab}
                   onPress={() => setSelectedTab(tab as Tab)}
@@ -95,6 +95,205 @@ const InOutPaymentHistory = () => {
       </View>
     </SafeAreaView>
   )
+};
+
+// ===== All Transactions Content =====
+// Fetches and combines data from both topup and payout APIs to show ALL transaction types
+const AllTransactionsContent: React.FC = () => {
+  const { dark } = useTheme();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [allTransactions, setAllTransactions] = useState<AllTransactionItem[]>([]);
+  const [stats, setStats] = useState<any>(null);
+
+  const fetchAllTransactions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+      
+      // Fetch from both topup and payout APIs to get ALL transactions
+      const [topupResp, payoutResp] = await Promise.all([
+        fetch('https://theblupayapi.com/topup/history/', {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        }),
+        fetch('https://theblupayapi.com/payout/history/', {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (!topupResp.ok) {
+        const t = await topupResp.text().catch(() => '');
+        throw new Error(`Topup history failed (${topupResp.status}) ${t}`);
+      }
+      if (!payoutResp.ok) {
+        const t = await payoutResp.text().catch(() => '');
+        throw new Error(`Payout history failed (${payoutResp.status}) ${t}`);
+      }
+
+      const topupJson: HistoryApiResponse<AllTransactionItem> = await topupResp.json();
+      const payoutJson: HistoryApiResponse<PayoutItem> = await payoutResp.json();
+
+      // Convert payouts to AllTransactionItem format and combine with topups
+      const topupTransactions = Array.isArray(topupJson?.results) ? topupJson.results : [];
+      const payoutTransactions = Array.isArray(payoutJson?.results) ? payoutJson.results.map((payout): AllTransactionItem => ({
+        id: payout.id,
+        payment_reference: payout.payout_reference,
+        transaction_type: 'WITHDRAWAL', // Mark payouts as withdrawals
+        amount: payout.amount,
+        currency: payout.currency,
+        status: payout.status,
+        created_at: payout.created_at,
+        metadata: { channel: payout.channel_provider },
+        account_number: payout.account_number || undefined,
+        customer_name: payout.preview_data?.receiver?.accountName || null,
+      })) : [];
+
+      // Combine and sort by created_at (newest first)
+      const allTransactions = [...topupTransactions, ...payoutTransactions].sort((a, b) => {
+        const dateA = new Date(a.created_at || 0).getTime();
+        const dateB = new Date(b.created_at || 0).getTime();
+        return dateB - dateA; // Newest first
+      });
+
+      setAllTransactions(allTransactions);
+      
+      // Calculate combined statistics
+      const combinedStats: any = {
+        total_amount: (topupJson?.statistics?.total_amount || 0) + (payoutJson?.statistics?.total_amount || 0),
+        total_transactions: (topupJson?.statistics?.total_transactions || 0) + (payoutJson?.statistics?.total_transactions || 0),
+        successful_transactions: (topupJson?.statistics?.successful_transactions || 0) + (payoutJson?.statistics?.successful_transactions || 0),
+        currency: 'TZS'
+      };
+      
+      if (combinedStats.total_transactions > 0) {
+        combinedStats.success_rate = (combinedStats.successful_transactions / combinedStats.total_transactions) * 100;
+      }
+      
+      setStats(combinedStats);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load all transactions');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllTransactions();
+  }, [fetchAllTransactions]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchAllTransactions();
+  }, [fetchAllTransactions]);
+
+  const renderHeader = useMemo(() => {
+    return (
+      <View style={[styles.historyHeaderRow, { backgroundColor: dark ? COLORS.dark2 : COLORS.white }]}>
+        <View />
+        {stats ? (
+          <View style={[styles.statsCard, { backgroundColor: dark ? COLORS.dark3 : COLORS.tansparentPrimary }]}>
+            <Text style={styles.statsText}>Total: {formatMoney(stats.total_amount)} {stats?.currency || 'TZS'}</Text>
+            {'success_rate' in stats && (
+              <Text style={styles.statsSubText}>Success rate: {Number(stats.success_rate || 0).toFixed(0)}%</Text>
+            )}
+          </View>
+        ) : null}
+      </View>
+    );
+  }, [stats, dark]);
+
+  if (loading && !refreshing) {
+    return (
+      <View style={[styles.loaderContainer, { backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite }]}> 
+        {renderHeader}
+        <ActivityIndicator color={COLORS.primary} size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite }]}> 
+        {renderHeader}
+        <Text style={[styles.errorText, { color: dark ? COLORS.greyscale300 : COLORS.error }]}>{error}</Text>
+        <TouchableOpacity onPress={fetchAllTransactions} style={[styles.retryBtn, { backgroundColor: COLORS.primary }]}>
+          <Text style={styles.retryBtnText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, width: '100%' }}>
+      {renderHeader}
+      <FlatList
+        data={allTransactions}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyState}>
+            <Text style={[styles.emptyTitle, { color: dark ? COLORS.greyscale300 : COLORS.greyscale900 }]}>No transactions yet</Text>
+            <Text style={[styles.emptySubtitle, { color: dark ? COLORS.grayscale400 : COLORS.grayscale700 }]}>Your recent transactions will appear here</Text>
+          </View>
+        )}
+        renderItem={({ item }) => {
+          const isDeposit = item.transaction_type === 'DEPOSIT';
+          const isWithdrawal = item.transaction_type === 'WITHDRAWAL';
+          const isTransfer = item.transaction_type === 'TRANSFER';
+          
+          let displayName = '';
+          let iconSource = icons.download3 as ImageSourcePropType;
+          let pricePrefix = '+';
+          let transactionType = 'Income';
+          
+          if (isDeposit) {
+            displayName = `Deposit ${item?.metadata?.channel ? `• ${item.metadata.channel}` : ''}`.trim();
+            iconSource = icons.download3 as ImageSourcePropType;
+            pricePrefix = '+';
+            transactionType = 'Income';
+          } else if (isWithdrawal) {
+            const provider = cleanProviderName(item?.metadata?.channel || undefined);
+            displayName = `Withdrawal ${provider ? `• ${provider}` : ''}`.trim();
+            iconSource = icons.upload as ImageSourcePropType;
+            pricePrefix = '-';
+            transactionType = 'Expense';
+          } else if (isTransfer) {
+            displayName = `Transfer ${item?.metadata?.channel ? `• ${item.metadata.channel}` : ''}`.trim();
+            iconSource = icons.arrowUpSquare as ImageSourcePropType;
+            pricePrefix = '-';
+            transactionType = 'Expense';
+          } else {
+            // Default fallback for other transaction types
+            displayName = `${item.transaction_type} ${item?.metadata?.channel ? `• ${item.metadata.channel}` : ''}`.trim();
+            iconSource = icons.download3 as ImageSourcePropType;
+            pricePrefix = '+';
+            transactionType = 'Income';
+          }
+          
+          return (
+            <InOutPaymentHistoryCard
+              name={displayName}
+              image={iconSource}
+              date={formatDate(item?.created_at)}
+              time={formatTime(item?.created_at)}
+              price={`${pricePrefix} ${formatMoney(item.amount)} ${item.currency}`}
+              type={transactionType}
+              status={normalizeStatus(item.status)}
+              onPress={() => navigation.navigate('InOutPaymentViewEReceipt', { kind: 'All', item })}
+            />
+          );
+        }}
+        contentContainerStyle={{ paddingVertical: 12 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
+      />
+    </View>
+  );
 };
 
 // ===== History Content (Topups or Payouts) =====
@@ -129,6 +328,29 @@ type PayoutItem = {
       accountNumber?: string;
     };
   } | null;
+};
+
+type AllTransactionItem = {
+  id: string;
+  payment_reference?: string;
+  order_reference?: string;
+  account_number?: string;
+  user_email?: string;
+  transaction_type: string; // DEPOSIT | WITHDRAWAL | etc.
+  payment_method?: string;
+  mobile_provider?: string | null;
+  amount: string;
+  currency: string;
+  collected_amount?: string;
+  collected_currency?: string;
+  status: string;
+  message?: string;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  customer_email?: string;
+  metadata?: { channel?: string | null } | null;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type HistoryApiResponse<T> = {
@@ -405,13 +627,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: COLORS.white,
     paddingVertical: 10,
+    paddingHorizontal: 8,
   },
   tabButton: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: COLORS.primary
+    borderColor: COLORS.primary,
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: 'center',
   },
   activeTabButton: {
     backgroundColor: COLORS.primary,
