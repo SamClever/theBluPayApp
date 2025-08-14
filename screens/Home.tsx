@@ -44,6 +44,7 @@ const HomeScreen = () => {
   const [pinLoading, setPinLoading] = useState(false);
   const [canSubmitPin, setCanSubmitPin] = useState(true);
   const [pinError, setPinError] = useState(false);
+  const [profileImageError, setProfileImageError] = useState(false);
   const shakeAnimation = useRef(new Animated.Value(0)).current;
 
   const fetchUserProfile = async () => {
@@ -88,6 +89,7 @@ const HomeScreen = () => {
         account_balance: data.account?.account_balance,
         pin: data.account?.pin_number, // <-- Use pin_number from account
       });
+      setProfileImageError(false); // Reset profile image error when new data loads
     } catch (e: any) {
       setUser(null);
       setError(e.message || 'Failed to load user profile');
@@ -163,17 +165,76 @@ const HomeScreen = () => {
       if (user?.Last_name) return user.Last_name;
       return 'User';
     };
+
+    const getInitials = () => {
+      if (user?.First_name && user?.Last_name) {
+        return `${user.First_name.charAt(0).toUpperCase()}${user.Last_name.charAt(0).toUpperCase()}`;
+      }
+      if (user?.First_name) {
+        return user.First_name.charAt(0).toUpperCase();
+      }
+      if (user?.Last_name) {
+        return user.Last_name.charAt(0).toUpperCase();
+      }
+      return 'U';
+    };
+
+    const getInitialsBackgroundColor = () => {
+      const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+        '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+      ];
+      
+      if (user?.First_name) {
+        // Use first character to determine color
+        const charCode = user.First_name.charCodeAt(0);
+        return colors[charCode % colors.length];
+      }
+      return COLORS.primary;
+    };
+
+    const renderProfilePicture = () => {
+      // If user has a valid profile image, show it
+      if (user?.profile_image && user.profile_image.trim() !== '' && !profileImageError) {
+        return (
+          <Image
+            source={{ uri: user.profile_image }}
+            resizeMode='cover'
+            style={styles.userIcon}
+            onError={(error) => {
+              console.log('Profile image error:', error);
+              console.log('Setting profileImageError to true');
+              setProfileImageError(true);
+            }}
+            onLoad={() => {
+              console.log('Profile image loaded successfully');
+              setProfileImageError(false);
+            }}
+          />
+        );
+      }
+
+      // Otherwise show initials-based avatar
+      return (
+        <View style={[styles.userIcon, styles.initialsContainer, { backgroundColor: getInitialsBackgroundColor() }]}>
+          <Text style={styles.initialsText}>{getInitials()}</Text>
+        </View>
+      );
+    };
+
     // Debug log
-    if (user) console.log('User state:', user);
+    if (user) {
+      console.log('User state:', user);
+      console.log('Profile image value:', user.profile_image);
+      console.log('Profile image error state:', profileImageError);
+      console.log('Will use initials:', !user.profile_image || user.profile_image.trim() === '' || profileImageError);
+      console.log('Initials:', getInitials());
+      console.log('Background color:', getInitialsBackgroundColor());
+    }
     return (
       <View style={styles.headerContainer}>
         <View style={styles.viewLeft}>
-          <Image
-            source={user?.profile_image ? { uri: user.profile_image } : images.user2}
-            resizeMode='cover'
-            style={styles.userIcon}
-            onError={() => {}}
-          />
+          {renderProfilePicture()}
           <View style={styles.viewNameContainer}>
             <Text style={styles.greeeting}>Welcome Back!</Text>
             <Text style={[styles.title, {
@@ -601,6 +662,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 32
+  },
+  initialsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialsText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontFamily: 'Urbanist Bold',
+    textAlign: 'center',
   },
   viewLeft: {
     flexDirection: "row",

@@ -87,7 +87,7 @@ const SettingsSecurity = () => {
             textColor={dark ? COLORS.white : COLORS.primary}
             onPress={() => { navigate("ChangePassword") }}
           />
-          <Button
+          {/* <Button
             title="Change Email"
             style={{
               backgroundColor: dark ? COLORS.dark3 : COLORS.tansparentPrimary,
@@ -97,7 +97,7 @@ const SettingsSecurity = () => {
             }}
             textColor={dark ? COLORS.white : COLORS.primary}
             onPress={() => { navigate("ChangeEmail") }}
-          />
+          /> */}
         </ScrollView>
       </View>
     </SafeAreaView>

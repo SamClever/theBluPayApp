@@ -10,14 +10,16 @@ import CheckBox from '@react-native-community/checkbox';
 import Button from '../components/Button';
 import { useTheme } from '../theme/ThemeProvider';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomAlertModal from '../components/CustomAlertModal';
 
 const isTestMode = true
 
 const initialState = {
   inputValues: {
-    password: isTestMode ? '**********' : '',
-    newPassword: isTestMode ? '**********' : '',
-    confirmNewPassword: isTestMode ? '**********' : '',
+    password: isTestMode ? '' : '',
+    newPassword: isTestMode ? '' : '',
+    confirmNewPassword: isTestMode ? '' : '',
   },
   inputValidities: {
     password: false,
@@ -34,6 +36,10 @@ const ChangePassword = () => {
   const [error, setError] = useState(null);
   const [isChecked, setChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
   const { colors, dark } = useTheme();
 
   const inputChangedHandler = useCallback(
@@ -46,11 +52,87 @@ const ChangePassword = () => {
       })
     }, [dispatchFormState])
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert('An error occured', error)
+  const changePassword = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Validate passwords match
+      if (formState.inputValues.newPassword !== formState.inputValues.confirmNewPassword) {
+        setAlertTitle('Validation Error');
+        setAlertMessage('New password and confirm password do not match.');
+        setAlertType('error');
+        setAlertVisible(true);
+        return;
+      }
+
+      // Check if all fields are filled
+      if (!formState.inputValues.password || !formState.inputValues.newPassword || !formState.inputValues.confirmNewPassword) {
+        setAlertTitle('Validation Error');
+        setAlertMessage('Please fill in all password fields.');
+        setAlertType('error');
+        setAlertVisible(true);
+        return;
+      }
+
+      // Get token from AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        setAlertTitle('Authentication Error');
+        setAlertMessage('Session expired. Please log in again.');
+        setAlertType('error');
+        setAlertVisible(true);
+        navigation.navigate('Login');
+        return;
+      }
+
+      const response = await fetch('https://theblupayapi.com/userAuth/change-password/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          old_password: formState.inputValues.password,
+          new_password: formState.inputValues.newPassword,
+          new_password_confirm: formState.inputValues.confirmNewPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success
+        setModalVisible(true);
+      } else {
+        // Error from API
+        const errorMessage = data.message || data.error || 'Failed to change password. Please try again.';
+        setAlertTitle('Error');
+        setAlertMessage(errorMessage);
+        setAlertType('error');
+        setAlertVisible(true);
+      }
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      setAlertTitle('Network Error');
+      setAlertMessage('Unable to connect to server. Please check your internet connection and try again.');
+      setAlertType('error');
+      setAlertVisible(true);
+    } finally {
+      setIsLoading(false);
     }
-  }, [error]);
+  };
+
+  // Render modern alert modal
+  const renderAlertModal = () => (
+    <CustomAlertModal
+      visible={alertVisible}
+      onClose={() => setAlertVisible(false)}
+      title={alertTitle}
+      message={alertMessage}
+      buttonText="OK"
+    />
+  );
 
   // Render modal
   const renderModal = () => {
@@ -68,16 +150,21 @@ const ChangePassword = () => {
                 resizeMode='contain'
                 style={styles.modalIllustration}
               />
-              <Text style={styles.modalTitle}>Congratulations!</Text>
+              <Text style={styles.modalTitle}>Password Changed!</Text>
               <Text style={[styles.modalSubtitle, {
                 color: dark ? COLORS.greyscale300 : COLORS.greyscale600,
-              }]}>Your account is ready to use. You will be redirected to the Home page in a few seconds..</Text>
+              }]}>Your password has been successfully changed. For security reasons, you will be logged out and need to log in again with your new password.</Text>
               <Button
                 title="Continue"
                 filled
                 onPress={() => {
-                  setModalVisible(false)
-                  navigation.goBack()
+                  setModalVisible(false);
+                  // Clear token and navigate to login
+                  AsyncStorage.removeItem('token');
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                  });
                 }}
                 style={{
                   width: "100%",
@@ -103,16 +190,17 @@ const ChangePassword = () => {
               style={styles.success}
             />
           </View>
-          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.black }]}>Reset Password</Text>
+          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.black }]}>Change Password</Text>
           <Input
             onInputChanged={inputChangedHandler}
             errorText={formState.inputValidities['password']}
             autoCapitalize="none"
             id="password"
-            placeholder="Old Password"
+            placeholder="Current Password"
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.padlock}
             secureTextEntry={true}
+            value={formState.inputValues.password}
           />
           <Input
             onInputChanged={inputChangedHandler}
@@ -123,6 +211,7 @@ const ChangePassword = () => {
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.padlock}
             secureTextEntry={true}
+            value={formState.inputValues.newPassword}
           />
           <Input
             onInputChanged={inputChangedHandler}
@@ -133,34 +222,20 @@ const ChangePassword = () => {
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.padlock}
             secureTextEntry={true}
+            value={formState.inputValues.confirmNewPassword}
           />
-          <View style={styles.checkBoxContainer}>
-            <View style={{ flexDirection: 'row' }}>
-              <CheckBox
-                style={styles.checkbox}
-                value={isChecked}
-                boxType="square"
-                onTintColor={isChecked ? COLORS.primary : dark ? COLORS.primary : "gray"}
-                onFillColor={isChecked ? COLORS.primary : dark ? COLORS.primary : "gray"}
-                onCheckColor={COLORS.white}
-                onValueChange={setChecked}
-                tintColors={{ true: COLORS.primary, false: "gray" }}
-              />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.privacy, { color: dark ? COLORS.white : COLORS.black }]}>Remenber me</Text>
-              </View>
-            </View>
-          </View>
-          <View>
+          <View style={styles.spacer}>
           </View>
         </ScrollView>
         <Button
-          title="Continue"
+          title="Change Password"
           filled
-          onPress={() => setModalVisible(true)}
+          onPress={changePassword}
+          isLoading={isLoading}
           style={styles.button}
         />
         {renderModal()}
+        {renderAlertModal()}
       </View>
     </SafeAreaView>
   )
@@ -292,6 +367,9 @@ const styles = StyleSheet.create({
     height: 180,
     width: 180,
     marginVertical: 22
+  },
+  spacer: {
+    marginVertical: 18
   }
 })
 

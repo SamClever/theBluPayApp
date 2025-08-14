@@ -14,7 +14,8 @@ import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Nav = {
-  navigate: (value: string) => void
+  navigate: (value: string) => void;
+  dispatch: (action: any) => void;
 }
 
 const Profile = () => {
@@ -24,6 +25,7 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileImageError, setProfileImageError] = useState(false);
 
   React.useEffect(() => {
     const fetchUserProfile = async () => {
@@ -78,18 +80,80 @@ const Profile = () => {
     fetchUserProfile();
   }, []);
 
+  // Helper functions for profile picture initials
+  const getInitials = () => {
+    if (user?.First_name && user?.Last_name) {
+      return `${user.First_name.charAt(0).toUpperCase()}${user.Last_name.charAt(0).toUpperCase()}`;
+    }
+    if (user?.First_name) {
+      return user.First_name.charAt(0).toUpperCase();
+    }
+    if (user?.Last_name) {
+      return user.Last_name.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const getInitialsBackgroundColor = () => {
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+    ];
+    
+    if (user?.First_name) {
+      // Use first character to determine color
+      const charCode = user.First_name.charCodeAt(0);
+      return colors[charCode % colors.length];
+    }
+    return COLORS.primary;
+  };
+
+  const renderProfilePicture = () => {
+    // If user has a valid profile image, show it
+    if (user?.profile_image && user.profile_image.trim() !== '' && !profileImageError) {
+      const imageUri = user.profile_image.startsWith('http') 
+        ? user.profile_image 
+        : `https://theblupayapi.com${user.profile_image}`;
+      
+      return (
+        <Image
+          source={{ uri: imageUri }}
+          resizeMode='cover'
+          style={styles.avatar}
+          onError={(error) => {
+            console.log('Profile image error:', error);
+            setProfileImageError(true);
+          }}
+          onLoad={() => {
+            console.log('Profile image loaded successfully');
+            setProfileImageError(false);
+          }}
+        />
+      );
+    }
+
+    // Otherwise show initials-based avatar
+    return (
+      <View style={[styles.avatar, styles.initialsContainer, { backgroundColor: getInitialsBackgroundColor() }]}>
+        <Text style={styles.initialsText}>{getInitials()}</Text>
+      </View>
+    );
+  };
+
   /**
+   * Render header
+   */  /**
    * Render header
    */
   const renderHeader = () => {
     return (
       <TouchableOpacity style={styles.headerContainer}>
         <View style={styles.headerLeft}>
-          <Image
+          {/* <Image
             source={images.logo as ImageSourcePropType}
             resizeMode='contain'
             style={styles.logo}
-          />
+          /> */}
           <Text style={[styles.headerTitle, {
             color: dark ? COLORS.white : COLORS.greyscale900
           }]}>Profile</Text>
@@ -119,14 +183,19 @@ const Profile = () => {
     if (!user) {
       return <Text style={{ textAlign: 'center', marginVertical: 20 }}>No user data found.</Text>;
     }
+
+    // Debug log for profile picture logic
+    console.log('Profile Screen - User state:', user);
+    console.log('Profile Screen - Profile image value:', user.profile_image);
+    console.log('Profile Screen - Profile image error state:', profileImageError);
+    console.log('Profile Screen - Will use initials:', !user.profile_image || user.profile_image.trim() === '' || profileImageError);
+    console.log('Profile Screen - Initials:', getInitials());
+    console.log('Profile Screen - Background color:', getInitialsBackgroundColor());
+
     return (
       <View style={styles.profileContainer}>
         <View>
-          <Image
-            source={user.profile_image ? { uri: user.profile_image.startsWith('http') ? user.profile_image : `https://theblupayapi.com${user.profile_image}` } : images.user1}
-            resizeMode='cover'
-            style={styles.avatar}
-          />
+          {renderProfilePicture()}
         </View>
         <Text style={[styles.title, { color: dark ? COLORS.secondaryWhite : COLORS.greyscale900 }]}>
           {user.First_name || ''} {user.Last_name || ''}
@@ -400,6 +469,16 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 999
+  },
+  initialsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initialsText: {
+    color: COLORS.white,
+    fontSize: 36,
+    fontFamily: 'Urbanist Bold',
+    textAlign: 'center',
   },
   picContainer: {
     width: 20,
