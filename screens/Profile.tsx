@@ -97,13 +97,23 @@ const Profile = () => {
   const getInitialsBackgroundColor = () => {
     const colors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+      '#FF9F43', '#7D5A50', '#6C5CE7', '#A29BFE', '#FD79A8',
+      '#FDCB6E', '#E84393', '#00B894', '#00CEC9', '#0984E3'
     ];
     
-    if (user?.First_name) {
-      // Use first character to determine color
-      const charCode = user.First_name.charCodeAt(0);
-      return colors[charCode % colors.length];
+    // Create a consistent hash based on user's full name
+    if (user?.First_name || user?.Last_name) {
+      const fullName = `${user?.First_name || ''}${user?.Last_name || ''}`.toLowerCase();
+      let hash = 0;
+      for (let i = 0; i < fullName.length; i++) {
+        const char = fullName.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      // Ensure positive index
+      const colorIndex = Math.abs(hash) % colors.length;
+      return colors[colorIndex];
     }
     return COLORS.primary;
   };
