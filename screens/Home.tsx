@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ImageSourcePropType, ActivityIndicator, RefreshControl, Modal, TextInput, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ImageSourcePropType, ActivityIndicator, RefreshControl, Modal, TextInput, Alert, Dimensions, Animated } from 'react-native';
 import React, { useEffect, useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-virtualized-view';
@@ -40,13 +40,11 @@ const HomeScreen = () => {
   const [showBalance, setShowBalance] = useState(false);
   const [pinModalVisible, setPinModalVisible] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
-  const pinInputs = useRef([]);
+  const pinInputs = useRef<(TextInput | null)[]>([]);
   const [pinLoading, setPinLoading] = useState(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [shouldReopenPinModal, setShouldReopenPinModal] = useState(false);
-  const [modalJustOpened, setModalJustOpened] = useState(false);
   const [canSubmitPin, setCanSubmitPin] = useState(true);
+  const [pinError, setPinError] = useState(false);
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
 
   const fetchUserProfile = async () => {
     try {
@@ -114,7 +112,19 @@ const HomeScreen = () => {
   const handleShowBalance = () => {
     setPinModalVisible(true);
     setEnteredPin('');
+    setPinError(false);
     setShowBalance(false); // Always hide balance when opening modal
+  };
+
+  const startShakeAnimation = () => {
+    shakeAnimation.setValue(0);
+    Animated.sequence([
+      Animated.timing(shakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true }),
+    ]).start();
   };
 
   const handlePinSubmit = () => {
@@ -125,12 +135,18 @@ const HomeScreen = () => {
       if (enteredPin === String(user?.pin)) {
         setShowBalance(true);
         setPinModalVisible(false);
+        setPinError(false);
         // Hide balance again after 6 seconds
         setTimeout(() => setShowBalance(false), 6000);
       } else {
         setShowBalance(false); // Hide balance if wrong PIN
-        setAlertMessage('The PIN you entered is incorrect.');
-        setAlertVisible(true);
+        setPinError(true);
+        // Shake animation for visual feedback
+        startShakeAnimation();
+        // Clear PIN inputs after error
+        setEnteredPin('');
+        // Reset error after 3 seconds
+        setTimeout(() => setPinError(false), 3000);
       }
     }, 500);
   };
@@ -291,7 +307,7 @@ const HomeScreen = () => {
       </View>
       <View style={styles.swipeCardBottomRow}>
         <Text style={styles.swipeCardDays}>90 Days Only</Text>
-        <Image source={icons.mastercard} style={styles.swipeCardLogo} resizeMode="contain" />
+        <Image source={icons.mastercard as ImageSourcePropType} style={styles.swipeCardLogo} resizeMode="contain" />
       </View>
     </View>
   );
@@ -438,17 +454,23 @@ const HomeScreen = () => {
           ]}>
             Enter your PIN to view your account balance
           </Text>
-          <View style={styles.pinBoxesRow}>
+          <Animated.View 
+            style={[
+              styles.pinBoxesRow,
+              { transform: [{ translateX: shakeAnimation }] }
+            ]}
+          >
             {[0,1,2,3].map((i) => (
               <TextInput
                 key={i}
-                ref={ref => pinInputs.current[i] = ref}
+                ref={ref => { if (ref) pinInputs.current[i] = ref; }}
                 style={[
                   styles.pinBox,
                   {
                     backgroundColor: dark ? COLORS.dark1 : COLORS.secondaryWhite,
                     color: dark ? COLORS.white : COLORS.black,
-                    borderColor: dark ? COLORS.grayscale700 : COLORS.gray2
+                    borderColor: pinError ? '#FF3B30' : (dark ? COLORS.grayscale700 : COLORS.gray2),
+                    borderWidth: pinError ? 2 : 1.5,
                   }
                 ]}
                 value={enteredPin[i] || ''}
@@ -457,6 +479,7 @@ const HomeScreen = () => {
                     const newPin = enteredPin.split('');
                     newPin[i] = text;
                     setEnteredPin(newPin.join(''));
+                    setPinError(false); // Clear error when user starts typing
                     if (!canSubmitPin && text) setCanSubmitPin(true);
                     if (text && i < 3) {
                       pinInputs.current[i+1]?.focus();
@@ -479,7 +502,12 @@ const HomeScreen = () => {
                 }}
               />
             ))}
-          </View>
+          </Animated.View>
+          {pinError && (
+            <Text style={[styles.pinErrorText, { color: '#FF3B30', marginTop: 8 }]}>
+              Incorrect PIN. Please try again.
+            </Text>
+          )}
           {pinLoading && (
             <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 18 }} />
           )}
@@ -504,57 +532,29 @@ const HomeScreen = () => {
       if (pin === String(user?.pin)) {
         setShowBalance(true);
         setPinModalVisible(false);
+        setPinError(false);
         setTimeout(() => setShowBalance(false), 6000);
       } else {
         setShowBalance(false);
-        setAlertMessage('The PIN you entered is incorrect.');
-        setAlertVisible(true);
-        setShouldReopenPinModal(true);
+        setPinError(true);
+        // Shake animation for visual feedback
+        startShakeAnimation();
+        // Clear PIN inputs after error
+        setEnteredPin('');
+        // Reset error after 3 seconds
+        setTimeout(() => setPinError(false), 3000);
       }
     }, 500);
   };
 
-  // When alert closes, if shouldReopenPinModal is true, reopen PIN modal and clear PIN
-  useEffect(() => {
-    if (!alertVisible && shouldReopenPinModal) {
-      setEnteredPin('');
-      setPinModalVisible(true);
-      setShouldReopenPinModal(false);
-      setModalJustOpened(true);
-      setCanSubmitPin(false); // Block auto-submit until user types
-    }
-  }, [alertVisible, shouldReopenPinModal]);
-
-  // On first digit entry after modal opens, allow auto-submit
-  useEffect(() => {
-    if (modalJustOpened && enteredPin.length === 1) {
-      setCanSubmitPin(true);
-      setModalJustOpened(false);
-    }
-  }, [enteredPin, modalJustOpened]);
-
   // Custom Alert Modal
-  const renderCustomAlertModal = () => (
-    <CustomAlertModal
-      visible={alertVisible}
-      onClose={() => setAlertVisible(false)}
-      title="Information"
-      message={alertMessage}
-      buttonText="Okay"
-    />
-  );
+  const renderCustomAlertModal = () => null;
 
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>  
       <View style={[styles.container, { backgroundColor: colors.background }]}>  
         {renderHeader()}
         {renderPinModal()}
-        <CustomAlertModal
-          visible={alertVisible}
-          onClose={() => setAlertVisible(false)}
-          title="Incorrect PIN"
-          message={alertMessage}
-        />
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 }}>
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -944,6 +944,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 2,
     marginHorizontal: 6,
+  },
+  pinErrorText: {
+    fontSize: 13,
+    fontFamily: 'Urbanist Medium',
+    textAlign: 'center',
+    marginTop: 8,
   },
 })
 
