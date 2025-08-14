@@ -37,6 +37,18 @@ const PayoutReviewSummary = () => {
     buttonText: 'Okay',
   });
 
+  // Debug: Log the parameters passed to this screen
+  console.log('PayoutReviewSummary parameters:', {
+    amount: p.amount,
+    phone: p.phone,
+    currency: p.currency,
+    channel_provider: p.channel_provider,
+    account_balance: p.account_balance,
+    sufficient_balance: p.sufficient_balance,
+    total_amount: p.total_amount,
+    fee: p.fee,
+  });
+
   const confirmPayout = async () => {
     // Check for insufficient balance before proceeding
     if (p.sufficient_balance === false) {
@@ -64,6 +76,80 @@ const PayoutReviewSummary = () => {
         return;
       }
 
+      // First, get updated balance to ensure we have current information
+      const balanceResp = await fetch('https://theblupayapi.com/Account/dashboard/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      let currentBalance = parseFloat(p.account_balance?.toString() || '0');
+      if (balanceResp.ok) {
+        const balanceData = await balanceResp.json().catch(() => ({}));
+        if (balanceData.account_balance !== undefined) {
+          currentBalance = parseFloat(balanceData.account_balance.toString() || '0');
+        }
+      }
+
+      // Double-check balance with current data
+      const totalNeeded = parseFloat(p.total_amount?.toString() || '0');
+      if (currentBalance < totalNeeded) {
+        const shortfall = (totalNeeded - currentBalance).toFixed(2);
+        setAlertConfig({
+          title: 'Insufficient Balance',
+          message: `Your current balance (${p.currency || 'TZS'} ${currentBalance.toFixed(2)}) is less than the total amount needed (${p.currency || 'TZS'} ${p.total_amount}).\n\nYou need ${p.currency || 'TZS'} ${shortfall} more to complete this transaction.`,
+          type: 'warning',
+          buttonText: 'Okay',
+        });
+        setAlertVisible(true);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Balance check passed:', {
+        currentBalance,
+        totalNeeded,
+        sufficient: currentBalance >= totalNeeded
+      });
+
+      // Prepare the request payload - keep amount as string like in preview API
+      const cleanPhone = p.phone.replace(/\+/g, '').replace(/\s/g, '').replace(/-/g, '');
+      const amountValue = p.amount.toString();
+      
+      // Validate the data before sending
+      if (!amountValue || parseFloat(amountValue) <= 0) {
+        setAlertConfig({
+          title: 'Invalid Amount',
+          message: 'The withdrawal amount is invalid. Please try again.',
+          type: 'error',
+          buttonText: 'Go Back',
+        });
+        setAlertVisible(true);
+        setLoading(false);
+        return;
+      }
+      
+      if (!cleanPhone || cleanPhone.length < 9) {
+        setAlertConfig({
+          title: 'Invalid Phone Number',
+          message: 'The phone number format is invalid. Please verify and try again.',
+          type: 'error',
+          buttonText: 'Go Back',
+        });
+        setAlertVisible(true);
+        setLoading(false);
+        return;
+      }
+
+      // Use the same format as the preview API that works
+      const requestPayload = {
+        amount: amountValue,
+        phone: cleanPhone,
+      };
+
+      console.log('Payout request payload:', requestPayload);
+
       const initResp = await fetch('https://theblupayapi.com/payout/initiate/', {
         method: 'POST',
         headers: {
@@ -71,20 +157,82 @@ const PayoutReviewSummary = () => {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount: p.amount, phone: p.phone.replace('+', '') }),
+        body: JSON.stringify(requestPayload),
       });
       const initData = await initResp.json().catch(() => ({}));
       
+      // Debug logging
+      console.log('Payout initiation response:', {
+        status: initResp.status,
+        ok: initResp.ok,
+        statusText: initResp.statusText,
+        headers: Object.fromEntries(initResp.headers.entries()),
+        data: initData,
+        requestData: requestPayload
+      });
+      
       if (!initResp.ok) {
-        const msg = initData?.message || initData?.detail || 'Failed to initiate payout.';
+        const msg = initData?.message || initData?.detail || initData?.error || 'Failed to initiate payout.';
+        
+        // Log detailed error information
+        console.log('Payout API Error Details:', {
+          status: initResp.status,
+          message: msg,
+          fullResponse: initData,
+          requestSent: requestPayload
+        });
         
         // Handle specific error cases with user-friendly messages
-        if (msg.toLowerCase().includes('insufficient') || msg.toLowerCase().includes('balance')) {
+        if (initResp.status === 400) {
+          // Handle 400 Bad Request specifically
+          let errorTitle = 'Request Error';
+          let errorMessage = 'There was an issue with your request. ';
+          
+          if (msg.toLowerCase().includes('phone') || msg.toLowerCase().includes('number')) {
+            errorTitle = 'Invalid Phone Number';
+            errorMessage = 'The phone number format is not accepted by the service provider. Please verify the number and try again.';
+          } else if (msg.toLowerCase().includes('amount') || msg.toLowerCase().includes('value')) {
+            errorTitle = 'Invalid Amount';
+            errorMessage = 'The withdrawal amount is not valid. Please check the amount and try again.';
+          } else if (msg.toLowerCase().includes('currency')) {
+            errorTitle = 'Currency Error';
+            errorMessage = 'There was an issue with the currency. Please try again.';
+          } else if (msg.toLowerCase().includes('channel') || msg.toLowerCase().includes('provider')) {
+            errorTitle = 'Service Provider Error';
+            errorMessage = 'The selected service provider is not available. Please try again.';
+          } else {
+            errorMessage = `${msg}\n\nThis might be due to:\n• Invalid request format\n• Missing required information\n• Service temporarily unavailable`;
+          }
+          
+          setAlertConfig({
+            title: errorTitle,
+            message: errorMessage,
+            type: 'error',
+            buttonText: 'Go Back',
+          });
+          setAlertVisible(true);
+        } else if (msg.toLowerCase().includes('insufficient') || msg.toLowerCase().includes('balance')) {
+          // Get fresh balance for accurate error message
+          const freshBalanceResp = await fetch('https://theblupayapi.com/Account/dashboard/', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+            },
+          });
+          
+          let freshBalance = p.account_balance;
+          if (freshBalanceResp.ok) {
+            const freshBalanceData = await freshBalanceResp.json().catch(() => ({}));
+            if (freshBalanceData.account_balance !== undefined) {
+              freshBalance = freshBalanceData.account_balance;
+            }
+          }
+          
           setAlertConfig({
             title: 'Insufficient Balance',
-            message: `Your current balance (${p.currency || 'TZS'} ${p.account_balance}) is less than the total amount needed (${p.currency || 'TZS'} ${p.total_amount}). Please add more funds to your account before continuing.`,
+            message: `Your current balance (${p.currency || 'TZS'} ${freshBalance}) is insufficient for this transaction (${p.currency || 'TZS'} ${p.total_amount}).\n\nThis might be due to:\n• Another transaction processed recently\n• Pending transactions\n• Account holds or restrictions\n\nPlease check your balance and try again.`,
             type: 'warning',
-            buttonText: 'Okay',
+            buttonText: 'Check Balance',
           });
           setAlertVisible(true);
         } else if (msg.toLowerCase().includes('limit')) {
@@ -95,10 +243,26 @@ const PayoutReviewSummary = () => {
             buttonText: 'Contact Support',
           });
           setAlertVisible(true);
+        } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('timeout') || msg.toLowerCase().includes('connection')) {
+          setAlertConfig({
+            title: 'Network Error',
+            message: 'There was a network issue processing your transaction. Please check your internet connection and try again.',
+            type: 'error',
+            buttonText: 'Try Again',
+          });
+          setAlertVisible(true);
+        } else if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('phone') || msg.toLowerCase().includes('number')) {
+          setAlertConfig({
+            title: 'Invalid Phone Number',
+            message: 'The phone number provided appears to be invalid. Please verify the number and try again.',
+            type: 'error',
+            buttonText: 'Go Back',
+          });
+          setAlertVisible(true);
         } else {
           setAlertConfig({
             title: 'Payout Failed',
-            message: msg,
+            message: `${msg}\n\nError Code: ${initResp.status}\n\nIf this issue persists, please contact customer support.`,
             type: 'error',
             buttonText: 'Try Again',
           });
@@ -335,7 +499,12 @@ const PayoutReviewSummary = () => {
           setAlertVisible(false);
           if (alertConfig.buttonText === 'Contact Support') {
             navigation.navigate('CustomerService');
+          } else if (alertConfig.buttonText === 'Check Balance') {
+            navigation.navigate('Home'); // Go back to home to check balance
+          } else if (alertConfig.buttonText === 'Go Back') {
+            navigation.goBack();
           }
+          // For 'Try Again' and 'Okay', just close the modal
         }}
       />
     </View>
