@@ -38,7 +38,7 @@ const PayoutReviewSummary = () => {
   });
 
   const confirmPayout = async () => {
-    // Check for insufficient balance before making API call
+    // Check for insufficient balance before proceeding
     if (p.sufficient_balance === false) {
       // Calculate the amount needed
       const currentBalance = parseFloat(p.account_balance?.toString() || '0');
@@ -119,30 +119,8 @@ const PayoutReviewSummary = () => {
         return;
       }
 
-      // Webhook: mark payout success to update balances
-      const webhookResp = await fetch('https://theblupayapi.com/webhooks/clickpesa-payout/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ orderReference: orderRef, status: 'SUCCESS' }),
-      });
-
-      const webhookData = await webhookResp.json().catch(() => ({}));
-      if (!webhookResp.ok) {
-        const msg = webhookData?.message || webhookData?.detail || 'Payout completed but webhook failed.';
-        setAlertConfig({
-          title: 'Webhook Error',
-          message: msg,
-          type: 'info',
-          buttonText: 'Continue',
-        });
-        setAlertVisible(true);
-        return;
-      }
-
-      navigation.navigate('PayoutSuccessful', {
+      // Navigate to PIN verification screen with payout data
+      navigation.navigate('PayoutPINVerification', {
         order_reference: orderRef,
         amount: initData.amount || p.amount,
         fee: initData.fee,
@@ -152,6 +130,7 @@ const PayoutReviewSummary = () => {
         channel_provider: initData.channel_provider,
         estimated_completion: initData.estimated_completion || p.estimated_completion,
       });
+
     } catch (e: any) {
       setAlertConfig({
         title: 'Network Error',
@@ -314,7 +293,7 @@ const PayoutReviewSummary = () => {
 
         {/* Enhanced Button with vibrant styling */}
         <Button
-          title="Confirm Payout"
+          title="Continue to PIN Verification"
           filled
           isLoading={loading}
           onPress={confirmPayout}

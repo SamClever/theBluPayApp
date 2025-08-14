@@ -80,6 +80,7 @@ import TopupPinEntry from "./TopupPinEntry";
 import TopupSuccessful from "./TopupSuccessful";
 import ReviewInfo from "./ReviewInfo";
 import PayoutReviewSummary from "./PayoutReviewSummary";
+import PayoutPINVerification from "./PayoutPINVerification";
 import PayoutSuccessful from "./PayoutSuccessful";
 
 export { default as SelectTransferType } from './SelectTransferType';
@@ -167,5 +168,6 @@ export {
     TopupSuccessful,
     ReviewInfo,
     PayoutReviewSummary,
+    PayoutPINVerification,
     PayoutSuccessful
 }
