@@ -95,7 +95,7 @@ const ChangePassword = () => {
         body: JSON.stringify({
           old_password: formState.inputValues.password,
           new_password: formState.inputValues.newPassword,
-          new_password_confirm: formState.inputValues.confirmNewPassword,
+          confirm_password: formState.inputValues.confirmNewPassword,
         }),
       });
 

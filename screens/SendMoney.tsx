@@ -63,8 +63,6 @@ const SendMoney = () => {
   const [routes] = useState([
     { key: 'first', title: 'All' },
     { key: 'second', title: 'Favourite' },
-    { key: 'third', title: 'Bank' },
-    { key: 'fourth', title: 'E-Wallet' },
   ]);
 
   const fetchUsers = async () => {
@@ -234,8 +232,6 @@ const SendMoney = () => {
     switch (route.key) {
       case 'first': return <AllContact />;
       case 'second': return <FavouriteContact />;
-      case 'third': return <BankContact />;
-      case 'fourth': return <EWalletContact />;
       default: return null;
     }
   };
