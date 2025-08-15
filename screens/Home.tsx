@@ -378,7 +378,7 @@ const HomeScreen = () => {
       </View>
       <View style={styles.swipeCardBottomRow}>
         <Text style={styles.swipeCardDays}>90 Days Only</Text>
-        <Image source={icons.mastercard as ImageSourcePropType} style={styles.swipeCardLogo} resizeMode="contain" />
+        <Image source={icons.mastercard as ImageSourcePropType} style={styles.mastercardLogo} resizeMode="contain" />
       </View>
     </View>
   );
@@ -449,7 +449,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
           
           <TouchableOpacity
-            onPress={() => navigation.navigate("InOutPaymentHistory")}
+            onPress={() => navigation.navigate("NfcTapCard")}
             style={styles.categoryContainer}>
             <View style={[styles.categoryIconContainer, { backgroundColor: dark ? '#E91E63' + '20' : '#E91E63' + '15' }]}>
               <Image
@@ -957,6 +957,11 @@ const styles = StyleSheet.create({
   swipeCardLogo: {
     width: 38,
     height: 38,
+  },
+  mastercardLogo: {
+    width: 56,
+    height: 36,
+    marginLeft: 8,
   },
   cardItemWrapper: {
     width: CARD_WIDTH,

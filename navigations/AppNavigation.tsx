@@ -3,12 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
 import { AddNewAddress, AddNewCard, Address, AllServices, ChangeEmail, ChangePIN, ChangePassword, CreateNewPIN, CreateNewPassword, CustomerService, ECardDetails, ECardRefund, ECardTopup, EditProfile, FaceRecognitionScan, FaceRecognitionWalkthrough, FillYourProfile, Fingerprint, ForgotPasswordEmail, ForgotPasswordMethods, ForgotPasswordPhoneNumber, InOutPaymentHistory, InOutPaymentViewEReceipt, Login, Notifications, Onboarding1, Onboarding2, Onboarding3, OtpVerification, PayBillsElectricityCustomerId, PayBillsElectricityReviewSummary, PayBillsInternetCustomerId, PayBillsInternetReviewSummary, PayBillsSuccessful, PayBillsWaterCustomerId, PayBillsWaterReviewSummary, PhotoIdCard, PromoAndDiscount,
-   ProofAndResidency, ReasonForUsingAllPay, RequestMoney,
-    RequestMoneyAmount, RequestMoneySuccessful, ScanQrCode, SelfieWithIdCard, 
-    SendMoney, SendMoneyChoosePaymentType, SendMoneyReviewSummary, 
-    SendMoneySuccessful, SendMoneyTypeAmount, SettingsHelpCenter, SettingsInviteFriends, SettingsLanguage,
-     SettingsNotifications, SettingsPayment, SettingsPrivacyPolicy, SettingsSecurity, Signup, StatisticsVersion2, StatisticsVersion3, StatisticsVersion4, TransferToBankAmountForm, TransferToBankReviewSummary, TransferToBankSelectBank, TransferToBankSuccessful, UserAllPay, VerifyYourIdentity, Welcome, LoginOtp, ConfirmPayment,
-      SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney, TopupReviewSummary, TopupPinEntry, TopupSuccessful, ReviewInfo, PayoutReviewSummary, PayoutPINVerification, PayoutSuccessful } from '../screens';
+  ProofAndResidency, ReasonForUsingAllPay, RequestMoney,
+   RequestMoneyAmount, RequestMoneySuccessful, ScanQrCode, SelfieWithIdCard, 
+   SendMoney, SendMoneyChoosePaymentType, SendMoneyReviewSummary, 
+   SendMoneySuccessful, SendMoneyTypeAmount, SettingsHelpCenter, SettingsInviteFriends, SettingsLanguage,
+    SettingsNotifications, SettingsPayment, SettingsPrivacyPolicy, SettingsSecurity, Signup, StatisticsVersion2, StatisticsVersion3, StatisticsVersion4, TransferToBankAmountForm, TransferToBankReviewSummary, TransferToBankSelectBank, TransferToBankSuccessful, UserAllPay, VerifyYourIdentity, Welcome, LoginOtp, ConfirmPayment,
+    SelectTransferType, MobileMoneyTransfer, Topup, TopupMobileMoney, TopupReviewSummary, TopupPinEntry, TopupSuccessful, ReviewInfo, PayoutReviewSummary, PayoutPINVerification, PayoutSuccessful, NfcTapCard } from '../screens';
 import BottomTabNavigation from './BottomTabNavigation';
 
 const Stack = createNativeStackNavigator();
@@ -127,8 +127,9 @@ const AppNavigation = () => {
         <Stack.Screen name="TopupPinEntry" component={TopupPinEntry} />
         <Stack.Screen name="TopupSuccessful" component={TopupSuccessful} />
         <Stack.Screen name="PayoutReviewSummary" component={PayoutReviewSummary} />
-        <Stack.Screen name="PayoutPINVerification" component={PayoutPINVerification} />
-        <Stack.Screen name="PayoutSuccessful" component={PayoutSuccessful} />
+  <Stack.Screen name="PayoutPINVerification" component={PayoutPINVerification} />
+  <Stack.Screen name="PayoutSuccessful" component={PayoutSuccessful} />
+  <Stack.Screen name="NfcTapCard" component={NfcTapCard} />
       </Stack.Navigator>
     </NavigationContainer>
   )
