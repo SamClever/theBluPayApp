@@ -1,4 +1,250 @@
 import { ImageURISource } from "react-native";
+// Add type for all icon keys
+export interface IconsType {
+  television: string;
+  music: string;
+  cinema: string;
+  event: string;
+  games: string;
+  motor: string;
+  life: string;
+  property: string;
+  electricity: string;
+  water: string;
+  health: string;
+  tax: string;
+  idCard: string;
+  license: string;
+  passport: string;
+  municipal: string;
+  education: string;
+  school: string;
+  // Removed duplicate keys
+  wifi: string;
+  swimming2: string;
+  swimming: string;
+  sport2: string;
+  sport: string;
+  restaurant: string;
+  pet2: string;
+  pet: string;
+  laundry: string;
+  fork: string;
+  dumbell2: string;
+  dumbell: string;
+  car2: string;
+  car: string;
+  maximizeOutline: string;
+  maximize: string;
+  bed: string;
+  bathtub2: string;
+  bathtub: string;
+  userLocation: string;
+  send2: string;
+  dashboard2Outline: string;
+  dashboard2: string;
+  dashboard: string;
+  dashboardOutline: string;
+  check: string;
+  heart4: string;
+  heart3: string;
+  heart2Outline: string;
+  heart2: string;
+  figma: string;
+  clockTime: string;
+  time: string;
+  users2: string;
+  users: string;
+  star4: string;
+  star3: string;
+  star2: string;
+  rating: string;
+  box: string;
+  filter4: string;
+  filter3: string;
+  filter2: string;
+  filter: string;
+  notificationBell2: string;
+  notificationBell: string;
+  bookmark2Outline: string;
+  bookmark2: string;
+  signature: string;
+  editPencil: string;
+  videoCamera2Off: string;
+  videoCamera2: string;
+  noSound: string;
+  mediumVolume: string;
+  telephoneOutline: string;
+  telephone: string;
+  cancelSquare2: string;
+  cancelSquare: string;
+  arrowUpSquare: string;
+  arrowDownSquare: string;
+  search3: string;
+  search2: string;
+  cart: string;
+  world2: string;
+  world: string;
+  whatsapp2: string;
+  whatsapp: string;
+  twitter: string;
+  instagram: string;
+  headset: string;
+  facebook2: string;
+  mastercard: string;
+  people4: string;
+  people3: string;
+  people2: string;
+  people: string;
+  document2: string;
+  document2Outline: string;
+  chatBubble2: string;
+  chatBubble2Outline: string;
+  chatBubble: string;
+  cartOutline: string;
+  email2: string;
+  bell3: string;
+  bell2: string;
+  userDefault3: string;
+  userDefault2: string;
+  userDefault: string;
+  history: string;
+  cast: string;
+  stopwatch: string;
+  speedometer2: string;
+  speedometer: string;
+  previousPlay: string;
+  nextPlay: string;
+  forwardPlay2: string;
+  forwardPlay: string;
+  backwardPlay: string;
+  pause: string;
+  playButton: string;
+  rss: string;
+  downSquare2: string;
+  downSquare: string;
+  internetOutline: string;
+  circleDown: string;
+  circleLeft: string;
+  circleRight: string;
+  circleUp: string;
+  discountOutline: string;
+  discount: string;
+  document: string;
+  documentOutline: string;
+  downloadFile: string;
+  email: string;
+  emailOutline: string;
+  exploreOutline: string;
+  explore: string;
+  fileUploadOutline: string;
+  fileUpload: string;
+  folderOutline: string;
+  folder: string;
+  graph: string;
+  graphOutline: string;
+  heartOutline: string;
+  heart: string;
+  hide: string;
+  home: string;
+  home2: string;
+  home2Outline: string;
+  image: string;
+  infoCircle: string;
+  locationOutline: string;
+  location: string;
+  lock: string;
+  lockedComputerOutline: string;
+  logout: string;
+  loupe: string;
+  microphone: string;
+  moreCircle: string;
+  moreHorizontal: string;
+  moreVertical: string;
+  padlock: string;
+  paperOutline: string;
+  paper: string;
+  playOutline: string;
+  play: string;
+  plus: string;
+  search: string;
+  sendOutline: string;
+  send: string;
+  settingOutline: string;
+  setting2Outline: string;
+  settings: string;
+  shieldOutline: string;
+  shield: string;
+  show: string;
+  squareInfo: string;
+  starOutline: string;
+  star: string;
+  ticketOutline: string;
+  ticket: string;
+  timeCircle: string;
+  trash: string;
+  unlock: string;
+  upAndDownArrow: string;
+  userOutline: string;
+  user: string;
+  videoCameraOutline: string;
+  videoCamera: string;
+  voiceCommandOutline: string;
+  voiceOutline: string;
+  voice: string;
+  volumeDown: string;
+  volumeUp: string;
+  wallet: string;
+  walletOutline: string;
+  wallet2: string;
+  wallet2Outline: string;
+  appleLogo: string;
+  google: string;
+  facebook: string;
+  back: string;
+  back2: string;
+  arrowLeft: string;
+  microphone2: string;
+  microphone3: string;
+  profile: string;
+  content: string;
+  download: string;
+  download2: string;
+  notification: string;
+  security: string;
+  menu: string;
+  more: string;
+  moreInformation: string;
+  premium1: string;
+  premium2: string;
+  apple: string;
+  paypal: string;
+  creditCard: string;
+  share: string;
+  shareOutline: string;
+  internet: string;
+  addFileOutline: string;
+  addFile: string;
+  arrowBack: string;
+  arrowDown: string;
+  arrowRight: string;
+  arrowUp: string;
+  bag: string;
+  bellOutline: string;
+  bell: string;
+  bookmarkOutline: string;
+  bookmark: string;
+  calendar: string;
+  calendar2: string;
+  calendar3: string;
+  call: string;
+  categoryOutline: string;
+  category: string;
+  chatOutline: string;
+  chat: string;
+  // ...existing keys...
+  // ...add other keys as needed...
+}
 
 const addFileOutline = require("../assets/icons/add-file-outline.png") as string;
 const addFile = require("../assets/icons/add-file.png") as string;
@@ -28,6 +274,14 @@ const discount = require("../assets/icons/discount.png") as string;
 const document = require("../assets/icons/document.png") as string;
 const documentOutline = require("../assets/icons/document-outline.png") as string;
 const downloadFile = require("../assets/icons/download-file.png") as string;
+const tax = require("../assets/icons/tax.png") as string;
+const passport = require("../assets/icons/passport.png") as string;
+const municipal = require("../assets/icons/municipal.png") as string;
+const education = require("../assets/icons/education.png") as string;
+const school = require("../assets/icons/school.png") as string;
+const loan = require("../assets/icons/loan.png") as string;
+const ferry = require("../assets/icons/ferry.png") as string;
+const flight = require("../assets/icons/flight.png") as string;
 const email = require("../assets/icons/email.png") as string;
 const emailOutline = require("../assets/icons/email-outline.png") as string;
 const exploreOutline = require("../assets/icons/explore-outline.png") as string;
@@ -265,7 +519,7 @@ const next2 = require("../assets/icons/next2.png") as string;
 const down = require("../assets/icons/down.png") as string;
 const memberCard = require("../assets/icons/member-card.png") as string;
 const memberCardOutline = require("../assets/icons/member-card-outline.png") as string;
-const idCard = require("../assets/icons/id-card.png") as string;
+const idCard = require("../assets/icons/idCard.png") as string;
 const idCardOutline = require("../assets/icons/id-card-outline.png") as string;
 const license = require("../assets/icons/license.png") as string;
 const certificate = require("../assets/icons/certificate.png") as string;
@@ -376,7 +630,7 @@ const amazon = require("../assets/icons/amazon.png") as string;
 const nfc = require("../assets/icons/nfc.png") as string;
 const money = require("../assets/icons/money.png") as string;
 
-const icons = {
+const icons: IconsType = {
     addFileOutline,
     addFile,
     arrowBack,
@@ -1072,6 +1326,14 @@ export {
   bank,
 
   electricity,
+  tax,
+  passport,
+  municipal,
+  education,
+  school,
+  loan,
+  ferry,
+  flight,
   games,
   health,
   installment,

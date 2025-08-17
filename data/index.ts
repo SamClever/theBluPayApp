@@ -1,71 +1,33 @@
-import { COLORS, icons, images, socials } from "../constants";
+export const entertainmentServices = [
+    { id: '1', name: 'TV', icon: icons.television, iconColor: '#3F51B2', backgroundColor: 'rgba(63, 81, 178, .12)', onPress: 'PayTV' },
+    { id: '2', name: 'Music', icon: icons.music, iconColor: '#EA1E61', backgroundColor: 'rgba(234, 30, 97, .12)', onPress: 'PayMusic' },
+    { id: '3', name: 'Cinema', icon: icons.cinema, iconColor: '#FFC02D', backgroundColor: 'rgba(255, 192, 45, .12)', onPress: 'PayCinema' },
+    { id: '4', name: 'Events', icon: icons.event, iconColor: '#00BCD3', backgroundColor: 'rgba(0, 188, 211, .12)', onPress: 'PayEvents' },
+    { id: '5', name: 'Sports', icon: icons.sports, iconColor: '#8BC255', backgroundColor: 'rgba(139, 194, 85, .12)', onPress: 'PaySports' },
+    { id: '6', name: 'Gaming', icon: icons.games, iconColor: '#F54336', backgroundColor: 'rgba(245, 67, 54, .12)', onPress: 'PayGaming' },
+]
+import { COLORS, images, socials } from "../constants";
+import icons from "../constants/icons";
 
 
 export const categories = [
-    {
-        id: "1",
-        name: "Send",
-        icon: icons.send,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "SendMoney"
-    },
-    {
-        id: "2",
-        name: "Request",
-        icon: icons.download3,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "RequestMoney"
-    },
-    {
-        id: "3",
-        name: "Transfer",
-        icon: icons.upload,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "TransferToBankSelectBank"
-    },
-    {
-        id: "4",
-        name: "Create Invoice",
-        icon: icons.document,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "CreateInvoiceForm"
-    },
-    {
-        id: "5",
-        name: "Send a quick invoice",
-        icon: icons.document,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "SendQuickInvoiceAmountForm"
-    },
-    {
-        id: "6",
-        name: "Pay Bills",
-        icon: icons.ticket,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "PayBillsMenu"
-    },
-    {
-        id: "7",
-        name: "Split the bills",
-        icon: icons.graph,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "SplitTheBillAmountForm"
-    },
-    {
-        id: "8",
-        name: "Share Payment",
-        icon: icons.users,
-        iconColor: COLORS.primary,
-        backgroundColor: "rgba(36, 107, 253, .12)",
-        onPress: "SharePaymentInfo"
-    }
+    // Utility Bill Payments
+    { id: '1', name: 'LUKU (Electricity)', icon: icons.electricity, iconColor: '#FFD300', backgroundColor: 'rgba(255, 211, 0, .12)', onPress: 'PayBillsLUKU' },
+    { id: '2', name: 'DAWASA / ZAWA (Water)', icon: icons.water, iconColor: '#1A96F0', backgroundColor: 'rgba(26, 150, 240, .12)', onPress: 'PayBillsWater' },
+    // Government Fees & Public Services
+    { id: '3', name: 'TRA Payments', icon: icons.tax, iconColor: '#FF981F', backgroundColor: 'rgba(255, 152, 31, .12)', onPress: 'PayTRAPayments' },
+    { id: '4', name: 'NIDA Fees', icon: icons.idCard, iconColor: '#673AB3', backgroundColor: 'rgba(103, 58, 179, .12)', onPress: 'PayNIDAFees' },
+    { id: '5', name: 'Driving License', icon: icons.license, iconColor: '#3F51B2', backgroundColor: 'rgba(63, 81, 178, .12)', onPress: 'PayDrivingLicense' },
+    { id: '6', name: 'Immigration Services', icon: icons.passport, iconColor: '#9D28AC', backgroundColor: 'rgba(157, 40, 172, .12)', onPress: 'PayImmigration' },
+    { id: '7', name: 'Municipal Council Fees', icon: icons.municipal, iconColor: '#FF5726', backgroundColor: 'rgba(255, 87, 38, .12)', onPress: 'PayMunicipal' },
+    { id: '8', name: 'NHIF', icon: icons.health, iconColor: '#8BC255', backgroundColor: 'rgba(139, 194, 85, .12)', onPress: 'PayNHIF' },
+    // Education Payments
+    { id: '9', name: 'NECTA', icon: icons.education, iconColor: '#00BCD3', backgroundColor: 'rgba(0, 188, 211, .12)', onPress: 'PayNECTA' },
+    { id: '10', name: 'School & University Fees', icon: icons.school, iconColor: '#607D8A', backgroundColor: 'rgba(96, 125, 138, .12)', onPress: 'PaySchoolFees' },
+    { id: '11', name: 'Student Loans Board (HESLB)', icon: icons.loan, iconColor: '#FFC02D', backgroundColor: 'rgba(255, 192, 45, .12)', onPress: 'PayHESLB' },
+    // Transport & Travel
+    { id: '12', name: 'Ferry Tickets', icon: icons.ferry, iconColor: '#EA1E61', backgroundColor: 'rgba(234, 30, 97, .12)', onPress: 'PayFerryTickets' },
+    { id: '13', name: 'Flight Tickets', icon: icons.flight, iconColor: '#22D3EE', backgroundColor: 'rgba(34, 211, 238, .12)', onPress: 'PayFlightTickets' },
 ];
 
 export const activities = [
@@ -512,255 +474,50 @@ export const bankData = [
 ];
 
 export const services = [
-    {
-        id: "1",
-        name: "Electricity",
-        icon: icons.electricity,
-        iconColor: "#FFD300",
-        backgroundColor: "rgba(255, 211, 0, .12)",
-        onPress: "PayBillsElectricityCustomerId"
-    },
-    {
-        id: "2",
-        name: "Internet",
-        icon: icons.internet2,
-        iconColor: "#FF981F",
-        backgroundColor: "rgba(255, 152, 31, .12)",
-        onPress: "PayBillsInternetCustomerId"
-    },
-    {
-        id: "3",
-        name: "Water",
-        icon: icons.water,
-        iconColor: "#1A96F0",
-        backgroundColor: "rgba(26, 150, 240, .12)",
-        onPress: "PayBillsWaterCustomerId"
-    },
-    {
-        id: "4",
-        name: "E-Wallet",
-        icon: icons.wallet2,
-        iconColor: "#673AB3",
-        backgroundColor: "rgba(103, 58, 179, .12)",
-        onPress: ""
-    },
-    {
-        id: "5",
-        name: "Games",
-        icon: icons.games,
-        iconColor: "#F54336",
-        backgroundColor: "rgba(245, 67, 54, .12)",
-        onPress: ""
-    },
-    {
-        id: "6",
-        name: "Television",
-        icon: icons.television,
-        iconColor: "#3F51B2",
-        backgroundColor: "rgba(63, 81, 178, .12)",
-        onPress: ""
-    },
-    {
-        id: "7",
-        name: "Merchant",
-        icon: icons.cart,
-        iconColor: "#9D28AC",
-        backgroundColor: "rgba(157, 40, 172, .12)",
-        onPress: ""
-    },
-    {
-        id: "8",
-        name: "Installment",
-        icon: icons.installment,
-        iconColor: "#FF5726",
-        backgroundColor: "rgba(255, 87, 38, .12)",
-        onPress: ""
-    },
-    {
-        id: "9",
-        name: "Health",
-        icon: icons.health,
-        iconColor: "#8BC255",
-        backgroundColor: "rgba(139, 194, 85, .12)",
-        onPress: ""
-    },
-    {
-        id: "10",
-        name: "Mobile",
-        icon: icons.mobile,
-        iconColor: "#00BCD3",
-        backgroundColor: "rgba(0, 188, 211, .12)",
-        onPress: ""
-    },
-    {
-        id: "11",
-        name: "Motor",
-        icon: icons.motor,
-        iconColor: "#7A5548",
-        backgroundColor: "rgba(122, 85, 72, .12)",
-        onPress: ""
-    },
-    {
-        id: "12",
-        name: "Car",
-        icon: icons.car,
-        iconColor: "#607D8A",
-        backgroundColor: "rgba(96, 125, 138, .12)",
-        onPress: ""
-    },
-    {
-        id: "13",
-        name: "Shopping",
-        icon: icons.shopping,
-        iconColor: "#FFC02D",
-        backgroundColor: "rgba(255, 192, 45, .12)",
-        onPress: ""
-    },
-    {
-        id: "14",
-        name: "Deals",
-        icon: icons.discount,
-        iconColor: "#EA1E61",
-        backgroundColor: "rgba(234, 30, 97, .12)",
-        onPress: ""
-    },
+    // Utility Bill Payments
+    { id: '1', name: 'LUKU (Electricity)', icon: icons.electricity, iconColor: '#FFD300', backgroundColor: 'rgba(255, 211, 0, .12)', onPress: 'PayBillsLUKU' },
+    { id: '2', name: 'DAWASA / ZAWA (Water)', icon: icons.water, iconColor: '#1A96F0', backgroundColor: 'rgba(26, 150, 240, .12)', onPress: 'PayBillsWater' },
+    // Government Fees & Public Services
+    { id: '3', name: 'TRA Payments', icon: icons.tax, iconColor: '#FF981F', backgroundColor: 'rgba(255, 152, 31, .12)', onPress: 'PayTRAPayments' },
+    { id: '4', name: 'NIDA Fees', icon: icons.idCard, iconColor: '#673AB3', backgroundColor: 'rgba(103, 58, 179, .12)', onPress: 'PayNIDAFees' },
+    { id: '5', name: 'Driving License', icon: icons.license, iconColor: '#3F51B2', backgroundColor: 'rgba(63, 81, 178, .12)', onPress: 'PayDrivingLicense' },
+    { id: '6', name: 'Immigration Services', icon: icons.passport, iconColor: '#9D28AC', backgroundColor: 'rgba(157, 40, 172, .12)', onPress: 'PayImmigration' },
+    { id: '7', name: 'Municipal Council Fees', icon: icons.municipal, iconColor: '#FF5726', backgroundColor: 'rgba(255, 87, 38, .12)', onPress: 'PayMunicipal' },
+    { id: '8', name: 'NHIF', icon: icons.health, iconColor: '#8BC255', backgroundColor: 'rgba(139, 194, 85, .12)', onPress: 'PayNHIF' },
+    // Education Payments
+    { id: '9', name: 'NECTA', icon: icons.education, iconColor: '#00BCD3', backgroundColor: 'rgba(0, 188, 211, .12)', onPress: 'PayNECTA' },
+    { id: '10', name: 'School & University Fees', icon: icons.school, iconColor: '#607D8A', backgroundColor: 'rgba(96, 125, 138, .12)', onPress: 'PaySchoolFees' },
+    { id: '11', name: 'Student Loans Board (HESLB)', icon: icons.loan, iconColor: '#FFC02D', backgroundColor: 'rgba(255, 192, 45, .12)', onPress: 'PayHESLB' },
+    // Transport & Travel
+    { id: '12', name: 'Ferry Tickets', icon: icons.ferry, iconColor: '#EA1E61', backgroundColor: 'rgba(234, 30, 97, .12)', onPress: 'PayFerryTickets' },
+    { id: '13', name: 'Flight Tickets', icon: icons.flight, iconColor: '#22D3EE', backgroundColor: 'rgba(34, 211, 238, .12)', onPress: 'PayFlightTickets' },
 ];
 
 export const billServices = [
-    {
-        id: "1",
-        name: "Electricity",
-        icon: icons.electricity,
-        iconColor: "#FFD300",
-        backgroundColor: "rgba(255, 211, 0, .12)",
-        onPress: "PayBillsElectricityCustomerId"
-    },
-    {
-        id: "2",
-        name: "Internet",
-        icon: icons.internet2,
-        iconColor: "#FF981F",
-        backgroundColor: "rgba(255, 152, 31, .12)",
-        onPress: "PayBillsInternetCustomerId"
-    },
-    {
-        id: "3",
-        name: "Water",
-        icon: icons.water,
-        iconColor: "#1A96F0",
-        backgroundColor: "rgba(26, 150, 240, .12)",
-        onPress: "PayBillsWaterCustomerId"
-    },
-    {
-        id: "4",
-        name: "E-Wallet",
-        icon: icons.wallet2,
-        iconColor: "#673AB3",
-        backgroundColor: "rgba(103, 58, 179, .12)",
-        onPress: ""
-    },
-    {
-        id: "5",
-        name: "Games",
-        icon: icons.games,
-        iconColor: "#F54336",
-        backgroundColor: "rgba(245, 67, 54, .12)",
-        onPress: ""
-    },
-    {
-        id: "6",
-        name: "Television",
-        icon: icons.television,
-        iconColor: "#3F51B2",
-        backgroundColor: "rgba(63, 81, 178, .12)",
-        onPress: ""
-    },
-    {
-        id: "7",
-        name: "Merchant",
-        icon: icons.cart,
-        iconColor: "#9D28AC",
-        backgroundColor: "rgba(157, 40, 172, .12)",
-        onPress: ""
-    },
-    {
-        id: "8",
-        name: "Installment",
-        icon: icons.installment,
-        iconColor: "#FF5726",
-        backgroundColor: "rgba(255, 87, 38, .12)",
-        onPress: ""
-    }
+    { id: '1', name: 'LUKU', icon: icons.electricity, iconColor: '#FFD300', backgroundColor: 'rgba(255, 211, 0, .12)', onPress: 'PayBillsLUKU' },
+    { id: '2', name: 'Water', icon: icons.water, iconColor: '#1A96F0', backgroundColor: 'rgba(26, 150, 240, .12)', onPress: 'PayBillsWater' },
+    { id: '3', name: 'TRA', icon: icons.tax, iconColor: '#FF981F', backgroundColor: 'rgba(255, 152, 31, .12)', onPress: 'PayTRAPayments' },
+    { id: '4', name: 'NIDA', icon: icons.idCard, iconColor: '#673AB3', backgroundColor: 'rgba(103, 58, 179, .12)', onPress: 'PayNIDAFees' },
+    { id: '5', name: 'License', icon: icons.license, iconColor: '#3F51B2', backgroundColor: 'rgba(63, 81, 178, .12)', onPress: 'PayDrivingLicense' },
+    { id: '6', name: 'Immigration', icon: icons.passport, iconColor: '#9D28AC', backgroundColor: 'rgba(157, 40, 172, .12)', onPress: 'PayImmigration' },
+    { id: '7', name: 'Municipal', icon: icons.municipal, iconColor: '#FF5726', backgroundColor: 'rgba(255, 87, 38, .12)', onPress: 'PayMunicipal' },
+    { id: '9', name: 'NECTA', icon: icons.education, iconColor: '#00BCD3', backgroundColor: 'rgba(0, 188, 211, .12)', onPress: 'PayNECTA' },
+    { id: '10', name: 'School', icon: icons.school, iconColor: '#607D8A', backgroundColor: 'rgba(96, 125, 138, .12)', onPress: 'PaySchoolFees' },
+    { id: '11', name: 'Loan', icon: icons.loan, iconColor: '#FFC02D', backgroundColor: 'rgba(255, 192, 45, .12)', onPress: 'PayHESLB' },
+    { id: '12', name: 'Ferry', icon: icons.ferry, iconColor: '#EA1E61', backgroundColor: 'rgba(234, 30, 97, .12)', onPress: 'PayFerryTickets' },
+    { id: '13', name: 'Flight', icon: icons.flight, iconColor: '#22D3EE', backgroundColor: 'rgba(34, 211, 238, .12)', onPress: 'PayFlightTickets' },
 ];
 
 export const insuranceServices = [
-    {
-        id: "9",
-        name: "Health",
-        icon: icons.health,
-        iconColor: "#8BC255",
-        backgroundColor: "rgba(139, 194, 85, .12)",
-        onPress: ""
-    },
-    {
-        id: "10",
-        name: "Mobile",
-        icon: icons.mobile,
-        iconColor: "#00BCD3",
-        backgroundColor: "rgba(0, 188, 211, .12)",
-        onPress: ""
-    },
-    {
-        id: "11",
-        name: "Motor",
-        icon: icons.motor,
-        iconColor: "#7A5548",
-        backgroundColor: "rgba(122, 85, 72, .12)",
-        onPress: ""
-    },
-    {
-        id: "12",
-        name: "Car",
-        icon: icons.car,
-        iconColor: "#607D8A",
-        backgroundColor: "rgba(96, 125, 138, .12)",
-        onPress: ""
-    }
+    { id: '1', name: 'Health', icon: icons.health, iconColor: '#8BC255', backgroundColor: 'rgba(139, 194, 85, .12)', onPress: 'PayHealthInsurance' },
+    { id: '2', name: 'Motor', icon: icons.motor, iconColor: '#7A5548', backgroundColor: 'rgba(122, 85, 72, .12)', onPress: 'PayMotorInsurance' },
+    { id: '3', name: 'Life', icon: icons.life, iconColor: '#00BCD3', backgroundColor: 'rgba(0, 188, 211, .12)', onPress: 'PayLifeInsurance' },
+    { id: '4', name: 'Travel', icon: icons.flight, iconColor: '#22D3EE', backgroundColor: 'rgba(34, 211, 238, .12)', onPress: 'PayTravelInsurance' },
+    { id: '5', name: 'Property', icon: icons.property, iconColor: '#FFC02D', backgroundColor: 'rgba(255, 192, 45, .12)', onPress: 'PayPropertyInsurance' },
 ];
 
 export const optionServices = [
-    {
-        id: "13",
-        name: "Shopping",
-        icon: icons.shopping,
-        iconColor: "#FFC02D",
-        backgroundColor: "rgba(255, 192, 45, .12)",
-        onPress: ""
-    },
-    {
-        id: "14",
-        name: "Deals",
-        icon: icons.discount,
-        iconColor: "#EA1E61",
-        backgroundColor: "rgba(234, 30, 97, .12)",
-        onPress: ""
-    },
-    {
-        id: "15",
-        name: "Insurance",
-        icon: icons.insurance,
-        iconColor: "rgba(75,175,86,255)",
-        backgroundColor: "rgba(75,175,86,0.1)",
-        onPress: ""
-    },
-    {
-        id: "16",
-        name: "Invest",
-        icon: icons.activity,
-        iconColor: "rgba(1,151,137,255)",
-        backgroundColor: "rgba(1,151,137,0.1)",
-        onPress: ""
-    },
+    // Optionally add more, or leave empty for now
 ]
 export const allActivities = [
     {
